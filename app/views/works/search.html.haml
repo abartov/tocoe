@@ -1,0 +1,8 @@
+%h1 Pick a book to make a ToC for
+%p= 'Input a search string for Open Library'
+= form_tag works_search_path, :method => 'get', :id => 'works_search' do
+  = text_field_tag :search, params[:search]
+  = submit_tag 'Search', :name => nil 
+  #results
+    != render partial: 'results', locals: { :results => @results}
+%p 

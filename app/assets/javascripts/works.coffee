@@ -8,8 +8,8 @@ jQuery ->
     $.get(this.action, $(this).serialize(), null, 'script')
     false
   )
-  # Ajax search on keyup
-  $('#works_search input').keyup( ->
-    $.get($("#works_search").attr("action"), $("#works_search").serialize(), null, 'script')
-    false
-  )  
+#  # Ajax search on keyup
+#  $('#works_search input').keyup( ->
+#    $.get($("#works_search").attr("action"), $("#works_search").serialize(), null, 'script')
+#    false
+#  )  

@@ -1,5 +1,5 @@
 - unless @results.blank?
-  %table
+  %table{ class: 'table' }
     - @results.each do |book|
       %tr
         %td= "#{book[:key]}"

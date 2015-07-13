@@ -4,12 +4,12 @@
 
 jQuery ->
   # Ajax search on submit
-  $('#works_search').submit( ->
+  $('#publications_search').submit( ->
     $.get(this.action, $(this).serialize(), null, 'script')
     false
   )
 #  # Ajax search on keyup
-#  $('#works_search input').keyup( ->
-#    $.get($("#works_search").attr("action"), $("#works_search").serialize(), null, 'script')
+#  $('#publications_search input').keyup( ->
+#    $.get($("#publications_search").attr("action"), $("#publications_search").serialize(), null, 'script')
 #    false
 #  )  

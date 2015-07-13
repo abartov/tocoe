@@ -3,7 +3,11 @@
     - @results.each do |book|
       %tr
         %td= "#{book[:key]}"
-        %td= "#{book.title} / #{book.author_name} #{book.has_fulltext ? "[ebook]" : "metadata only"}"
-        %td= link_to 'Make ToC!', works_details_path(:params => {olkey: book[:key]})
+        %td= "#{book.title} / #{book.author_name}" 
+        %td
+          - if book.has_fulltext
+            = link_to 'Make ToC!', new_toc_path(:params => {book_uri: book[:key]})
+          - else
+            = '[metadata only]'
 - else
   = "Nothing found!"

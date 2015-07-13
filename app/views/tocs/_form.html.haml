@@ -1,0 +1,43 @@
+.row
+  #main{ class: 'col-xs-7'}
+    = form_for @toc do |f|
+      - if @toc.errors.any?
+        #error_explanation
+          %h2= "#{pluralize(@toc.errors.count, "error")} prohibited this toc from being saved:"
+          %ul
+            - @toc.errors.full_messages.each do |msg|
+              %li= msg
+      %table{class: 'table'}
+        %tr
+          .field
+            %td= f.label :book_uri
+            %td= f.text_field :book_uri
+        %tr
+          .field
+            %td= f.label :toc_body
+            %td= f.text_area :toc_body
+        %tr
+          .field
+            %td= f.label :status
+            %td= f.text_field :status
+        %tr
+          .field
+            %td= f.label :comments
+            %td= f.text_area :comments
+        %tr
+          .actions 
+            %td= f.submit 'Save'
+  #ocr{ class: 'col-xs-5'}
+    = form_tag({action: 'do_ocr'}, {remote: true}) do
+      %table{class: 'table'}
+        %tr
+          .field
+            %td= label_tag 'URLs of ToC page images'
+            %td= text_area_tag :ocr_images
+        %tr
+          .actions 
+            %td= submit_tag 'OCR into ToC box'
+        %tr
+          %td
+            #results
+            

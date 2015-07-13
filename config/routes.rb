@@ -1,12 +1,14 @@
 Rails.application.routes.draw do
+  resources :tocs
   get 'works/search'
 
   get 'works/details' => "works#details"
-
+ 
   get 'works/browse'
 
   get 'works/savetoc'
-
+  
+  post 'tocs/do_ocr' => "tocs#do_ocr"
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

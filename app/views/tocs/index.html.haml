@@ -1,0 +1,31 @@
+%h1 Listing tocs
+
+%table
+  %thead
+    %tr
+      %th Book uri
+      %th Toc body
+      %th Status
+      %th Contributor
+      %th Reviewer
+      %th Comments
+      %th
+      %th
+      %th
+
+  %tbody
+    - @tocs.each do |toc|
+      %tr
+        %td= toc.book_uri
+        %td= toc.toc_body
+        %td= toc.status
+        %td= toc.contributor_id
+        %td= toc.reviewer_id
+        %td= toc.comments
+        %td= link_to 'Show', toc
+        %td= link_to 'Edit', edit_toc_path(toc)
+        %td= link_to 'Destroy', toc, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Toc', new_toc_path

@@ -1,0 +1,24 @@
+%p#notice= notice
+
+%p
+  %b Book uri:
+  = @toc.book_uri
+%p
+  %b Toc body:
+  = @toc.toc_body
+%p
+  %b Status:
+  = @toc.status
+%p
+  %b Contributor:
+  = @toc.contributor_id
+%p
+  %b Reviewer:
+  = @toc.reviewer_id
+%p
+  %b Comments:
+  = @toc.comments
+
+= link_to 'Edit', edit_toc_path(@toc)
+\|
+= link_to 'Back', tocs_path

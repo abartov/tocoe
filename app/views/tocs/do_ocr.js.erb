@@ -1,1 +1,1 @@
-$("#results").html("<%= @results %>");
+$("#results").html("<%= escape_javascript(@results) %>");

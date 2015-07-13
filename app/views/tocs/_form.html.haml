@@ -15,7 +15,7 @@
         %tr
           .field
             %td= f.label :toc_body
-            %td= f.text_area :toc_body
+            %td= f.text_area :toc_body, rows:20, cols: 40, id: 'toc_area'
         %tr
           .field
             %td= f.label :status
@@ -36,8 +36,15 @@
             %td= text_area_tag :ocr_images
         %tr
           .actions 
-            %td= submit_tag 'OCR into ToC box'
+            %td= submit_tag 'Attempt OCR'
         %tr
           %td
             #results
-            
+        %tr
+          %td
+            = button_tag(type: 'button', id: 'paste_ocr') do
+              = '<-- paste to ToC textarea'
+:javascript
+  $('#paste_ocr').click(function() {
+    $('#toc_area').html($('#results').html());
+  });

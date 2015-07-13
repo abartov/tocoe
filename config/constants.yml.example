@@ -1,0 +1,10 @@
+# Enter your per-environment constants below
+
+development: &default
+  OCR_service: 'http://localhost:8080' # leave out the /ocr part
+
+production:
+  <<: *default
+  
+test:
+  <<: *default

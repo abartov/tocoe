@@ -1,3 +1,6 @@
+require 'uri'
+require 'httparty'
+
 class TocsController < ApplicationController
   before_action :set_toc, only: [:show, :edit, :update, :destroy]
 
@@ -83,6 +86,7 @@ class TocsController < ApplicationController
   private
     def get_ocr_from_service(url)
       res = ''
+      res += OpenOCR.get_ocr(url)
     end
     # Use callbacks to share common setup or constraints between actions.
     def set_toc
@@ -102,3 +106,13 @@ class TocsController < ApplicationController
      false
    end 
 end
+
+class OpenOCR
+  include HTTParty
+  base_uri AppConstants.OCR_service
+  def self.get_ocr(image_url)
+    self.post('/ocr', {body: {img_url: image_url, engine: 'tesseract'}.to_json , headers: {'Content-Type' => 'application/json'}})
+  end
+end
+
+

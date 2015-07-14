@@ -11,7 +11,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150714044828) do
+ActiveRecord::Schema.define(version: 20150714063156) do
+
+  create_table "expression_relationships", force: :cascade do |t|
+    t.integer  "exp1_id"
+    t.integer  "exp2_id"
+    t.string   "reltype"
+    t.integer  "creator_id"
+    t.integer  "reviewer_id"
+    t.string   "status"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "expression_relationships", ["creator_id"], name: "index_expression_relationships_on_creator_id"
+  add_index "expression_relationships", ["exp1_id"], name: "index_expression_relationships_on_exp1_id"
+  add_index "expression_relationships", ["exp2_id"], name: "index_expression_relationships_on_exp2_id"
+  add_index "expression_relationships", ["reviewer_id"], name: "index_expression_relationships_on_reviewer_id"
 
   create_table "expressions", force: :cascade do |t|
     t.string   "title"

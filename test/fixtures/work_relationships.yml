@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  work1_id: 
+  work2_id: 
+  reltype: MyString
+  creator_id: 
+  reviewer_id: 
+  status: MyString
+
+two:
+  work1_id: 
+  work2_id: 
+  reltype: MyString
+  creator_id: 
+  reviewer_id: 
+  status: MyString

@@ -1,0 +1,21 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: MyString
+  dates: MyString
+  title: MyString
+  affiliation: MyString
+  country: MyString
+  comment: MyText
+  viaf_id: 1
+  wikidata_q: 1
+
+two:
+  name: MyString
+  dates: MyString
+  title: MyString
+  affiliation: MyString
+  country: MyString
+  comment: MyText
+  viaf_id: 1
+  wikidata_q: 1

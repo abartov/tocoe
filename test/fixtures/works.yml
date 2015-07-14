@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  form: MyString
+  creation_date: MyString
+  comment: MyText
+  status: MyString
+  superseded_by: 1
+  wikidata_q: 1
+
+two:
+  title: MyString
+  form: MyString
+  creation_date: MyString
+  comment: MyText
+  status: MyString
+  superseded_by: 1
+  wikidata_q: 1

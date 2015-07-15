@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class WorksControllerTest < ActionController::TestCase
+class PublicationsControllerTest < ActionController::TestCase
   test "should get search" do
     get :search
     assert_response :success

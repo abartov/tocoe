@@ -1,2 +1,2 @@
-module WorksHelper
+module PublicationsHelper
 end

@@ -1,0 +1,31 @@
+Notes from FRBR Aggregates WG report:
+
+page 5: 
+- aggregate works, aggregating other works, e.g. being the "work" created by an anthology editor.
+- one aggregate manifestation embodies multiple expressions, but also embodies the aggreate expression of the aggregate work
+page 6:
+- augmentations are dependent works added to an independent work (forewords, introductions, etc.)
+
+absolutely needed:
++ work entity
+++ work<->work aggregation (for representing ToCs)
++ Manifestation (publication) as aggregate of Expressions and for pub. details
+
+Probably needed:
++ Expr entity
++ Person entity, to express authorships, translatorships (but what happens if those remain mere attributes for now?) (or a shell of an entity, a collection of foreign keys -- VIAF id, Wikidata Q number, ...)
+
+Probably not needed:
+- Subject entity (well, more probably a shell of an entity -- a collection of potential foreign keys -- LCSH id, Wikidata Q number, ...)
+
+Design notes
+============
+
+*Collections (e.g. anthologies, essay collections, journals) will be modeled as follows:
+**each article, essay, story, etc., is modeled with a Work and an Expression, completely independent of the Manifestation.
+**each such Work and Expression are additionally _components_ of an automatically-generated Work and Expression for the _collection_.  That aggregating Work and Expression are largely uninteresting.
+**each such work and Expression are _embodied_ by _the same_ Manifestation -- one Manifestation per collection
+**the _sequence_ of the works in the collection is expressed with the _sequence_number_ attribute of the Embodiment entity used to make the relationship between the Expression and the Manifestation.  It is thus possible to recreate the collections sequences "table of contents" by gathering all embodiments and sorting them by ascending sequence_number
+**the aggregating Expression only knows the individual expressions are its components, but doesn't know their sequence.
+**the aggregating Expression is embodied in the Manifestation as well, but with a nil (or zero?) sequence_number, so it's to be excluded from reconstructed tables of contents.
+

@@ -11,7 +11,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150714063156) do
+ActiveRecord::Schema.define(version: 20150715164948) do
+
+  create_table "embodiments", force: :cascade do |t|
+    t.integer  "expression_id"
+    t.integer  "manifestation_id"
+    t.string   "reltype"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.integer  "sequence_number"
+  end
+
+  add_index "embodiments", ["expression_id"], name: "index_embodiments_on_expression_id"
+  add_index "embodiments", ["manifestation_id"], name: "index_embodiments_on_manifestation_id"
 
   create_table "expression_relationships", force: :cascade do |t|
     t.integer  "exp1_id"
@@ -40,6 +52,21 @@ ActiveRecord::Schema.define(version: 20150714063156) do
 
   add_index "expressions", ["language"], name: "index_expressions_on_language"
   add_index "expressions", ["title"], name: "index_expressions_on_title"
+
+  create_table "manifestations", force: :cascade do |t|
+    t.string   "title"
+    t.string   "responsibility"
+    t.string   "edition"
+    t.string   "publisher"
+    t.string   "publication_date"
+    t.string   "publication_place"
+    t.string   "series_statement"
+    t.text     "comment"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  add_index "manifestations", ["title"], name: "index_manifestations_on_title"
 
   create_table "people", force: :cascade do |t|
     t.string   "name"

@@ -26,6 +26,7 @@ Design notes
 **each such Work and Expression are additionally _components_ of an automatically-generated Work and Expression for the _collection_.  That aggregating Work and Expression are largely uninteresting.
 **each such work and Expression are _embodied_ by _the same_ Manifestation -- one Manifestation per collection
 **the _sequence_ of the works in the collection is expressed with the _sequence_number_ attribute of the Embodiment entity used to make the relationship between the Expression and the Manifestation.  It is thus possible to recreate the collections sequences "table of contents" by gathering all embodiments and sorting them by ascending sequence_number
+***This is as _distinct_ from the sequence of component works within a work -- e.g. a sonnet sequence -- where the aggregation and sequence are part of the actual work, rather than of some later curatorial act by an anthologist or publisher.
 **the aggregating Expression only knows the individual expressions are its components, but doesn't know their sequence.
 **the aggregating Expression is embodied in the Manifestation as well, but with a nil (or zero?) sequence_number, so it's to be excluded from reconstructed tables of contents.
 

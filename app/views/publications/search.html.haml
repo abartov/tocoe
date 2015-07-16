@@ -8,5 +8,5 @@
       = text_field_tag :search, params[:search]
       = submit_tag 'Search', :name => nil 
       #results
-        != render partial: 'results', locals: { :results => @results}
+        != render partial: 'ol_results', locals: { :results => @results}
     %p 

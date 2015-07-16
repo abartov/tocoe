@@ -2,11 +2,11 @@
   %table{ class: 'table' }
     - @results.each do |book|
       %tr
-        %td= "#{book[:key]}"
+        %td= "#{book[:edition_key].first}"
         %td= "#{book.title} / #{book.author_name}" 
         %td
           - if book.has_fulltext
-            = link_to 'Make ToC!', new_toc_path(:params => {book_uri: book[:key]})
+            = link_to 'Make ToC!', new_toc_path(:params => {ol_book_id: book[:edition_key].first, from: :openlibrary})
           - else
             = '[metadata only]'
 - else

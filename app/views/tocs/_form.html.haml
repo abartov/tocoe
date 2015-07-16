@@ -10,11 +10,15 @@
       %table{class: 'table'}
         %tr
           .field
-            %td= f.label :book_uri
+            %td= f.label 'Book URI'
             %td= f.text_field :book_uri
         %tr
           .field
-            %td= f.label :toc_body
+            %td= f.label 'Authors'
+            %td= render partial: 'authors', locals: {:authors => @authors}
+        %tr
+          .field
+            %td= f.label 'Table of Contents markdown'
             %td= f.text_area :toc_body, rows:20, cols: 40, id: 'toc_area'
         %tr
           .field

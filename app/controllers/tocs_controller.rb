@@ -1,5 +1,6 @@
 require 'uri'
 require 'httparty'
+require 'rest-client'
 
 class TocsController < ApplicationController
   before_action :set_toc, only: [:show, :edit, :update, :destroy]
@@ -18,6 +19,14 @@ class TocsController < ApplicationController
   # GET /tocs/new
   def new
     @toc = Toc.new
+    case params[:from]
+      when 'openlibrary'
+        uri = "http://openlibrary.org/books/#{params[:ol_book_id]}"
+        @book = rest_get("#{uri}.json")
+        author_keys = @book['authors'].collect {|b| b['key']}
+        @authors = author_keys.map { |k| rest_get("http://openlibrary.org#{k}.json") }
+        @toc[:book_uri] = uri
+    end
   end
 
   # GET /tocs/1/edit

@@ -1,4 +1,4 @@
-require 'openlibrary'
+require 'openlibrary' # TODO: figure out how to search with the RESTful API, then ditch this
 
 class PublicationsController < ApplicationController
   @@olclient = Openlibrary::Client.new
@@ -6,7 +6,6 @@ class PublicationsController < ApplicationController
     unless params[:search].blank?
       @results = PublicationsController.olclient.search(params[:search])
       unless @results.blank?
-        logger.info "#{@results.length} results found:"
         @results.each {|r| logger.info "#{r.title} / #{r.author_name} #{r.has_fulltext ? "[ebook!]" : "metadata only"}"}
       end
     end

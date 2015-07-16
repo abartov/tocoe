@@ -1,4 +1,4 @@
-%h1= "New ToC for book #{params[:book_uri]}"
+%h1= "New ToC for book #{@book['title']} / #{@authors.map{|a| a['name']}.join(',')}"
 
 = render 'form'
 

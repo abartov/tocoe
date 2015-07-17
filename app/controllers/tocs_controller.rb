@@ -25,10 +25,21 @@ class TocsController < ApplicationController
         @book = rest_get("#{uri}.json")
         author_keys = @book['authors'].collect {|b| b['key']}
         @authors = author_keys.map { |k| rest_get("http://openlibrary.org#{k}.json") }
+        map_authors
         @toc[:book_uri] = uri
     end
   end
-
+  def map_authors
+    @authors.each_index { |i|
+      p = Person.find_by_openlibrary_id(@authors[i]['key'])
+      if p.nil?
+        # create a new Person and link to Open Library ID
+        p = Person.new(openlibrary_id: @authors[i]['key'], name: @authors[i]['name'])
+        p.save!
+      end
+      @authors[i]['person'] = p
+    }
+  end
   # GET /tocs/1/edit
   def edit
   end

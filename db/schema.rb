@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150715164948) do
+ActiveRecord::Schema.define(version: 20150717151208) do
 
   create_table "embodiments", force: :cascade do |t|
     t.integer  "expression_id"
@@ -77,10 +77,12 @@ ActiveRecord::Schema.define(version: 20150715164948) do
     t.text     "comment"
     t.integer  "viaf_id"
     t.integer  "wikidata_q"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+    t.string   "openlibrary_id"
   end
 
+  add_index "people", ["openlibrary_id"], name: "index_people_on_openlibrary_id"
   add_index "people", ["viaf_id"], name: "index_people_on_viaf_id"
   add_index "people", ["wikidata_q"], name: "index_people_on_wikidata_q"
 

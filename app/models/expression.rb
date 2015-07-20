@@ -3,7 +3,7 @@ class Expression < ActiveRecord::Base
 
   # work-expression relationships
   has_one :reification
-  has_one :work, through: :reifications
+  has_one :work, through: :reification
 
   # expression-person relationships
   has_many :realizations

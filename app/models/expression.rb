@@ -22,7 +22,17 @@ class Expression < ActiveRecord::Base
     rel = ExpressionRelationship.new(exp1_id: self.id, exp2_id: new_component.id, reltype: :aggregation) # TODO: add creator, status, etc.
     rel.save!
   end
-
+  def insert_after(new_successor)
+    current_successor = successor_expression
+    unless current_successor.nil? # link current_successor to this new_successor 
+      rel = ExpressionRelationship.where(exp2_id: current_successor.id, reltype: :sequence)
+      raise IntegrityError if rel.nil?
+      rel.work1_id = new_successor.id
+      rel.save!
+    end
+    rel = ExpressionRelationship.new(exp1_id: self.id, exp2_id: new_successor.id, reltype: :sequence)
+    rel.save!
+  end
   def component_expressions
     expression_relationships.where(reltype: :aggregation).collect { |rel| rel.exp2 }
   end

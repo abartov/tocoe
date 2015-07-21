@@ -27,6 +27,7 @@ class TocsController < ApplicationController
         @authors = author_keys.map { |k| rest_get("http://openlibrary.org#{k}.json") }
         map_authors
         @toc[:book_uri] = uri
+        @toc[:title] = @book['title']
     end
   end
   def map_authors
@@ -48,6 +49,7 @@ class TocsController < ApplicationController
   # POST /tocs.json
   def create
     @toc = Toc.new(toc_params)
+    @manifestation = process_toc(@toc['toc_body'])
 
     respond_to do |format|
       if @toc.save
@@ -104,6 +106,54 @@ class TocsController < ApplicationController
   end
 
   private
+    def process_toc(markdown)
+      level = 1
+      seqno = 1
+      prev_work = []
+      prev_expression = []
+      aggregating_work = Work.new(title: @toc['title'])
+      aggregating_expression = Expression.new(title: @toc['title'])
+      m = Manifestation.new(title: @toc['title']) # TODO: likewise
+      m.save!
+      emb = Embodiment.new(expression_id: aggregating_expression.id, manifestation_id: m.id, sequence_number: nil) # important that the aggregating expression's embodiment is nil
+      emb.save!
+      markdown.lines.each { |line|
+        # TODO: handle metadata lines
+        if line.strip =~ /^#+/ # works
+          new_level = $&.length
+          title = $'.strip
+          w = Work.new(title: title) # TODO: add other details if specified in metadata
+          w.save!
+          e = Expression.new(title: title) # TODO: likewise
+          e.save!
+          w.expressions << e
+          emb = Embodiment.new(expression_id: e.id, manifestation_id: m.id, sequence_number: seqno)
+          emb.save!
+          seqno += 1
+          if new_level == 1 # then this work is top level, under the aggregating work
+            aggregating_work.append_component(w) # aggregation
+            aggregating_expression.append_component(e) # aggregation
+          elsif new_level == level + 1 # work at sub-level of previous work
+            prev_work[level].append_component(w) # aggregation
+            prev_expression[level].append_component(e) # aggregation
+          elsif new_level == level # further work at this level that isn't 1
+            prev_work[level - 1].append_component(w) # aggregation
+            prev_expression[level - 1].append_component(e) # aggregation
+            prev_work[level].insert_after(w) # sequence
+            prev_expression[level].insert_after(e) # sequence
+          elsif new_level == level - 1 # back to a previous level that isn't 1
+            prev_work[level - 2].append_component(w) # aggregation
+            prev_expression[level - 2].append_component(e) # aggregation
+            prev_work[new_level].insert_after(w) # sequence
+            prev_expression[new_level].insert_after(e) # sequence
+          end  
+          level = new_level
+          prev_work[level] = w
+          prev_expression[level] = e
+        end # not expecting any other kind of line
+      }
+      return m
+    end
     def get_ocr_from_service(url)
       res = ''
       res += OpenOCR.get_ocr(url)

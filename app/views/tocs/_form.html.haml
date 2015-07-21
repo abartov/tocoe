@@ -14,6 +14,10 @@
             %td= f.text_field :book_uri
         %tr
           .field
+            %td= f.label 'Title'
+            %td= f.text_field :title
+        %tr
+          .field
             %td= f.label 'Authors'
             %td= render partial: 'authors', locals: {:authors => @authors}
         %tr

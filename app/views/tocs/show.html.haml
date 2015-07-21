@@ -5,7 +5,7 @@
   = @toc.book_uri
 %p
   %b Toc body:
-  = @toc.toc_body
+  != @toc.toc_body.gsub("\n",'<br/>') # TODO: make safe
 %p
   %b Status:
   = @toc.status

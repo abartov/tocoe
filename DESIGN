@@ -6,15 +6,6 @@ page 5:
 page 6:
 - augmentations are dependent works added to an independent work (forewords, introductions, etc.)
 
-absolutely needed:
-+ work entity
-++ work<->work aggregation (for representing ToCs)
-+ Manifestation (publication) as aggregate of Expressions and for pub. details
-
-Probably needed:
-+ Expr entity
-+ Person entity, to express authorships, translatorships (but what happens if those remain mere attributes for now?) (or a shell of an entity, a collection of foreign keys -- VIAF id, Wikidata Q number, ...)
-
 Probably not needed:
 - Subject entity (well, more probably a shell of an entity -- a collection of potential foreign keys -- LCSH id, Wikidata Q number, ...)
 
@@ -25,7 +16,7 @@ Design notes
 *Assorted Collections (e.g. anthologies, essay collections, journals) will be modeled as follows:
 **each article, essay, story, etc., is modeled with a Work and an Expression, completely independent of the Manifestation.
 **each such Work and Expression are additionally _components_ of an automatically-generated Work and Expression for the _collection_.  That aggregating Work and Expression are largely uninteresting.
-**each such work and Expression are _embodied_ by _the same_ Manifestation -- one Manifestation per collection
+**each such Expression is _embodied_ by _the same_ Manifestation -- one Manifestation per collection
 **the _sequence_ of the works in the collection is expressed with the _sequence_number_ attribute of the Embodiment entity used to make the relationship between the Expression and the Manifestation.  It is thus possible to recreate the collections sequences "table of contents" by gathering all embodiments and sorting them by ascending sequence_number
 ***This is as _distinct_ from the sequence of component works within a work -- e.g. a sonnet sequence -- where the aggregation and sequence are part of the actual work, rather than of some later curatorial act by an anthologist or publisher.
 **the aggregating Expression only knows the individual expressions are its components, but doesn't know their sequence.
@@ -58,12 +49,14 @@ For a Table of Content that looks like this:
 Acknowledgments
 Preface
 Introduction: The Artist as Thinker
+Part 1: Monet
 Monet and His Contemporaries
 The Salon of 1897:
   1. The Submissions
   2. The Exhibition
   3. The Aftermath
 Impressionism or Bad Art?
+Part 2: Revolution
 Rivals and Reviewers
 Taking a Stand
 Afterword

@@ -14,6 +14,15 @@ class Expression < ActiveRecord::Base
   has_many :reverse_expression_relationships, class_name: :ExpressionRelationship, foreign_key: :exp2_id, dependent: :destroy
   has_many :related_expressions, through: :expression_relationships, source: :exp2
 
+  # expression-mainfestation relationships
+  has_many :embodiments
+  has_many :manifestations, :through => :embodiments
+ 
+  def append_component(new_component)
+    rel = ExpressionRelationship.new(exp1_id: self.id, exp2_id: new_component.id, reltype: :aggregation) # TODO: add creator, status, etc.
+    rel.save!
+  end
+
   def component_expressions
     expression_relationships.where(reltype: :aggregation).collect { |rel| rel.exp2 }
   end
@@ -21,10 +30,18 @@ class Expression < ActiveRecord::Base
     reverse_expression_relationships.where(reltype: :aggregation).collect { |rel| rel.exp1 }
   end
   def successor_expression
-    expression_relationships.where(reltype: :sequence).collect { |rel| rel.exp2 }
+    ret = expression_relationships.where(reltype: :sequence).first
+    unless ret.nil?
+      ret = ret.exp2
+    end
+    return ret
   end
   def predecessor_expression
-    reverse_expression_relationships.where(reltype: :sequence).collect { |rel| rel.exp1 }
+    ret = reverse_expression_relationships.where(reltype: :sequence).first
+    unless ret.nil?
+      ret = ret.exp1
+    end
+    return ret
   end
 
   # insert exp after self

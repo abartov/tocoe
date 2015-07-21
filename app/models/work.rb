@@ -33,10 +33,18 @@ class Work < ActiveRecord::Base
     reverse_work_relationships.where(reltype: :aggregation).collect { |rel| rel.work1 }
   end
   def successor_work
-    work_relationships.where(reltype: :sequence).first
+    ret = work_relationships.where(reltype: :sequence).first
+    unless ret.nil?
+      ret = ret.work2
+    end
+    return ret
   end
   def predecessor_work
-    reverse_work_relationships.where(reltype: :sequence).first
+    ret = reverse_work_relationships.where(reltype: :sequence).first
+    unless ret.nil?
+      ret = ret.work1
+    end
+    return ret
   end
   
   # work-work relationships not implemented for now: Equivalent; Derivative; Descriptive (review, criticism, annotated edition, exegesis), Companion (supplements, auxiliary materials like maps or companion CDs)

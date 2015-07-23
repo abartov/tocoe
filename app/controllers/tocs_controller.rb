@@ -43,6 +43,7 @@ class TocsController < ApplicationController
 
   # GET /tocs/1/edit
   def edit
+    get_authors(@toc.book_uri)
   end
 
   # POST /tocs
@@ -108,13 +109,16 @@ class TocsController < ApplicationController
   protected
 
   def new_from_openlibrary
-    uri = "http://openlibrary.org/books/#{params[:ol_book_id]}"
+    @toc.book_uri = "http://openlibrary.org/books/#{params[:ol_book_id]}"
+    get_authors(@toc.book_uri)
+    @toc.title = @book['title']
+  end
+
+  def get_authors(uri)
     @book = rest_get("#{uri}.json")
     author_keys = @book['authors'].collect { |b| b['key'] }
     @authors = author_keys.map { |k| rest_get("http://openlibrary.org#{k}.json") }
     map_authors
-    @toc.book_uri = uri
-    @toc.title = @book['title']
   end
 
   # rubocop:disable Metrics/AbcSize, Metrics/MethodLength

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150717151208) do
+ActiveRecord::Schema.define(version: 20150722063655) do
 
   create_table "embodiments", force: :cascade do |t|
     t.integer  "expression_id"
@@ -124,12 +124,15 @@ ActiveRecord::Schema.define(version: 20150717151208) do
     t.integer  "contributor_id"
     t.integer  "reviewer_id"
     t.text     "comments"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.integer  "manifestation_id"
+    t.string   "title"
   end
 
   add_index "tocs", ["book_uri"], name: "index_tocs_on_book_uri", unique: true
   add_index "tocs", ["contributor_id"], name: "index_tocs_on_contributor_id"
+  add_index "tocs", ["manifestation_id"], name: "index_tocs_on_manifestation_id"
   add_index "tocs", ["reviewer_id"], name: "index_tocs_on_reviewer_id"
 
   create_table "work_relationships", force: :cascade do |t|

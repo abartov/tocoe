@@ -1,0 +1,21 @@
+AllCops:
+  RunRailsCops: true
+  Include:
+    - '**/Rakefile'
+    - '**/config.ru'
+  Exclude:
+    - 'db/**/*'
+    - 'config/**/*'
+    - 'script/**/*'
+    - 'Gemfile'
+    - 'lib/tasks/cucumber.rake'
+    - !ruby/regexp /old_and_unused\.rb$/
+
+# other configuration
+Metrics/LineLength:
+  Max: 150
+Metrics/MethodLength:
+  Max: 20
+Metrics/AbcSize:
+  Max: 20
+# ...

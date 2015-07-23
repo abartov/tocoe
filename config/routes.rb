@@ -1,13 +1,17 @@
 Rails.application.routes.draw do
+  get 'manifestations/show'
+
+  get 'manifestations/approve'
+
   resources :tocs
   get 'publications/search'
 
   get 'publications/details' => "publications#details"
- 
+
   get 'publications/browse'
 
   get 'publications/savetoc'
-  
+
   post 'tocs/do_ocr' => "tocs#do_ocr"
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

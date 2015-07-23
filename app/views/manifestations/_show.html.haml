@@ -1,0 +1,6 @@
+%h1= manifestation.title
+%ol
+  - manifestation.embodiments.order(sequence_number: :asc).each do |emb|
+    - next if emb.sequence_number.nil? # title of aggregating expression already provided in manifestation
+    %li= emb.expression.title
+

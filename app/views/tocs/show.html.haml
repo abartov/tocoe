@@ -1,8 +1,8 @@
 %p#notice= notice
 
 %p
-  %b Book uri:
-  = @toc.book_uri
+  %b Book title and URI:
+  = "#{@toc.title} - #{@toc.book_uri}"
 %p
   %b Toc body:
   != @toc.toc_body.gsub("\n",'<br/>') # TODO: make safe
@@ -18,7 +18,8 @@
 %p
   %b Comments:
   = @toc.comments
-
+%hr
+= render partial: 'manifestations/show', locals: { manifestation: @manifestation }
 = link_to 'Edit', edit_toc_path(@toc)
 \|
 = link_to 'Back', tocs_path

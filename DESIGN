@@ -1,6 +1,6 @@
 Notes from FRBR Aggregates WG report:
 
-page 5: 
+page 5:
 - aggregate works, aggregating other works, e.g. being the "work" created by an anthology editor.
 - one aggregate manifestation embodies multiple expressions, but also embodies the aggreate expression of the aggregate work
 page 6:
@@ -33,7 +33,7 @@ Example:
 
 2. section/part names or title pages are ignored.  (TODO: maybe denote with markdown but not create entities for?)
 
-3. work that is component of other work is denoted by lines starting wiht ## (or ### if further nested)
+3. work that is a component of other work is denoted by lines starting with ## (or ### if further nested)
 Example:
 # Ducks in Winter
 ## Ducks of Glory
@@ -42,9 +42,18 @@ Example:
 
 4. front matter is to be treated as follows: items called "Acknowledgments", "Preface", "Foreword", "From the Author", "Dedication" etc. are ignored and not cataloged at all.  Items titled "Introduction" or "Introduction: <some descriptive name>" (i.e. essentially an introductory essay, and not a mere preface) are to be cataloged like all other works.  Likewise, afterwords are to be ignored when less than a full essay.
 
-Integrated example:
+5. An individual work's author(s) are specified after the work title and the combination '||'. Multiple authors are to be separated by semicolons.
+Example 1: Hamlet || William Shakespeare
+Example 2: Metaphors We Live By || George Lakoff; Mark Johnson
 
-For a Table of Content that looks like this:
+6. If no individual author is specified, the book's principal author(s) are linked with each work and expression
+
+7. TBD: translators (expressions) vs. original authors (works)
+
+Integrated examples:
+====================
+
+1. For a Table of Content (by a single author) that looks like this:
 
 Acknowledgments
 Preface
@@ -74,5 +83,24 @@ TODO: Metadata TBD
 #Impressionism or Bad Art?
 #Rivals and Reviewers
 #Taking a Stand
+
+2. For a ToC of an anthology that looks like this:
+
+Preface
+Introduction: Modern Approaches To Plato.......Stephen J. Someone
+Plato, Founder of Totalitarianism..............Deborah K. Someone
+Rhetoric in Plato's Political Thought..........Susan L. Someone
+Plato's Good Questions and Bad Answers.........E. R. Someone and Joy Someone
+Poets as Dissidents............................Jason R. Someone
+Conclusion: Plato's Relevance Today............Stephen J. Someone
+
+The markdown would look like this:
+
+#Introduction: Modern Approaches To Plato || Stephen J. Someone
+#Plato, Founder of Totalitarianism || Deborah K. Someone
+#Rhetoric in Plato's Political Thought || Susan L. Someone
+#Plato's Good Questions and Bad Answers || E. R. Someone; Joy Someone
+#Poets as Dissidents || Jason R. Someone
+#Conclusion: Plato's Relevance Today || Stephen J. Someone
 
 

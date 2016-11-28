@@ -42,7 +42,8 @@ Example:
 ## Ducks of Misery
 ## Ducks of Navarone
 
-5. section/part names are listed as lines starting with # but ending with a slash (/)  The slash serves as a signifier of not being a work, but merely an organizing title.  No entities would be created for it.
+5. section/part names are listed as lines starting with # but ending with a slash (/)  The slash serves as a signifier of not being a work, but merely an organizing title.  No entities would be created for it.  For example:
+# Part I: 17th Century Sculpture /
 
 6. An individual work's author(s) are specified after the work title and the combination '||'. Multiple authors are to be separated by semicolons.
 Example 1: Hamlet || William Shakespeare
@@ -77,12 +78,14 @@ The markdown would look like this:
 TODO: Metadata TBD
 
 #Introduction: The Artist as Thinker
+#Part 1: Monet /
 #Monet and His Contemporaries
 #The Salon of 1897
 ##The Submissions
 ##The Exhibition
 ##The Aftermath
 #Impressionism or Bad Art?
+#Part 2: Revolution /
 #Rivals and Reviewers
 #Taking a Stand
 

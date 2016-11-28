@@ -31,24 +31,26 @@ Metadata fields: TBD
 Example:
 # On Dreaming
 
-2. section/part names or title pages are ignored.  (TODO: maybe denote with markdown but not create entities for?)
+2. title pages are ignored.  (TODO: maybe denote with markdown but not create entities for?)
 
-3. work that is a component of other work is denoted by lines starting with ## (or ### if further nested)
+3. front matter is to be treated as follows: items called "Acknowledgments", "Preface", "Foreword", "From the Author", "Dedication" etc. are ignored and not cataloged at all.  Items titled "Introduction" or "Introduction: <some descriptive name>" (i.e. essentially an introductory essay, and not a mere preface) are to be cataloged like all other works.  Likewise, afterwords are to be ignored when less than a full essay.
+
+4. work that is a component of other work is denoted by lines starting with ## (or ### if further nested)
 Example:
 # Ducks in Winter
 ## Ducks of Glory
 ## Ducks of Misery
 ## Ducks of Navarone
 
-4. front matter is to be treated as follows: items called "Acknowledgments", "Preface", "Foreword", "From the Author", "Dedication" etc. are ignored and not cataloged at all.  Items titled "Introduction" or "Introduction: <some descriptive name>" (i.e. essentially an introductory essay, and not a mere preface) are to be cataloged like all other works.  Likewise, afterwords are to be ignored when less than a full essay.
+5. section/part names are listed as lines starting with # but ending with a slash (/)  The slash serves as a signifier of not being a work, but merely an organizing title.  No entities would be created for it.
 
-5. An individual work's author(s) are specified after the work title and the combination '||'. Multiple authors are to be separated by semicolons.
+6. An individual work's author(s) are specified after the work title and the combination '||'. Multiple authors are to be separated by semicolons.
 Example 1: Hamlet || William Shakespeare
 Example 2: Metaphors We Live By || George Lakoff; Mark Johnson
 
-6. If no individual author is specified, the book's principal author(s) are linked with each work and expression
+7. If no individual author is specified, the book's principal author(s) are linked with each work and expression
 
-7. TBD: translators (expressions) vs. original authors (works)
+8. TBD: translators (expressions) vs. original authors (works)
 
 Integrated examples:
 ====================

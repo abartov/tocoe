@@ -1,3 +1,6 @@
+# based on this code by @tylercrocker - https://github.com/jayfajardo/openlibrary/issues/36#issuecomment-1087102052
+# further adapted to our needs by Asaf Bartov @abartov
+
 class OpenLibrary::Client
   API_URL = 'https://openlibrary.org'
 
@@ -30,6 +33,8 @@ class OpenLibrary::Client
     q << "author=#{CGI.escape(author)}" unless author.blank?
     q << "title=#{CGI.escape(title)}" unless title.blank?
     q << "has_fulltext=true" if has_fulltext
+    # Request edition information including key, language, and ebook_access
+    q << "fields=*,editions,editions.key,editions.language,editions.ebook_access"
     request("/search.json?#{q.join('&')}")
   end
 end

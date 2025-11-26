@@ -8,9 +8,11 @@
         %th Action
     %tbody
       - @results.each do |book|
+        - edition = book.dig('editions', 'docs')&.first
+        - edition_key = edition&.dig('key')&.split('/')&.last
         %tr
           %td
-            %code= "#{book[:edition_key]&.first}"
+            %code= edition_key || book['key']
           %td
             %strong= book['title']
             %br
@@ -26,8 +28,10 @@
             - else
               %span.label.label-default Metadata Only
           %td
-            - if book['has_fulltext'] && book['ebook_access'] == 'public'
-              = link_to 'Make ToC!', new_toc_path(:params => {ol_book_id: book[:edition_key].first, from: :openlibrary}), class: 'btn btn-sm btn-primary'
+            - if book['has_fulltext'] && book['ebook_access'] == 'public' && edition_key
+              = link_to 'Make ToC!', new_toc_path(:params => {ol_book_id: edition_key, from: :openlibrary}), class: 'btn btn-sm btn-primary'
+            - elsif !edition_key
+              %span.text-muted No edition available
             - else
               %span.text-muted No full-text
 - else

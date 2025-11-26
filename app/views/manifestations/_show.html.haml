@@ -1,4 +1,26 @@
 %h1= manifestation.title
+
+-# Show aboutnesses for the main embodiment (sequence_number: nil)
+- main_embodiment = manifestation.embodiments.find_by(sequence_number: nil)
+- if main_embodiment
+  .panel.panel-default
+    .panel-heading
+      %h3.panel-title Subject Headings
+    .panel-body
+      - if main_embodiment.aboutnesses.any?
+        %ul.list-unstyled
+          - main_embodiment.aboutnesses.each do |aboutness|
+            %li
+              %span.label.label-info= aboutness.source_name
+              = aboutness.subject_heading_label
+              %small.text-muted
+                = link_to aboutness.subject_heading_uri, aboutness.subject_heading_uri, target: '_blank'
+      - else
+        %p.text-muted No subject headings assigned yet.
+      %p
+        = link_to 'Manage Subject Headings', embodiment_aboutnesses_path(main_embodiment), class: 'btn btn-sm btn-primary'
+
+%h2 Table of Contents
 %ol
   - manifestation.embodiments.order(sequence_number: :asc).each do |emb|
     - next if emb.sequence_number.nil? # title of aggregating expression already provided in manifestation

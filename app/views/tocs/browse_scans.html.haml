@@ -1,0 +1,100 @@
+%h1= "Browse Scans: #{@toc.title}"
+
+%p
+  Viewing pages
+  = (@current_page - 1) * @page_size + 1
+  to
+  = [@current_page * @page_size, @metadata[:imagecount]].min
+  of
+  = @metadata[:imagecount]
+
+= form_tag mark_pages_toc_path(@toc), method: :post, id: 'mark_pages_form' do
+  .row
+    .col-md-12
+      .alert.alert-info
+        %strong Instructions:
+        Check the boxes next to pages that contain table of contents information.
+        If this book has no explicit table of contents, check the box below.
+
+  .row
+    .col-md-12
+      .form-check.mb-3
+        = check_box_tag 'no_explicit_toc', '1', @toc.no_explicit_toc, class: 'form-check-input', id: 'no_explicit_toc'
+        = label_tag 'no_explicit_toc', 'No explicit table of contents', class: 'form-check-label'
+
+  .row.scan-grid
+    - @pages.each do |page_data|
+      .col-md-3.col-sm-4.col-xs-6.scan-page{ data: { page: page_data[:page_number] } }
+        .card.mb-3
+          = image_tag page_data[:thumb_url], class: 'card-img-top', alt: "Page #{page_data[:page_number]}", data: { full_url: page_data[:url] }
+          .card-body
+            .form-check
+              = check_box_tag "marked_pages[]", page_data[:url], @marked_pages.include?(page_data[:url]), class: 'form-check-input page-checkbox', id: "page_#{page_data[:page_number]}"
+              = label_tag "page_#{page_data[:page_number]}", "Page #{page_data[:page_number]}", class: 'form-check-label'
+            %a.btn.btn-sm.btn-link{ href: page_data[:url], target: '_blank' }
+              View Full Size
+
+  .row
+    .col-md-12
+      %nav{ aria: { label: 'Page navigation' } }
+        %ul.pagination
+          - if @current_page > 1
+            %li.page-item
+              = link_to 'Previous', browse_scans_toc_path(@toc, page: @current_page - 1), class: 'page-link'
+          - else
+            %li.page-item.disabled
+              %span.page-link Previous
+
+          - ([1, @current_page - 2].max..[[@current_page + 2, @total_pages].min].min).each do |page_num|
+            - if page_num == @current_page
+              %li.page-item.active
+                %span.page-link= page_num
+            - else
+              %li.page-item
+                = link_to page_num, browse_scans_toc_path(@toc, page: page_num), class: 'page-link'
+
+          - if @current_page < @total_pages
+            %li.page-item
+              = link_to 'Next', browse_scans_toc_path(@toc, page: @current_page + 1), class: 'page-link'
+          - else
+            %li.page-item.disabled
+              %span.page-link Next
+
+  .row.mt-3
+    .col-md-12
+      = submit_tag 'Save Marked Pages', class: 'btn btn-primary'
+      = link_to 'Cancel', @toc, class: 'btn btn-secondary'
+
+:css
+  .scan-grid .card {
+    min-height: 300px;
+  }
+  .scan-grid .card-img-top {
+    height: 200px;
+    object-fit: contain;
+    background-color: #f8f9fa;
+  }
+  .scan-page {
+    margin-bottom: 1rem;
+  }
+
+:javascript
+  // Disable all checkboxes when "no explicit TOC" is checked
+  document.getElementById('no_explicit_toc').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.page-checkbox');
+    checkboxes.forEach(function(checkbox) {
+      checkbox.disabled = this.checked;
+      if (this.checked) {
+        checkbox.checked = false;
+      }
+    }.bind(this));
+  });
+
+  // If any page checkbox is checked, uncheck "no explicit TOC"
+  document.querySelectorAll('.page-checkbox').forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+      if (this.checked) {
+        document.getElementById('no_explicit_toc').checked = false;
+      }
+    });
+  });

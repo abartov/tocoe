@@ -5,7 +5,7 @@ require 'rest-client'
 # Tables of Contents controller
 # rubocop:disable ClassLength
 class TocsController < ApplicationController
-  before_action :set_toc, only: [:show, :edit, :update, :destroy]
+  before_action :set_toc, only: [:show, :edit, :update, :destroy, :browse_scans, :mark_pages]
 
   # GET /tocs
   # GET /tocs.json
@@ -103,6 +103,76 @@ class TocsController < ApplicationController
         next unless url =~ /\S/
         @results += get_ocr_from_service(url) + "\n\n"
       end
+    end
+  end
+
+  # GET /tocs/:id/browse_scans
+  # Display book page scans for user to identify TOC pages
+  def browse_scans
+    # Extract OpenLibrary book ID from book_uri
+    if @toc.book_uri =~ %r{openlibrary\.org/books/([A-Z0-9]+)}i
+      ol_book_id = $1
+    else
+      flash[:error] = 'Invalid OpenLibrary book URI'
+      redirect_to @toc and return
+    end
+
+    # Initialize OpenLibrary client
+    ol_client = OpenLibrary::Client.new
+
+    # Get Internet Archive identifier
+    @ia_id = ol_client.ia_identifier(ol_book_id)
+    unless @ia_id
+      flash[:error] = 'No scans available for this book'
+      redirect_to @toc and return
+    end
+
+    # Get metadata to determine page count
+    @metadata = ol_client.ia_metadata(@ia_id)
+    unless @metadata && @metadata[:imagecount]
+      flash[:error] = 'Unable to fetch scan metadata'
+      redirect_to @toc and return
+    end
+
+    # Pagination parameters
+    @page_size = 20 # Show 20 pages at a time
+    @current_page = (params[:page] || 1).to_i
+    @total_pages = (@metadata[:imagecount].to_f / @page_size).ceil
+
+    # Calculate page range
+    start_page = (@current_page - 1) * @page_size
+    end_page = [start_page + @page_size - 1, @metadata[:imagecount] - 1].min
+
+    # Get page images for current pagination window
+    @pages = ol_client.ia_page_images(@ia_id, start_page: start_page, end_page: end_page)
+
+    # Parse already marked pages if any
+    @marked_pages = parse_marked_pages(@toc.toc_page_urls)
+  end
+
+  # POST /tocs/:id/mark_pages
+  # Save the marked TOC pages
+  def mark_pages
+    marked_page_urls = params[:marked_pages] || []
+    no_explicit_toc = params[:no_explicit_toc] == '1'
+
+    # Validate: must have either marked pages OR no_explicit_toc
+    if marked_page_urls.empty? && !no_explicit_toc
+      flash[:error] = 'Please mark at least one page or check "No explicit table of contents"'
+      redirect_to browse_scans_toc_path(@toc) and return
+    end
+
+    # Store marked pages as newline-separated URLs
+    @toc.toc_page_urls = marked_page_urls.join("\n") unless marked_page_urls.empty?
+    @toc.no_explicit_toc = no_explicit_toc
+    @toc.status = :pages_marked
+
+    if @toc.save
+      flash[:notice] = 'TOC pages marked successfully'
+      redirect_to @toc
+    else
+      flash[:error] = 'Failed to save marked pages'
+      redirect_to browse_scans_toc_path(@toc)
     end
   end
 
@@ -274,6 +344,13 @@ class TocsController < ApplicationController
   def add_components(container_work, container_expression, component_work, component_expression)
     container_work.append_component(component_work)
     container_expression.append_component(component_expression)
+  end
+
+  # Parse stored toc_page_urls into array
+  # Returns array of URLs, or empty array if nil/blank
+  def parse_marked_pages(toc_page_urls)
+    return [] if toc_page_urls.blank?
+    toc_page_urls.split("\n").map(&:strip).reject(&:blank?)
   end
 end
 

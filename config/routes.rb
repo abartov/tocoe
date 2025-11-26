@@ -5,7 +5,12 @@ Rails.application.routes.draw do
 
   get 'manifestations/approve'
 
-  resources :tocs
+  resources :tocs do
+    member do
+      get :browse_scans
+      post :mark_pages
+    end
+  end
   get 'publications/search'
 
   get 'publications/details' => "publications#details"

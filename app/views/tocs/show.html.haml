@@ -9,6 +9,14 @@
 %p
   %b Status:
   = @toc.status
+- if @toc.toc_page_urls.present?
+  %p
+    %b Marked TOC Pages:
+    = @toc.toc_page_urls.split("\n").count
+    pages
+- if @toc.no_explicit_toc
+  %p
+    %b No explicit table of contents
 %p
   %b Contributor:
   = @toc.contributor_id
@@ -20,6 +28,7 @@
   = @toc.comments
 %hr
 = render partial: 'manifestations/show', locals: { manifestation: @manifestation }
+= link_to 'Browse Scans', browse_scans_toc_path(@toc), class: 'btn btn-primary'
 = link_to 'Edit', edit_toc_path(@toc)
 \|
 = link_to 'Back', tocs_path

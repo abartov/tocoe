@@ -210,6 +210,68 @@ bundle exec rspec spec/models/work_spec.rb
 bundle exec rspec spec/controllers/tocs_controller_spec.rb
 ```
 
+## Git Workflow with Beads
+
+This project uses the Beads issue tracker which integrates with git. **CRITICAL**: Follow this exact workflow to ensure proper commit messages.
+
+### Correct Workflow for Committing Code
+
+When you complete work on a task:
+
+1. **Stage your code changes**:
+   ```bash
+   git add <files>
+   ```
+
+2. **Commit your code changes with a descriptive message**:
+   ```bash
+   git commit -m "$(cat <<'EOF'
+   Your descriptive commit message here
+
+   - Bullet point 1
+   - Bullet point 2
+
+   🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+   Co-Authored-By: Claude <noreply@anthropic.com>
+   EOF
+   )"
+   ```
+
+3. **Close the beads issue** (if applicable):
+   ```bash
+   bd close <issue-id>
+   ```
+
+4. **Sync beads changes** (this will commit beads.jsonl):
+   ```bash
+   bd sync
+   ```
+
+5. **Push all commits to remote**:
+   ```bash
+   git push
+   ```
+
+### IMPORTANT: What NOT to Do
+
+❌ **NEVER stage code changes and then run `bd sync` without committing first**
+
+This is wrong:
+```bash
+git add <files>
+bd sync  # This will commit your code with "bd sync: [timestamp]"
+```
+
+The `bd sync` command commits any staged changes to git, so if you stage your code and then run `bd sync`, your code will be committed with a generic "bd sync: [timestamp]" message instead of your descriptive commit message.
+
+### Why This Matters
+
+- Descriptive commit messages help understand the project history
+- They explain what changed and why
+- Generic "bd sync" messages provide no context
+- Code review and debugging are harder with poor commit messages
+
 ## Important Notes
 
 - The aggregating Expression for a collection has a `nil` sequence_number in its Embodiment to exclude it from reconstructed tables of contents

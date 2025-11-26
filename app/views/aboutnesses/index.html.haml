@@ -1,2 +1,13 @@
--# Placeholder view for testing - full implementation in tocoe-ubh
-%h1 Aboutnesses
+%h1 Subject Headings
+%p Manage subject headings for this publication
+
+.row
+  .col-xs-12
+    %h2 Current Subject Headings
+    - if @aboutnesses.any?
+      = render 'list', aboutnesses: @aboutnesses
+    - else
+      %p.text-muted No subject headings assigned yet.
+
+    %p
+      = link_to 'Add Subject Heading', new_embodiment_aboutness_path(@embodiment), class: 'btn btn-primary'

@@ -1,0 +1,19 @@
+%table.table.table-striped
+  %thead
+    %tr
+      %th Source
+      %th Subject Heading
+      %th URI
+      %th Actions
+  %tbody
+    - aboutnesses.each do |aboutness|
+      %tr
+        %td
+          %span.label.label-info= aboutness.source_name
+        %td= aboutness.subject_heading_label
+        %td
+          %a{ href: aboutness.subject_heading_uri, target: '_blank' }
+            = aboutness.subject_heading_uri
+            %span.glyphicon.glyphicon-new-window{ 'aria-hidden' => 'true' }
+        %td
+          = link_to 'Remove', aboutness_path(aboutness), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger btn-xs'

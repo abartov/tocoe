@@ -1,2 +1,91 @@
--# Placeholder view for testing - full implementation in tocoe-ubh
-%h1 New Aboutness
+%h1 Add Subject Heading
+%p Search for and select a subject heading to associate with this publication
+
+.row
+  .col-xs-12
+    .form-group
+      = label_tag :source, 'Cataloging Source:'
+      = select_tag :source, options_for_select([['Library of Congress Subject Headings', 'LCSH'], ['Wikidata', 'Wikidata']], 'LCSH'), class: 'form-control', id: 'source_select'
+
+    .form-group
+      = label_tag :query, 'Search:'
+      .input-group
+        = text_field_tag :query, '', class: 'form-control', placeholder: 'Enter search term...', id: 'search_query'
+        %span.input-group-btn
+          = button_tag 'Search', type: 'button', class: 'btn btn-primary', id: 'search_button'
+
+    #search_results
+      -# Search results will be loaded here via AJAX
+
+    = form_for [@embodiment, @aboutness], html: { id: 'aboutness_form', style: 'display:none;' } do |f|
+      = f.hidden_field :subject_heading_uri, id: 'selected_uri'
+      = f.hidden_field :source_name, id: 'selected_source'
+      = f.hidden_field :subject_heading_label, id: 'selected_label'
+      = f.submit 'Add Subject Heading', class: 'btn btn-success'
+
+    %p
+      = link_to 'Back', embodiment_aboutnesses_path(@embodiment), class: 'btn btn-default'
+
+:javascript
+  $(document).ready(function() {
+    $('#search_button').click(function() {
+      var source = $('#source_select').val();
+      var query = $('#search_query').val();
+
+      if (!query) {
+        alert('Please enter a search term');
+        return;
+      }
+
+      $.ajax({
+        url: '#{search_embodiment_aboutnesses_path(@embodiment)}',
+        type: 'POST',
+        data: { source: source, query: query },
+        dataType: 'json',
+        beforeSend: function() {
+          $('#search_results').html('<p class="text-muted">Searching...</p>');
+        },
+        success: function(data) {
+          if (data.length === 0) {
+            $('#search_results').html('<p class="text-muted">No results found.</p>');
+          } else {
+            var html = '<h3>Search Results</h3><div class="list-group">';
+            $.each(data, function(index, result) {
+              html += '<a href="#" class="list-group-item result-item" data-uri="' + result.uri + '" data-label="' + result.label + '" data-source="' + source + '">';
+              html += '<h4 class="list-group-item-heading">' + result.label + '</h4>';
+              html += '<p class="list-group-item-text"><small>' + result.uri + '</small></p>';
+              html += '</a>';
+            });
+            html += '</div>';
+            $('#search_results').html(html);
+          }
+        },
+        error: function() {
+          $('#search_results').html('<p class="text-danger">Error performing search. Please try again.</p>');
+        }
+      });
+    });
+
+    $(document).on('click', '.result-item', function(e) {
+      e.preventDefault();
+      var uri = $(this).data('uri');
+      var label = $(this).data('label');
+      var source = $(this).data('source');
+
+      $('#selected_uri').val(uri);
+      $('#selected_label').val(label);
+      $('#selected_source').val(source);
+
+      $('.result-item').removeClass('active');
+      $(this).addClass('active');
+
+      $('#aboutness_form').show();
+    });
+
+    $('#search_query').keypress(function(e) {
+      if (e.which === 13) {
+        e.preventDefault();
+        $('#search_button').click();
+      }
+    });
+  });

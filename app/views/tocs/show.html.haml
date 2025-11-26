@@ -5,7 +5,7 @@
   = "#{@toc.title} - #{@toc.book_uri}"
 %p
   %b Toc body:
-  != @toc.toc_body.gsub("\n",'<br/>') # TODO: make safe
+  != @toc.toc_body&.gsub("\n",'<br/>') # TODO: make safe
 %p
   %b Status:
   = @toc.status
@@ -27,7 +27,8 @@
   %b Comments:
   = @toc.comments
 %hr
-= render partial: 'manifestations/show', locals: { manifestation: @manifestation }
+- if @manifestation
+  = render partial: 'manifestations/show', locals: { manifestation: @manifestation }
 = link_to 'Browse Scans', browse_scans_toc_path(@toc), class: 'btn btn-primary'
 = link_to 'Edit', edit_toc_path(@toc)
 \|

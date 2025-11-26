@@ -5,6 +5,8 @@ gem 'rails', '~>7.1'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
 gem 'mysql2'
+gem 'devise'
+gem 'omniauth-google-oauth2'
 gem 'haml-rails'
 gem 'puma'
 gem 'logger'

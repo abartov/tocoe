@@ -7,7 +7,7 @@ class Work < ActiveRecord::Base
   has_many :expressions, through: :reifications, source: :expression
 
   # work-work relationships
-  has_many :work_relationships, foreign_key: :work1_id, dependent: :destroy, table_name: :work_relationships
+  has_many :work_relationships, foreign_key: :work1_id, dependent: :destroy
   has_many :reverse_work_relationships, class_name: :WorkRelationship, foreign_key: :work2_id, dependent: :destroy
   has_many :related_works, through: :work_relationships, source: :work2
 

@@ -8,6 +8,18 @@
 </head>
 <body>
 <div id="main-container" class="container-fluid">
+  <header class="mb-4">
+    <% if user_signed_in? %>
+      <p class="float-end">
+        Signed in as <strong><%= current_user.email %></strong> | <%= link_to 'Sign out', destroy_user_session_path, method: :delete %>
+      </p>
+    <% elsif Devise.omniauth_configs[:google_oauth2] %>
+      <p class="float-end">
+        <%= link_to 'Sign in with Google', user_google_oauth2_omniauth_authorize_path %>
+      </p>
+    <% end %>
+    <div class="clearfix"></div>
+  </header>
 <%= yield %>
 </div>
 </body>

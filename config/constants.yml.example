@@ -9,6 +9,9 @@ development: &default
   OCR_service: 'http://localhost:8080' # leave out the /ocr part
   # OCR language (default: eng for English)
   OCR_language: 'eng'
+  # Google OAuth2 credentials (set via constants file per environment)
+  google_oauth2_client_id: <replace-with-google-client-id>
+  google_oauth2_client_secret: <replace-with-google-client-secret>
 
 production:
   <<: *default

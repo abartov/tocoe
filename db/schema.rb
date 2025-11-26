@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_26_033122) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_26_194546) do
+  create_table "aboutnesses", force: :cascade do |t|
+    t.integer "embodiment_id"
+    t.string "subject_heading_uri"
+    t.string "source_name"
+    t.string "subject_heading_label"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["embodiment_id"], name: "index_aboutnesses_on_embodiment_id"
+    t.index ["source_name"], name: "index_aboutnesses_on_source_name"
+  end
+
   create_table "embodiments", force: :cascade do |t|
     t.integer "expression_id"
     t.integer "manifestation_id"

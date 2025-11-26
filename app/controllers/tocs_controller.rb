@@ -266,7 +266,7 @@ class TocsController < ApplicationController
 
   def valid?(url)
     uri = URI.parse(url)
-    uri.is_af?(URI::HTTP)
+    uri.scheme[0..3] == 'http' && uri.host.present?
   rescue URI::InvalidURIError
     false
   end

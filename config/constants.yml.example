@@ -1,10 +1,18 @@
 # Enter your per-environment constants below
 
 development: &default
+  # OCR method: 'tesseract' for local binary or 'rest' for web service
+  OCR_method: 'tesseract'
+  # Path to tesseract binary (used when OCR_method is 'tesseract')
+  tesseract_path: 'tesseract'
+  # REST API endpoint for OCR service (used when OCR_method is 'rest')
   OCR_service: 'http://localhost:8080' # leave out the /ocr part
+  # OCR language (default: eng for English)
+  OCR_language: 'eng'
 
 production:
   <<: *default
-  
+  OCR_method: 'rest'
+
 test:
   <<: *default

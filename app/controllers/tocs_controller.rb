@@ -170,7 +170,88 @@ class TocsController < ApplicationController
   end
 
   def get_ocr_from_service(url)
-    OpenOCR.get_ocr(url)
+    ocr_method = Rails.configuration.constants['OCR_method'] || 'tesseract'
+
+    case ocr_method
+    when 'tesseract'
+      get_ocr_with_tesseract(url)
+    when 'rest'
+      get_ocr_with_rest_api(url)
+    else
+      logger.error "Unknown OCR method: #{ocr_method}"
+      "Error: Unknown OCR method configured"
+    end
+  rescue => e
+    logger.error "OCR failed for #{url}: #{e.message}"
+    "Error: OCR processing failed - #{e.message}"
+  end
+
+  def get_ocr_with_tesseract(url)
+    require 'open3'
+    require 'tempfile'
+
+    tesseract_path = Rails.configuration.constants['tesseract_path'] || 'tesseract'
+    language = Rails.configuration.constants['OCR_language'] || 'eng'
+
+    # Download image to temporary file
+    response = HTTParty.get(url, timeout: 30)
+    unless response.success?
+      raise "Failed to download image from #{url}: #{response.code}"
+    end
+
+    # Create temporary files for input image and output text
+    Tempfile.create(['ocr_image', '.jpg']) do |image_file|
+      image_file.binmode
+      image_file.write(response.body)
+      image_file.flush
+
+      Tempfile.create(['ocr_output', '']) do |output_file|
+        output_base = output_file.path
+        output_file.close
+
+        # Run tesseract: tesseract image.jpg output -l eng
+        cmd = [tesseract_path, image_file.path, output_base, '-l', language]
+        stdout, stderr, status = Open3.capture3(*cmd)
+
+        unless status.success?
+          raise "Tesseract failed: #{stderr}"
+        end
+
+        # Tesseract writes to output_base.txt
+        output_text_file = "#{output_base}.txt"
+        if File.exist?(output_text_file)
+          text = File.read(output_text_file)
+          File.unlink(output_text_file)
+          return text.strip
+        else
+          raise "Tesseract did not produce output file"
+        end
+      end
+    end
+  end
+
+  def get_ocr_with_rest_api(url)
+    ocr_service = Rails.configuration.constants['OCR_service']
+
+    unless ocr_service
+      raise "OCR_service not configured"
+    end
+
+    # Send POST request to OCR service with the image URL
+    response = HTTParty.post(
+      "#{ocr_service}/ocr",
+      body: { url: url }.to_json,
+      headers: { 'Content-Type' => 'application/json' },
+      timeout: 60
+    )
+
+    unless response.success?
+      raise "OCR service returned error: #{response.code} - #{response.body}"
+    end
+
+    # Parse response - assuming service returns JSON with 'text' field
+    result = JSON.parse(response.body)
+    result['text'] || result['result'] || response.body
   end
 
   # Use callbacks to share common setup or constraints between actions.
@@ -196,11 +277,3 @@ class TocsController < ApplicationController
   end
 end
 
-# Web service consumer class for OpenOCR
-class OpenOCR
-  include HTTParty
-  base_uri AppConstants.OCR_service
-  def self.get_ocr(image_url)
-    post('/ocr', body: { img_url: image_url, engine: 'tesseract' }.to_json, headers: { 'Content-Type' => 'application/json' })
-  end
-end

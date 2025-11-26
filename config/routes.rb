@@ -13,6 +13,18 @@ Rails.application.routes.draw do
   get 'publications/savetoc'
 
   post 'tocs/do_ocr' => "tocs#do_ocr"
+
+  # Aboutnesses - nested under embodiments
+  resources :embodiments, only: [] do
+    resources :aboutnesses, only: [:index, :new, :create] do
+      collection do
+        post :search
+      end
+    end
+  end
+
+  # Aboutnesses - destroy doesn't need embodiment nesting
+  resources :aboutnesses, only: [:destroy]
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 

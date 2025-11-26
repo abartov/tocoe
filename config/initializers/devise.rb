@@ -3,7 +3,7 @@ Devise.setup do |config|
   config.skip_session_storage = %i[http_auth]
   config.stretches = Rails.env.test? ? 1 : 12
   config.pepper = ENV['DEVISE_PEPPER'] if ENV['DEVISE_PEPPER'].present?
-  secret_key_base = Rails.application.credentials.secret_key_base.presence || Rails.application.secrets.secret_key_base.presence
+  secret_key_base = Rails.application.credentials.secret_key_base.presence
   config.secret_key = secret_key_base if secret_key_base
 
   google_client_id = Rails.configuration.constants['google_oauth2_client_id']

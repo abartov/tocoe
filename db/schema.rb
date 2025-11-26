@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_26_194546) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_26_220655) do
   create_table "aboutnesses", force: :cascade do |t|
     t.integer "embodiment_id"
     t.string "subject_heading_uri"
@@ -121,7 +121,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_26_194546) do
   create_table "tocs", force: :cascade do |t|
     t.string "book_uri"
     t.text "toc_body"
-    t.string "status"
+    t.string "status", default: "empty"
     t.integer "contributor_id"
     t.integer "reviewer_id"
     t.text "comments"
@@ -129,10 +129,28 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_26_194546) do
     t.datetime "updated_at", null: false
     t.integer "manifestation_id"
     t.string "title"
+    t.text "toc_page_urls"
+    t.boolean "no_explicit_toc", default: false, null: false
     t.index ["book_uri"], name: "index_tocs_on_book_uri", unique: true
     t.index ["contributor_id"], name: "index_tocs_on_contributor_id"
     t.index ["manifestation_id"], name: "index_tocs_on_manifestation_id"
     t.index ["reviewer_id"], name: "index_tocs_on_reviewer_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.string "provider"
+    t.string "uid"
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
   create_table "work_relationships", force: :cascade do |t|

@@ -1,13 +1,35 @@
 - unless @results.blank?
-  %table{ class: 'table' }
-    - @results.each do |book|
+  %table{ class: 'table table-striped' }
+    %thead
       %tr
-        %td= "#{book[:edition_key].first}"
-        %td= "#{book.title} / #{book.author_name}" 
-        %td
-          - if book.has_fulltext
-            = link_to 'Make ToC!', new_toc_path(:params => {ol_book_id: book[:edition_key].first, from: :openlibrary})
-          - else
-            = '[metadata only]'
+        %th Edition Key
+        %th Title / Author
+        %th Full-text Status
+        %th Action
+    %tbody
+      - @results.each do |book|
+        %tr
+          %td
+            %code= "#{book[:edition_key]&.first}"
+          %td
+            %strong= book['title']
+            %br
+            - if book['author_name']
+              %small.text-muted
+                by #{Array(book['author_name']).join(', ')}
+          %td
+            - if book['has_fulltext']
+              - if book['ebook_access'] == 'public'
+                %span.label.label-success Public Full-Text
+              - else
+                %span.label.label-warning Full-Text (Restricted)
+            - else
+              %span.label.label-default Metadata Only
+          %td
+            - if book['has_fulltext'] && book['ebook_access'] == 'public'
+              = link_to 'Make ToC!', new_toc_path(:params => {ol_book_id: book[:edition_key].first, from: :openlibrary}), class: 'btn btn-sm btn-primary'
+            - else
+              %span.text-muted No full-text
 - else
-  = "Nothing found!"
+  - if params[:search].present? || params[:title].present? || params[:author].present?
+    %p.alert.alert-info Nothing found! Try adjusting your search terms or removing the full-text filter.

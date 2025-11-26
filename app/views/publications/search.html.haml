@@ -3,10 +3,24 @@
     sidebar here
   #content{ class: 'col-xs-10' }
     %h1 Pick a book to make a ToC for:
-    %p Input a search string for Open Library
+    %p Search Open Library for publications with full-text available
     = form_tag publications_search_path, :method => 'get', :id => 'publications_search' do
-      = text_field_tag :search, params[:search]
-      = submit_tag 'Search', :name => nil 
+      .form-group
+        = label_tag :search, 'General Search:'
+        = text_field_tag :search, params[:search], class: 'form-control', placeholder: 'Search for anything...'
+      .form-group
+        = label_tag :title, 'Or Search by Title:'
+        = text_field_tag :title, params[:title], class: 'form-control', placeholder: 'Book title...'
+      .form-group
+        = label_tag :author, 'Or Search by Author:'
+        = text_field_tag :author, params[:author], class: 'form-control', placeholder: 'Author name...'
+      .form-group
+        = check_box_tag :fulltext_only, '1', params[:fulltext_only] == '1'
+        = label_tag :fulltext_only, 'Only show books with full-text publicly available'
+      = submit_tag 'Search', :name => nil, class: 'btn btn-primary'
+      - if @num_results
+        %p.text-muted
+          Found #{@num_results} result#{ @num_results == 1 ? '' : 's' }
       #results
         != render partial: 'ol_results', locals: { :results => @results}
-    %p 
+    %p

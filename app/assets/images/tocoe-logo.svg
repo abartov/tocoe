@@ -6,26 +6,30 @@
         font-size: 36px;
         font-weight: bold;
         font-style: italic;
-        fill: #2c5282;
-      }
-      .logo-accent {
-        fill: #4299e1;
+        fill: white;
+        stroke: white;
+        stroke-width: 3;
+        paint-order: stroke fill;
       }
     </style>
   </defs>
 
+  <!-- Ukrainian flag backdrop: blue on top, yellow on bottom -->
+  <rect x="0" y="0" width="200" height="30" fill="#0057B7"/>
+  <rect x="0" y="30" width="200" height="30" fill="#FFD700"/>
+
   <!-- Main text with whimsical positioning -->
   <text x="10" y="40" class="logo-text">
     <tspan>T</tspan>
-    <tspan dy="-3" class="logo-accent">o</tspan>
+    <tspan dy="-3">o</tspan>
     <tspan dy="3">C</tspan>
-    <tspan dy="-2" class="logo-accent">o</tspan>
+    <tspan dy="-2">o</tspan>
     <tspan dy="2">E</tspan>
   </text>
 
   <!-- Whimsical underline accent -->
   <path d="M 10 48 Q 60 42 100 48 T 190 48"
-        stroke="#4299e1"
+        stroke="white"
         stroke-width="2"
         fill="none"
         stroke-linecap="round"/>

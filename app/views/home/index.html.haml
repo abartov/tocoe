@@ -1,0 +1,41 @@
+.container{style: 'margin-top: 50px;'}
+  .row
+    .col-md-8.col-md-offset-2
+      .jumbotron
+        %h1 ToCoE
+        %h2 Table of Contents of Everything
+        %p.lead
+          A platform for producing CC0 (public domain) tables of contents of written works
+          through volunteer labor and linked open data.
+        %hr
+        %p
+          ToCoE is part of the
+          %strong Massively-Multiplayer Online Bibliography
+          project, a collaborative effort to create comprehensive bibliographic metadata
+          for the world's written works.
+        %p
+          Our goal is to make tables of contents freely available for:
+        %ul
+          %li Academic research and citation analysis
+          %li Library cataloging and discovery
+          %li Enhanced book search and browsing
+          %li Preservation of bibliographic heritage
+        %p
+          All contributions are released under CC0, dedicating them to the public domain
+          for unrestricted use by anyone, anywhere.
+        %hr
+        - if user_signed_in?
+          %p
+            %strong Welcome back, #{current_user.email}!
+          = link_to 'Continue to ToC Search', publications_search_path, class: 'btn btn-primary btn-lg'
+        - else
+          %p
+            %strong Sign in to start contributing tables of contents.
+          = link_to 'Sign in with Google', user_google_oauth2_omniauth_authorize_path, class: 'btn btn-primary btn-lg', method: :post
+      .panel.panel-default{style: 'margin-top: 30px;'}
+        .panel-body
+          %p.text-muted
+            Learn more:
+            = link_to 'aboutness.org', 'http://aboutness.org', target: '_blank'
+            |
+            = link_to 'Massively-Multiplayer Online Bibliography', 'https://meta.wikimedia.org/wiki/Massively-Multiplayer_Online_Bibliography', target: '_blank'

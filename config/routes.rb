@@ -33,5 +33,5 @@ Rails.application.routes.draw do
   # Aboutnesses - destroy doesn't need embodiment nesting
   resources :aboutnesses, only: [:destroy]
 
-  root 'publications#search'
+  root 'home#index'
 end

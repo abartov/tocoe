@@ -2,6 +2,12 @@ require 'rails_helper'
 
 RSpec.describe TocsController, type: :controller do
   let(:toc) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL123M', title: 'Test Book') }
+  let(:user) { User.create!(email: 'test@example.com', password: 'password123') }
+
+  # All tests run with authenticated user
+  before do
+    sign_in user
+  end
 
   describe 'GET #browse_scans' do
     context 'with valid OpenLibrary book URI' do

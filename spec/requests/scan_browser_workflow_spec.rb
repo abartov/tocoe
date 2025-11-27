@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Scan Browser Workflow', type: :request do
+  let(:user) { User.create!(email: 'test@example.com', password: 'password123') }
   let(:toc) do
     Toc.create!(
       book_uri: 'http://openlibrary.org/books/OL7928212M',
@@ -28,6 +29,7 @@ RSpec.describe 'Scan Browser Workflow', type: :request do
   end
 
   before do
+    sign_in user
     allow(OpenLibrary::Client).to receive(:new).and_return(ol_client)
     allow(ol_client).to receive(:ia_identifier).with('OL7928212M').and_return('test_ia_id')
     allow(ol_client).to receive(:ia_metadata).with('test_ia_id').and_return(ia_metadata)

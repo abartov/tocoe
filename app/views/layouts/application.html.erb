@@ -15,7 +15,7 @@
       </p>
     <% elsif Devise.omniauth_configs[:google_oauth2] %>
       <p class="float-end">
-        <%= link_to 'Sign in with Google', user_google_oauth2_omniauth_authorize_path %>
+        <%= link_to 'Sign in with Google', user_google_oauth2_omniauth_authorize_path, method: :post %>
       </p>
     <% end %>
     <div class="clearfix"></div>

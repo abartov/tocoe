@@ -3,9 +3,14 @@ require 'rails_helper'
 RSpec.describe AboutnessesController, type: :controller do
   render_views false
 
+  let(:user) { User.create!(email: 'test@example.com', password: 'password123') }
   let(:expression) { Expression.create!(title: "Test Expression") }
   let(:manifestation) { Manifestation.create!(title: "Test Manifestation") }
   let(:embodiment) { Embodiment.create!(expression: expression, manifestation: manifestation) }
+
+  before do
+    sign_in user
+  end
 
   describe 'GET #index' do
     it 'assigns aboutnesses for the embodiment' do

@@ -67,9 +67,13 @@ RSpec.describe 'Scan Browser Workflow', type: :request do
       expect(toc.status).to eq('pages_marked')
       expect(toc.no_explicit_toc).to eq(false)
 
-      # Step 6: Verify show page displays marked pages count
+      # Step 6: Verify show page displays marked pages count and thumbnails
       expect(response.body).to include('Marked TOC Pages')
-      expect(response.body).to match(/Marked TOC Pages.*2.*pages/m)
+      expect(response.body).to include('(2)')
+      # Verify thumbnails are displayed
+      expect(response.body).to include('TOC Page 1')
+      expect(response.body).to include('TOC Page 2')
+      expect(response.body).to include('?scale=8')
     end
 
     it 'allows user to mark "no explicit TOC" and transition status' do

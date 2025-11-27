@@ -4,19 +4,30 @@
   %b Book title and URI:
   = "#{@toc.title} - #{@toc.book_uri}"
 %p
-  %b Toc body:
-  != @toc.toc_body&.gsub("\n",'<br/>') # TODO: make safe
-%p
   %b Status:
   = @toc.status
-- if @toc.toc_page_urls.present?
-  %p
-    %b Marked TOC Pages:
-    = @toc.toc_page_urls.split("\n").count
-    pages
 - if @toc.no_explicit_toc
   %p
     %b No explicit table of contents
+
+.row
+  .col-md-8
+    %p
+      %b Toc body:
+      != @toc.toc_body&.gsub("\n",'<br/>') # TODO: make safe
+
+  - if @toc.toc_page_urls.present?
+    .col-md-4
+      %p
+        %b Marked TOC Pages:
+        = "(#{@toc.toc_page_urls.split("\n").count})"
+      .toc-page-thumbnails
+        - @toc.toc_page_urls.split("\n").each_with_index do |url, index|
+          .toc-page-thumb.mb-2
+            = link_to url, target: '_blank' do
+              = image_tag "#{url}?scale=8", alt: "TOC Page #{index + 1}", class: 'img-thumbnail'
+            .text-center.small
+              Page #{index + 1}
 %p
   %b Contributor:
   = @toc.contributor_id
@@ -33,3 +44,24 @@
 = link_to 'Edit', edit_toc_path(@toc)
 \|
 = link_to 'Back', tocs_path
+
+:css
+  .toc-page-thumbnails {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+  .toc-page-thumb img {
+    max-width: 100%;
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .toc-page-thumb img:hover {
+    transform: scale(1.05);
+  }
+  .toc-page-thumb {
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+  }

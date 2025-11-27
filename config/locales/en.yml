@@ -78,6 +78,7 @@ en:
         contributor: "Contributor"
         reviewer: "Reviewer"
         comments: "Comments"
+        actions: "Actions"
 
     # Show view
     show:

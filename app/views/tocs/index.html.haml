@@ -23,21 +23,18 @@
       %th= t('tocs.index.headers.contributor')
       %th= t('tocs.index.headers.reviewer')
       %th= t('tocs.index.headers.comments')
-      %th
-      %th
-      %th
+      %th{colspan: 2}= t('tocs.index.headers.actions')
 
   %tbody
     - @tocs.each do |toc|
       %tr
-        %td= toc.title
+        %td= link_to toc.title, toc
         %td= toc.book_uri
         %td= toc.toc_body
         %td= toc.status
         %td= toc.contributor_id
         %td= toc.reviewer_id
         %td= toc.comments
-        %td= link_to t('common.actions.show'), toc
         %td= link_to t('common.actions.edit'), edit_toc_path(toc)
         %td= link_to t('common.actions.destroy'), toc, :method => :delete, :data => { :confirm => t('common.actions.confirm_destroy') }
 

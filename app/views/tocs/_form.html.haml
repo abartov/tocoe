@@ -100,67 +100,6 @@
           $('#paste_ocr').hide();
           $('#results').html('');
         });
-
-        // Auto-match subjects button
-        $('#auto_match_subjects').click(function() {
-          $('#auto_match_subjects').prop('disabled', true);
-          $('#auto_match_working').show();
-          $('#auto_match_results').html('');
-
-          $.ajax({
-            url: '<%= @toc.persisted? ? auto_match_subjects_toc_path(@toc) : "" %>',
-            type: 'POST',
-            dataType: 'script',
-            headers: {
-              'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
-            }
-          });
-        });
-
-        // Handle accept match button clicks (delegated event handler)
-        $(document).on('click', '.accept-match', function() {
-          var button = $(this);
-          var subject = button.data('subject');
-          var uri = button.data('uri');
-          var label = button.data('label');
-          var embodimentId = '<%= @toc.manifestation ? @toc.manifestation.embodiments.find_by(sequence_number: nil)&.id : "" %>';
-
-          button.prop('disabled', true);
-          button.text('Adding...');
-
-          $.ajax({
-            url: '/embodiments/' + embodimentId + '/aboutnesses',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-              aboutness: {
-                subject_heading_uri: uri,
-                subject_heading_label: label,
-                source_name: 'LCSH'
-              },
-              remove_subject: subject
-            },
-            headers: {
-              'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(data) {
-              // Remove the suggestion item
-              button.closest('.suggestion-item').fadeOut(function() {
-                $(this).remove();
-              });
-
-              // Reload page to show updated aboutnesses and imported_subjects
-              setTimeout(function() {
-                location.reload();
-              }, 500);
-            },
-            error: function(xhr, status, error) {
-              button.prop('disabled', false);
-              button.text('<%= I18n.t('tocs.form.subjects_section.accept_match') %>');
-              alert('Error adding subject heading: ' + error);
-            }
-          });
-        });
   - elsif @toc.persisted? && @toc.empty?
     #browse_scans_prompt{ class: 'col-xs-5'}
       .alert.alert-info
@@ -170,3 +109,65 @@
           = link_to t('tocs.form.ocr_section.browse_scans_button'), browse_scans_toc_path(@toc), class: 'btn btn-primary btn-lg'
         %p.text-muted
           = t('tocs.form.ocr_section.browse_scans_help')
+
+:javascript
+  // Auto-match subjects button
+  $('#auto_match_subjects').click(function() {
+    $('#auto_match_subjects').prop('disabled', true);
+    $('#auto_match_working').show();
+    $('#auto_match_results').html('');
+
+    $.ajax({
+      url: '<%= @toc.persisted? ? auto_match_subjects_toc_path(@toc) : "" %>',
+      type: 'POST',
+      dataType: 'script',
+      headers: {
+        'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+      }
+    });
+  });
+
+  // Handle accept match button clicks (delegated event handler)
+  $(document).on('click', '.accept-match', function() {
+    var button = $(this);
+    var subject = button.data('subject');
+    var uri = button.data('uri');
+    var label = button.data('label');
+    var embodimentId = '<%= @toc.manifestation ? @toc.manifestation.embodiments.find_by(sequence_number: nil)&.id : "" %>';
+
+    button.prop('disabled', true);
+    button.text('Adding...');
+
+    $.ajax({
+      url: '/embodiments/' + embodimentId + '/aboutnesses',
+      type: 'POST',
+      dataType: 'json',
+      data: {
+        aboutness: {
+          subject_heading_uri: uri,
+          subject_heading_label: label,
+          source_name: 'LCSH'
+        },
+        remove_subject: subject
+      },
+      headers: {
+        'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+      },
+      success: function(data) {
+        // Remove the suggestion item
+        button.closest('.suggestion-item').fadeOut(function() {
+          $(this).remove();
+        });
+
+        // Reload page to show updated aboutnesses and imported_subjects
+        setTimeout(function() {
+          location.reload();
+        }, 500);
+      },
+      error: function(xhr, status, error) {
+        button.prop('disabled', false);
+        button.text('<%= I18n.t('tocs.form.subjects_section.accept_match') %>');
+        alert('Error adding subject heading: ' + error);
+      }
+    });
+  });

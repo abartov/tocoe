@@ -127,5 +127,9 @@ RSpec.describe "tocs/index.html.haml", type: :view do
       expect(rendered).to have_content('Test comment 1')
       expect(rendered).to have_content('Test comment 2')
     end
+
+    it 'displays link to search publications' do
+      expect(rendered).to have_link('Search Publications', href: publications_search_path)
+    end
   end
 end

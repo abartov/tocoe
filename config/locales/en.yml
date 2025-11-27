@@ -71,7 +71,7 @@ en:
       show_all_link: "Show all TOCs"
       show_all_needing_work_link: "Show all TOCs needing work"
       show_only_needing_work_link: "Show only TOCs needing work"
-      new_toc: "New Toc"
+      search_publications: "Search Publications"
       headers:
         title: "Title"
         uri: "URI"

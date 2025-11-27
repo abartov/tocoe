@@ -53,12 +53,13 @@
               = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail'
             .text-center.small
               = t('tocs.show.page_number', number: index + 1)
-%p
-  %b= t('common.labels.contributor')
-  = @toc.contributor_id
-%p
-  %b= t('common.labels.reviewer')
-  = @toc.reviewer_id
+- if current_user&.admin?
+  %p
+    %b= t('common.labels.contributor')
+    = @toc.contributor&.name || @toc.contributor_id
+  %p
+    %b= t('common.labels.reviewer')
+    = @toc.reviewer&.name || @toc.reviewer_id
 %p
   %b= t('common.labels.comments')
   = @toc.comments

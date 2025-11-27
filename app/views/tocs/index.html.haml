@@ -20,8 +20,9 @@
       %th= t('tocs.index.headers.uri')
       %th= t('tocs.index.headers.toc')
       %th= t('tocs.index.headers.status')
-      %th= t('tocs.index.headers.contributor')
-      %th= t('tocs.index.headers.reviewer')
+      - if current_user&.admin?
+        %th= t('tocs.index.headers.contributor')
+        %th= t('tocs.index.headers.reviewer')
       %th= t('tocs.index.headers.comments')
       %th{colspan: 2}= t('tocs.index.headers.actions')
 
@@ -32,8 +33,9 @@
         %td= toc.book_uri
         %td= toc.toc_body
         %td= toc.status
-        %td= toc.contributor_id
-        %td= toc.reviewer_id
+        - if current_user&.admin?
+          %td= toc.contributor&.name || toc.contributor_id
+          %td= toc.reviewer&.name || toc.reviewer_id
         %td= toc.comments
         %td= link_to t('common.actions.edit'), edit_toc_path(toc)
         %td= link_to t('common.actions.destroy'), toc, :method => :delete, :data => { :confirm => t('common.actions.confirm_destroy') }

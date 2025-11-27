@@ -7,6 +7,40 @@ RSpec.describe Toc, type: :model do
       expect(toc.manifestation).to be_nil
       expect(toc.valid?).to be true
     end
+
+    it 'belongs to contributor (User) optionally' do
+      toc = Toc.new(book_uri: 'http://openlibrary.org/books/OL123M', title: 'Test Book')
+      expect(toc.contributor).to be_nil
+      expect(toc.valid?).to be true
+    end
+
+    it 'belongs to reviewer (User) optionally' do
+      toc = Toc.new(book_uri: 'http://openlibrary.org/books/OL123M', title: 'Test Book')
+      expect(toc.reviewer).to be_nil
+      expect(toc.valid?).to be true
+    end
+
+    it 'can have a contributor assigned' do
+      user = User.create!(email: 'contributor@example.com', password: 'password', name: 'John Contributor')
+      toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Test Book',
+        contributor_id: user.id
+      )
+      expect(toc.contributor).to eq(user)
+      expect(toc.contributor.name).to eq('John Contributor')
+    end
+
+    it 'can have a reviewer assigned' do
+      user = User.create!(email: 'reviewer@example.com', password: 'password', name: 'Jane Reviewer')
+      toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Test Book',
+        reviewer_id: user.id
+      )
+      expect(toc.reviewer).to eq(user)
+      expect(toc.reviewer.name).to eq('Jane Reviewer')
+    end
   end
 
   describe 'enums' do

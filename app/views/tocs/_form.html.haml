@@ -47,7 +47,7 @@
                           %small.text-muted
                             = link_to aboutness.subject_heading_uri, aboutness.subject_heading_uri, target: '_blank'
 
-                - if @toc.imported_subjects.present?
+                - if @toc.imported_subjects.present? && @toc.persisted?
                   %p{ style: 'margin-top: 10px;' }
                     = button_tag(type: 'button', id: 'auto_match_subjects', class: 'btn btn-primary') do
                       = t('tocs.form.subjects_section.auto_match_button')

@@ -42,7 +42,6 @@
         $('.book-checkbox').prop('checked', false);
         $(this).removeClass('btn-primary').addClass('btn-default');
         $(this).text('Multi-select');
-        $('#bulk-toc-form').hide();
       }
       updateBulkButton();
     });
@@ -50,7 +49,8 @@
     // Update bulk create button visibility
     function updateBulkButton() {
       var checkedCount = $('.book-checkbox:checked').length;
-      if (checkedCount > 0) {
+      var shouldShowBulkButton = multiselectActive && checkedCount > 0;
+      if (shouldShowBulkButton) {
         $('#bulk-toc-form').show();
         $('#bulk-create-btn').text('Make TOCs for ' + checkedCount + ' selected!');
       } else {

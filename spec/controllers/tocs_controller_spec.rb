@@ -370,23 +370,44 @@ RSpec.describe TocsController, type: :controller do
   end
 
   describe 'POST #verify' do
+    let(:contributor) { User.create!(email: 'contributor@example.com', password: 'password', name: 'Contributor') }
+    let(:reviewer) { User.create!(email: 'reviewer@example.com', password: 'password', name: 'Reviewer') }
+
     let(:transcribed_toc) do
       Toc.create!(
         book_uri: 'http://openlibrary.org/books/OL123M',
         title: 'Test Book',
         status: :transcribed,
-        contributor_id: user.id
+        contributor_id: contributor.id
       )
     end
 
-    it 'verifies TOC and sets reviewer' do
-      post :verify, params: { id: transcribed_toc.id }
+    context 'when reviewer is different from contributor' do
+      before { sign_in reviewer }
 
-      transcribed_toc.reload
-      expect(transcribed_toc.status).to eq('verified')
-      expect(transcribed_toc.reviewer_id).to eq(user.id)
-      expect(response).to redirect_to(transcribed_toc)
-      expect(flash[:notice]).to eq('TOC verified successfully')
+      it 'verifies TOC and sets reviewer' do
+        post :verify, params: { id: transcribed_toc.id }
+
+        transcribed_toc.reload
+        expect(transcribed_toc.status).to eq('verified')
+        expect(transcribed_toc.reviewer_id).to eq(reviewer.id)
+        expect(response).to redirect_to(transcribed_toc)
+        expect(flash[:notice]).to eq('TOC verified successfully')
+      end
+    end
+
+    context 'when contributor attempts to verify their own TOC' do
+      before { sign_in contributor }
+
+      it 'rejects verification and keeps TOC in transcribed status' do
+        post :verify, params: { id: transcribed_toc.id }
+
+        transcribed_toc.reload
+        expect(transcribed_toc.status).to eq('transcribed')
+        expect(transcribed_toc.reviewer_id).to be_nil
+        expect(response).to redirect_to(transcribed_toc)
+        expect(flash[:error]).to eq('You cannot verify a TOC that you contributed')
+      end
     end
 
     it 'rejects if TOC is not in transcribed status' do

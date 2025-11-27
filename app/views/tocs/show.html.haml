@@ -27,8 +27,12 @@
     %p
       %strong= t('tocs.show.transcribed_alert.title')
       = t('tocs.show.transcribed_alert.description')
-    %p
-      = button_to t('tocs.show.transcribed_alert.verify_button'), verify_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: t('tocs.show.transcribed_alert.confirm_verified') }
+    - if current_user && @toc.contributor_id == current_user.id
+      %p.text-warning
+        = t('tocs.show.transcribed_alert.cannot_verify_own')
+    - else
+      %p
+        = button_to t('tocs.show.transcribed_alert.verify_button'), verify_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: t('tocs.show.transcribed_alert.confirm_verified') }
 
 - if @toc.no_explicit_toc
   %p

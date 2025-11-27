@@ -131,6 +131,58 @@ RSpec.describe Toc, type: :model do
     end
   end
 
+  describe 'validations' do
+    let(:contributor) { User.create!(email: 'contributor@example.com', password: 'password', name: 'Contributor') }
+    let(:reviewer) { User.create!(email: 'reviewer@example.com', password: 'password', name: 'Reviewer') }
+
+    describe 'contributor cannot be reviewer' do
+      it 'is invalid when contributor and reviewer are the same user' do
+        toc = Toc.new(
+          book_uri: 'http://openlibrary.org/books/OL130M',
+          title: 'Test Book',
+          status: :verified,
+          contributor_id: contributor.id,
+          reviewer_id: contributor.id
+        )
+        expect(toc.valid?).to be false
+        expect(toc.errors[:reviewer_id]).to include('cannot be the same as the contributor')
+      end
+
+      it 'is valid when contributor and reviewer are different users' do
+        toc = Toc.new(
+          book_uri: 'http://openlibrary.org/books/OL131M',
+          title: 'Test Book',
+          status: :verified,
+          contributor_id: contributor.id,
+          reviewer_id: reviewer.id
+        )
+        expect(toc.valid?).to be true
+      end
+
+      it 'is valid when there is no reviewer (not verified yet)' do
+        toc = Toc.new(
+          book_uri: 'http://openlibrary.org/books/OL132M',
+          title: 'Test Book',
+          status: :transcribed,
+          contributor_id: contributor.id,
+          reviewer_id: nil
+        )
+        expect(toc.valid?).to be true
+      end
+
+      it 'is valid when there is no contributor' do
+        toc = Toc.new(
+          book_uri: 'http://openlibrary.org/books/OL133M',
+          title: 'Test Book',
+          status: :verified,
+          contributor_id: nil,
+          reviewer_id: reviewer.id
+        )
+        expect(toc.valid?).to be true
+      end
+    end
+  end
+
   describe 'status transitions' do
     let(:toc) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL126M', title: 'Test Book') }
 

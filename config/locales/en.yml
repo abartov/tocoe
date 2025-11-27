@@ -52,6 +52,7 @@ en:
       marked_as_transcribed_successfully: "TOC marked as transcribed successfully"
       failed_to_mark_transcribed: "Failed to mark TOC as transcribed"
       must_be_transcribed_to_verify: "TOC must be in transcribed status to verify"
+      cannot_verify_own_toc: "You cannot verify a TOC that you contributed"
       verified_successfully: "TOC verified successfully"
       failed_to_verify: "Failed to verify TOC"
       no_books_selected: "No books selected"
@@ -98,6 +99,7 @@ en:
       transcribed_alert:
         title: "Ready for review:"
         description: "This TOC has been transcribed and is awaiting verification."
+        cannot_verify_own: "You cannot verify this TOC because you are the contributor. Another user must verify it."
         verify_button: "Verify Transcription"
         confirm_verified: "Confirm that you have verified this transcription is correct?"
 

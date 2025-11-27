@@ -227,6 +227,12 @@ class TocsController < ApplicationController
       redirect_to @toc and return
     end
 
+    # Prevent contributor from verifying their own ToC
+    if @toc.contributor_id == current_user.id
+      flash[:error] = I18n.t('tocs.flash.cannot_verify_own_toc')
+      redirect_to @toc and return
+    end
+
     @toc.reviewer_id = current_user.id
     @toc.status = :verified
 

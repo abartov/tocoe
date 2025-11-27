@@ -37,7 +37,7 @@ module LibraryOfCongress
       normalized_query = query.gsub(' -- ', '--').strip.downcase
 
       results.find do |result|
-        result[:label].strip.downcase == normalized_query
+        result[:label]&.strip&.downcase == normalized_query
       end
     end
 

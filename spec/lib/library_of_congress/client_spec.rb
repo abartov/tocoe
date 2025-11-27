@@ -107,5 +107,32 @@ RSpec.describe LibraryOfCongress::Client do
       expect(result).not_to be_nil
       expect(result[:label]).to eq('Fiction')
     end
+
+    it 'handles search results with nil labels without crashing' do
+      mock_data = [
+        { 'uri' => 'http://id.loc.gov/authorities/subjects/sh85048050', 'label' => nil, 'score' => 100 },
+        { 'uri' => 'http://id.loc.gov/authorities/subjects/sh85048051', 'label' => 'Fiction', 'score' => 95 }
+      ]
+      mock_response = double('response', success?: true, body: mock_data.to_json)
+      allow(described_class).to receive(:get).and_return(mock_response)
+
+      result = client.find_exact_match('Fiction')
+
+      expect(result).not_to be_nil
+      expect(result[:label]).to eq('Fiction')
+    end
+
+    it 'returns nil when all results have nil labels' do
+      mock_data = [
+        { 'uri' => 'http://id.loc.gov/authorities/subjects/sh85048050', 'label' => nil, 'score' => 100 },
+        { 'uri' => 'http://id.loc.gov/authorities/subjects/sh85048051', 'score' => 95 }
+      ]
+      mock_response = double('response', success?: true, body: mock_data.to_json)
+      allow(described_class).to receive(:get).and_return(mock_response)
+
+      result = client.find_exact_match('Fiction')
+
+      expect(result).to be_nil
+    end
   end
 end

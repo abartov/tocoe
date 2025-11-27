@@ -126,7 +126,7 @@
     $('#auto_match_results').html('');
 
     $.ajax({
-      url: '<%= @toc.persisted? ? auto_match_subjects_toc_path(@toc) : "" %>',
+      url: '#{@toc.persisted? ? auto_match_subjects_toc_path(@toc) : ""}',
       type: 'POST',
       dataType: 'script',
       headers: {
@@ -141,7 +141,7 @@
     var subject = button.data('subject');
     var uri = button.data('uri');
     var label = button.data('label');
-    var embodimentId = '<%= @toc.manifestation ? @toc.manifestation.embodiments.find_by(sequence_number: nil)&.id : "" %>';
+    var embodimentId = '#{@toc.manifestation ? @toc.manifestation.embodiments.find_by(sequence_number: nil)&.id : ""}';
 
     button.prop('disabled', true);
     button.text('Adding...');
@@ -174,7 +174,7 @@
       },
       error: function(xhr, status, error) {
         button.prop('disabled', false);
-        button.text('<%= I18n.t('tocs.form.subjects_section.accept_match') %>');
+        button.text('#{I18n.t('tocs.form.subjects_section.accept_match')}');
         alert('Error adding subject heading: ' + error);
       }
     });

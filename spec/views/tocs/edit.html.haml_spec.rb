@@ -74,7 +74,51 @@ RSpec.describe "tocs/edit.html.haml", type: :view do
     it 'includes auto-match JavaScript click handler' do
       # Verify the JavaScript code for auto-match is present
       expect(rendered).to include("$('#auto_match_subjects').click(function()")
-      expect(rendered).to include('auto_match_subjects_toc_path')
+      expect(rendered).to include("/tocs/#{toc.id}/auto_match_subjects")
+    end
+  end
+
+  context 'JavaScript interpolation' do
+    let(:work) { Work.create!(title: 'Test Work') }
+    let(:expression) { Expression.create!(title: 'Test Expression') }
+    let(:manifestation) { Manifestation.create! }
+    let(:embodiment) { Embodiment.create!(expression: expression, manifestation: manifestation, sequence_number: nil) }
+    let(:toc) do
+      Toc.create!(
+        book_uri: 'https://www.gutenberg.org/ebooks/1342',
+        title: 'Pride and Prejudice',
+        imported_subjects: "Fiction\nRomance",
+        manifestation: manifestation
+      )
+    end
+
+    before do
+      embodiment # Force creation of embodiment before rendering
+      assign(:toc, toc)
+      assign(:authors, [])
+      render
+    end
+
+    it 'does not contain ERB-style interpolation tags in JavaScript' do
+      # Verify no ERB tags are present in the rendered output
+      expect(rendered).not_to include('<%=')
+      expect(rendered).not_to include('%>')
+    end
+
+    it 'properly interpolates the auto-match subjects URL' do
+      # Verify the URL is properly interpolated and contains the actual path
+      expect(rendered).to include("url: '/tocs/#{toc.id}/auto_match_subjects'")
+    end
+
+    it 'properly interpolates the embodiment ID' do
+      # Verify the embodiment ID is properly interpolated
+      expect(rendered).to include("var embodimentId = '#{embodiment.id}'")
+    end
+
+    it 'properly interpolates the I18n accept_match text' do
+      # Verify the I18n text is properly interpolated
+      expected_text = I18n.t('tocs.form.subjects_section.accept_match')
+      expect(rendered).to include("button.text('#{expected_text}')")
     end
   end
 end

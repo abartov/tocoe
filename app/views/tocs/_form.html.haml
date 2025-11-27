@@ -3,34 +3,34 @@
     = form_for @toc do |f|
       - if @toc.errors.any?
         #error_explanation
-          %h2= "#{pluralize(@toc.errors.count, "error")} prohibited this toc from being saved:"
+          %h2= t('tocs.form.error_message', count: @toc.errors.count)
           %ul
             - @toc.errors.full_messages.each do |msg|
               %li= msg
       %table{class: 'table'}
         %tr
           .field
-            %td= f.label 'Book URI'
+            %td= f.label t('tocs.form.book_uri_label')
             %td= f.text_field :book_uri
         %tr
           .field
-            %td= f.label 'Title'
+            %td= f.label t('common.labels.title')
             %td= f.text_field :title
         %tr
           .field
-            %td= f.label 'Authors'
+            %td= f.label t('tocs.form.authors_label')
             %td= render partial: 'authors', locals: {:authors => @authors}
         %tr
           .field
-            %td= f.label 'Table of Contents markdown'
+            %td= f.label t('tocs.form.toc_body_label')
             %td= f.text_area :toc_body, rows:20, cols: 40, id: 'toc_area'
         %tr
           .field
-            %td= f.label :comments
+            %td= f.label t('common.labels.comments')
             %td= f.text_area :comments
         %tr
           .actions
-            %td= f.submit 'Save'
+            %td= f.submit t('common.actions.save')
   - if @toc.persisted? && !@toc.empty?
     #ocr{ class: 'col-xs-5'}
       = form_tag({action: 'do_ocr'}, {remote: true, id: 'ocr_form'}) do
@@ -38,20 +38,20 @@
         %table{class: 'table'}
           %tr
             .field
-              %td= label_tag 'URLs of ToC page images'
+              %td= label_tag t('tocs.form.ocr_section.urls_label')
               %td
                 = text_area_tag :ocr_images, @toc.toc_page_urls
                 - if @toc.toc_page_urls.present?
                   %small.text-muted
-                    Pre-filled with marked TOC pages. Clear to enter different URLs.
+                    = t('tocs.form.ocr_section.prefilled_help')
           %tr
             .actions
               %td
-                = submit_tag 'Attempt OCR', id: 'ocr_submit'
+                = submit_tag t('tocs.form.ocr_section.attempt_button'), id: 'ocr_submit'
                 = button_tag(type: 'button', id: 'paste_ocr', style: 'margin-left: 10px; display: none;') do
-                  Paste to ToC textarea
+                  = t('tocs.form.ocr_section.paste_button')
                 #ocr_working.text-muted{style: 'display:none; margin-top: 10px;'}
-                  %em Processing OCR, please wait...
+                  %em= t('tocs.form.ocr_section.processing')
           %tr
             %td
               #results{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 5px;'}
@@ -70,8 +70,8 @@
     #browse_scans_prompt{ class: 'col-xs-5'}
       .alert.alert-info
         %p
-          %strong No TOC pages marked yet.
+          %strong= t('tocs.form.ocr_section.no_pages_marked_title')
         %p
-          = link_to 'Browse Scans to Mark TOC Pages', browse_scans_toc_path(@toc), class: 'btn btn-primary btn-lg'
+          = link_to t('tocs.form.ocr_section.browse_scans_button'), browse_scans_toc_path(@toc), class: 'btn btn-primary btn-lg'
         %p.text-muted
-          Once you mark the pages containing the table of contents, you can return here to use OCR.
+          = t('tocs.form.ocr_section.browse_scans_help')

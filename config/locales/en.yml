@@ -21,3 +21,191 @@
 
 en:
   hello: "Hello world"
+
+  # Common strings used across multiple views
+  common:
+    actions:
+      back: "Back"
+      edit: "Edit"
+      show: "Show"
+      destroy: "Destroy"
+      save: "Save"
+      cancel: "Cancel"
+      confirm_destroy: "Are you sure?"
+    labels:
+      title: "Title"
+      comments: "Comments"
+      status: "Status"
+      contributor: "Contributor"
+      reviewer: "Reviewer"
+
+  tocs:
+    # Flash messages
+    flash:
+      invalid_openlibrary_uri: "Invalid OpenLibrary book URI"
+      no_scans_available: "No scans available for this book"
+      unable_to_fetch_metadata: "Unable to fetch scan metadata"
+      mark_pages_required: "Please mark at least one page or check \"No explicit table of contents\""
+      pages_marked_successfully: "TOC pages marked successfully"
+      failed_to_save_marked_pages: "Failed to save marked pages"
+      must_be_pages_marked_to_transcribe: "TOC must be in pages_marked status to mark as transcribed"
+      marked_as_transcribed_successfully: "TOC marked as transcribed successfully"
+      failed_to_mark_transcribed: "Failed to mark TOC as transcribed"
+      must_be_transcribed_to_verify: "TOC must be in transcribed status to verify"
+      verified_successfully: "TOC verified successfully"
+      failed_to_verify: "Failed to verify TOC"
+      no_books_selected: "No books selected"
+      created_multiple_success:
+        one: "Successfully created %{count} TOC"
+        other: "Successfully created %{count} TOCs"
+      failed_to_create_any: "Failed to create any TOCs"
+
+    # Index view
+    index:
+      title: "Listing TOCs"
+      showing_status: "Showing TOCs with status: %{status}"
+      showing_all: "Showing all TOCs including verified ones."
+      showing_needs_work: "Showing TOCs that need work (excluding verified)."
+      show_all_link: "Show all TOCs"
+      show_all_needing_work_link: "Show all TOCs needing work"
+      show_only_needing_work_link: "Show only TOCs needing work"
+      new_toc: "New Toc"
+      headers:
+        title: "Title"
+        uri: "URI"
+        toc: "ToC"
+        status: "Status"
+        contributor: "Contributor"
+        reviewer: "Reviewer"
+        comments: "Comments"
+
+    # Show view
+    show:
+      book_title_and_uri: "Book title and URI:"
+      no_explicit_toc: "No explicit table of contents"
+      toc_body: "Toc body:"
+      marked_toc_pages: "Marked TOC Pages:"
+      page_number: "TOC Page %{number}"
+
+      pages_marked_alert:
+        title: "Ready to transcribe:"
+        description: "The TOC pages have been marked. Transcribe the table of contents and mark it as ready."
+        edit_button: "Edit ToC transcription"
+        mark_transcribed_button: "Mark as Transcribed"
+        confirm_transcribed: "Confirm that you have transcribed this TOC?"
+
+      transcribed_alert:
+        title: "Ready for review:"
+        description: "This TOC has been transcribed and is awaiting verification."
+        verify_button: "Verify Transcription"
+        confirm_verified: "Confirm that you have verified this transcription is correct?"
+
+      empty_alert:
+        title: "Action Required:"
+        description: "This TOC has not yet had its pages marked."
+        browse_scans_button: "Browse Scans to Mark TOC Pages"
+
+      browse_scans_link: "Browse Scans"
+
+    # Browse scans view
+    browse_scans:
+      title: "Browse Scans: %{book_title}"
+      viewing_pages: "Viewing pages"
+      to: "to"
+      of: "of"
+      instructions_title: "Instructions:"
+      instructions_text: "Check the boxes next to pages that contain table of contents information. If this book has no explicit table of contents, check the box below."
+      no_explicit_toc_label: "No explicit table of contents"
+      page_label: "TOC Page %{number}"
+      view_full_size: "View Full Size"
+      previous: "Previous"
+      next: "Next"
+      save_button: "Save Marked Pages"
+
+    # Edit view
+    edit:
+      title: "Editing toc"
+
+    # New view
+    new:
+      title: "New ToC for book %{book_title} / %{authors}"
+
+    # Form partial
+    form:
+      error_message:
+        one: "%{count} error prohibited this toc from being saved:"
+        other: "%{count} errors prohibited this toc from being saved:"
+      book_uri_label: "Book URI"
+      authors_label: "Authors"
+      toc_body_label: "Table of Contents markdown"
+      ocr_section:
+        urls_label: "URLs of ToC page images"
+        prefilled_help: "Pre-filled with marked TOC pages. Clear to enter different URLs."
+        attempt_button: "Attempt OCR"
+        paste_button: "Paste to ToC textarea"
+        processing: "Processing OCR, please wait..."
+        no_pages_marked_title: "No TOC pages marked yet."
+        browse_scans_button: "Browse Scans to Mark TOC Pages"
+        browse_scans_help: "Once you mark the pages containing the table of contents, you can return here to use OCR."
+
+  # Home page
+  home:
+    index:
+      app_name: "ToCoE"
+      tagline: "Table of Contents of Everything"
+      description: "A platform for producing CC0 (public domain) tables of contents of written works through volunteer labor and linked open data."
+      mmob_intro: "ToCoE is part of the"
+      mmob_name: "Massively-Multiplayer Online Bibliography"
+      mmob_description: "project, a collaborative effort to create comprehensive bibliographic metadata for the world's written works."
+      goal_intro: "Our goal is to make tables of contents freely available for:"
+      uses:
+        research: "Academic research and citation analysis"
+        cataloging: "Library cataloging and discovery"
+        search: "Enhanced book search and browsing"
+        preservation: "Preservation of bibliographic heritage"
+      cc0_notice: "All contributions are released under CC0, dedicating them to the public domain for unrestricted use by anyone, anywhere."
+      welcome_back: "Welcome back, %{email}!"
+      search_books_button: "Search for Books"
+      view_tocs_button: "View Existing TOCs"
+      view_tocs_help: "View existing TOCs to contribute transcriptions or verifications"
+      sign_in_prompt: "Sign in to start contributing tables of contents."
+      sign_in_button: "Sign in with Google"
+      learn_more: "Learn more:"
+
+  # Publications search
+  publications:
+    search:
+      title: "Pick a book to make a ToC for:"
+      description: "Search Open Library for publications with full-text available"
+      form:
+        general_search_label: "General Search:"
+        general_search_placeholder: "Search for anything..."
+        title_search_label: "Or Search by Title:"
+        title_search_placeholder: "Book title..."
+        author_search_label: "Or Search by Author:"
+        author_search_placeholder: "Author name..."
+        fulltext_only_label: "Only show books with full-text publicly available"
+        search_button: "Search"
+        results_found:
+          one: "Found %{count} result"
+          other: "Found %{count} results"
+      multi_select_button: "Multi-select"
+      exit_multi_select_button: "Exit Multi-select"
+      make_tocs_button: "Make TOCs for selected!"
+      make_tocs_for_count:
+        one: "Make TOC for %{count} selected!"
+        other: "Make TOCs for %{count} selected!"
+      headers:
+        edition_key: "Edition Key"
+        title_author: "Title / Author"
+        fulltext_status: "Full-text Status"
+        action: "Action"
+      by_authors: "by %{authors}"
+      fulltext_labels:
+        public: "Public Full-Text"
+        restricted: "Full-Text (Restricted)"
+        metadata_only: "Metadata Only"
+      make_toc_button: "Make ToC!"
+      no_edition: "No edition available"
+      no_fulltext: "No full-text"
+      nothing_found: "Nothing found! Try adjusting your search terms or removing the full-text filter."

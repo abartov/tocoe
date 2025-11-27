@@ -2,44 +2,41 @@
   .row
     .col-md-8.col-md-offset-2
       .jumbotron
-        %h1 ToCoE
-        %h2 Table of Contents of Everything
+        %h1= t('home.index.app_name')
+        %h2= t('home.index.tagline')
         %p.lead
-          A platform for producing CC0 (public domain) tables of contents of written works
-          through volunteer labor and linked open data.
+          = t('home.index.description')
         %hr
         %p
-          ToCoE is part of the
-          %strong Massively-Multiplayer Online Bibliography
-          project, a collaborative effort to create comprehensive bibliographic metadata
-          for the world's written works.
+          = t('home.index.mmob_intro')
+          %strong= t('home.index.mmob_name')
+          = t('home.index.mmob_description')
         %p
-          Our goal is to make tables of contents freely available for:
+          = t('home.index.goal_intro')
         %ul
-          %li Academic research and citation analysis
-          %li Library cataloging and discovery
-          %li Enhanced book search and browsing
-          %li Preservation of bibliographic heritage
+          %li= t('home.index.uses.research')
+          %li= t('home.index.uses.cataloging')
+          %li= t('home.index.uses.search')
+          %li= t('home.index.uses.preservation')
         %p
-          All contributions are released under CC0, dedicating them to the public domain
-          for unrestricted use by anyone, anywhere.
+          = t('home.index.cc0_notice')
         %hr
         - if user_signed_in?
           %p
-            %strong Welcome back, #{current_user.email}!
+            %strong= t('home.index.welcome_back', email: current_user.email)
           %p
-            = link_to 'Search for Books', publications_search_path, class: 'btn btn-primary btn-lg'
-            = link_to 'View Existing TOCs', tocs_path, class: 'btn btn-info btn-lg', style: 'margin-left: 10px;'
+            = link_to t('home.index.search_books_button'), publications_search_path, class: 'btn btn-primary btn-lg'
+            = link_to t('home.index.view_tocs_button'), tocs_path, class: 'btn btn-info btn-lg', style: 'margin-left: 10px;'
           %p.text-muted
-            %small View existing TOCs to contribute transcriptions or verifications
+            %small= t('home.index.view_tocs_help')
         - else
           %p
-            %strong Sign in to start contributing tables of contents.
-          = link_to 'Sign in with Google', user_google_oauth2_omniauth_authorize_path, class: 'btn btn-primary btn-lg', method: :post
+            %strong= t('home.index.sign_in_prompt')
+          = link_to t('home.index.sign_in_button'), user_google_oauth2_omniauth_authorize_path, class: 'btn btn-primary btn-lg', method: :post
       .panel.panel-default{style: 'margin-top: 30px;'}
         .panel-body
           %p.text-muted
-            Learn more:
+            = t('home.index.learn_more')
             = link_to 'aboutness.org', 'http://aboutness.org', target: '_blank'
             |
-            = link_to 'Massively-Multiplayer Online Bibliography', 'https://meta.wikimedia.org/wiki/Massively-Multiplayer_Online_Bibliography', target: '_blank'
+            = link_to t('home.index.mmob_name'), 'https://meta.wikimedia.org/wiki/Massively-Multiplayer_Online_Bibliography', target: '_blank'

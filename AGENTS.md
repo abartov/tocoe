@@ -119,6 +119,16 @@ history/
 - ✅ Preserves planning history for archeological research
 - ✅ Reduces noise when browsing the project
 
+### Coding Standards
+
+**All code changes must follow project standards:**
+
+- ✅ **I18n**: Use `I18n.t()` in controllers and `t()` in views for all user-facing strings
+- ✅ **Testing**: Include RSpec tests for all new features and bug fixes
+- ✅ **Git Commits**: Stage code first, commit with descriptive message, THEN run `bd sync`
+
+See CLAUDE.md for detailed guidelines on testing, I18n, and git workflow.
+
 ### Important Rules
 
 - ✅ Use bd for ALL task tracking
@@ -126,9 +136,12 @@ history/
 - ✅ Link discovered work with `discovered-from` dependencies
 - ✅ Check `bd ready` before asking "what should I work on?"
 - ✅ Store AI planning docs in `history/` directory
+- ✅ Follow I18n guidelines for all user-facing text
+- ✅ Write tests for all code changes
 - ❌ Do NOT create markdown TODO lists
 - ❌ Do NOT use external issue trackers
 - ❌ Do NOT duplicate tracking systems
 - ❌ Do NOT clutter repo root with planning documents
+- ❌ Do NOT hardcode English strings in code
 
-For more details, see README.md and QUICKSTART.md.
+For more details, see README.md, QUICKSTART.md, and CLAUDE.md.

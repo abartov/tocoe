@@ -136,7 +136,7 @@ class TocsController < ApplicationController
     if @toc.book_uri =~ %r{openlibrary\.org/books/([A-Z0-9]+)}i
       ol_book_id = $1
     else
-      flash[:error] = 'Invalid OpenLibrary book URI'
+      flash[:error] = I18n.t('tocs.flash.invalid_openlibrary_uri')
       redirect_to @toc and return
     end
 
@@ -146,14 +146,14 @@ class TocsController < ApplicationController
     # Get Internet Archive identifier
     @ia_id = ol_client.ia_identifier(ol_book_id)
     unless @ia_id
-      flash[:error] = 'No scans available for this book'
+      flash[:error] = I18n.t('tocs.flash.no_scans_available')
       redirect_to @toc and return
     end
 
     # Get metadata to determine page count
     @metadata = ol_client.ia_metadata(@ia_id)
     unless @metadata && @metadata[:imagecount]
-      flash[:error] = 'Unable to fetch scan metadata'
+      flash[:error] = I18n.t('tocs.flash.unable_to_fetch_metadata')
       redirect_to @toc and return
     end
 
@@ -181,7 +181,7 @@ class TocsController < ApplicationController
 
     # Validate: must have either marked pages OR no_explicit_toc
     if marked_page_urls.empty? && !no_explicit_toc
-      flash[:error] = 'Please mark at least one page or check "No explicit table of contents"'
+      flash[:error] = I18n.t('tocs.flash.mark_pages_required')
       redirect_to browse_scans_toc_path(@toc) and return
     end
 
@@ -191,10 +191,10 @@ class TocsController < ApplicationController
     @toc.status = :pages_marked
 
     if @toc.save
-      flash[:notice] = 'TOC pages marked successfully'
+      flash[:notice] = I18n.t('tocs.flash.pages_marked_successfully')
       redirect_to @toc
     else
-      flash[:error] = 'Failed to save marked pages'
+      flash[:error] = I18n.t('tocs.flash.failed_to_save_marked_pages')
       redirect_to browse_scans_toc_path(@toc)
     end
   end
@@ -203,7 +203,7 @@ class TocsController < ApplicationController
   # Marks the TOC as transcribed and records the contributor
   def mark_transcribed
     unless @toc.pages_marked?
-      flash[:error] = 'TOC must be in pages_marked status to mark as transcribed'
+      flash[:error] = I18n.t('tocs.flash.must_be_pages_marked_to_transcribe')
       redirect_to @toc and return
     end
 
@@ -211,10 +211,10 @@ class TocsController < ApplicationController
     @toc.status = :transcribed
 
     if @toc.save
-      flash[:notice] = 'TOC marked as transcribed successfully'
+      flash[:notice] = I18n.t('tocs.flash.marked_as_transcribed_successfully')
       redirect_to @toc
     else
-      flash[:error] = 'Failed to mark TOC as transcribed'
+      flash[:error] = I18n.t('tocs.flash.failed_to_mark_transcribed')
       redirect_to @toc
     end
   end
@@ -223,7 +223,7 @@ class TocsController < ApplicationController
   # Verifies the transcription and records the reviewer
   def verify
     unless @toc.transcribed?
-      flash[:error] = 'TOC must be in transcribed status to verify'
+      flash[:error] = I18n.t('tocs.flash.must_be_transcribed_to_verify')
       redirect_to @toc and return
     end
 
@@ -231,10 +231,10 @@ class TocsController < ApplicationController
     @toc.status = :verified
 
     if @toc.save
-      flash[:notice] = 'TOC verified successfully'
+      flash[:notice] = I18n.t('tocs.flash.verified_successfully')
       redirect_to @toc
     else
-      flash[:error] = 'Failed to verify TOC'
+      flash[:error] = I18n.t('tocs.flash.failed_to_verify')
       redirect_to @toc
     end
   end
@@ -245,7 +245,7 @@ class TocsController < ApplicationController
     book_ids = params[:book_ids] || []
 
     if book_ids.empty?
-      flash[:error] = 'No books selected'
+      flash[:error] = I18n.t('tocs.flash.no_books_selected')
       redirect_to publications_search_path and return
     end
 
@@ -272,10 +272,10 @@ class TocsController < ApplicationController
     end
 
     if created_count > 0
-      flash[:notice] = "Successfully created #{created_count} TOC#{created_count == 1 ? '' : 's'}"
+      flash[:notice] = I18n.t('tocs.flash.created_multiple_success', count: created_count)
       redirect_to tocs_path(status: 'empty')
     else
-      flash[:error] = 'Failed to create any TOCs'
+      flash[:error] = I18n.t('tocs.flash.failed_to_create_any')
       redirect_to publications_search_path
     end
   end

@@ -1,28 +1,28 @@
-%h1 Listing TOCs
+%h1= t('tocs.index.title')
 
 - if params[:status].present?
   %p.text-muted
-    Showing TOCs with status: #{params[:status]}
-    = link_to 'Show all TOCs needing work', tocs_path, class: 'btn btn-sm btn-default'
+    = t('tocs.index.showing_status', status: params[:status])
+    = link_to t('tocs.index.show_all_needing_work_link'), tocs_path, class: 'btn btn-sm btn-default'
 - elsif params[:show_all] == 'true'
   %p.text-muted
-    Showing all TOCs including verified ones.
-    = link_to 'Show only TOCs needing work', tocs_path, class: 'btn btn-sm btn-default'
+    = t('tocs.index.showing_all')
+    = link_to t('tocs.index.show_only_needing_work_link'), tocs_path, class: 'btn btn-sm btn-default'
 - else
   %p.text-muted
-    Showing TOCs that need work (excluding verified).
-    = link_to 'Show all TOCs', tocs_path(show_all: true), class: 'btn btn-sm btn-default'
+    = t('tocs.index.showing_needs_work')
+    = link_to t('tocs.index.show_all_link'), tocs_path(show_all: true), class: 'btn btn-sm btn-default'
 
 %table.table.table-striped
   %thead
     %tr
-      %th Title
-      %th URI
-      %th ToC
-      %th Status
-      %th Contributor
-      %th Reviewer
-      %th Comments
+      %th= t('tocs.index.headers.title')
+      %th= t('tocs.index.headers.uri')
+      %th= t('tocs.index.headers.toc')
+      %th= t('tocs.index.headers.status')
+      %th= t('tocs.index.headers.contributor')
+      %th= t('tocs.index.headers.reviewer')
+      %th= t('tocs.index.headers.comments')
       %th
       %th
       %th
@@ -37,10 +37,10 @@
         %td= toc.contributor_id
         %td= toc.reviewer_id
         %td= toc.comments
-        %td= link_to 'Show', toc
-        %td= link_to 'Edit', edit_toc_path(toc)
-        %td= link_to 'Destroy', toc, :method => :delete, :data => { :confirm => 'Are you sure?' }
+        %td= link_to t('common.actions.show'), toc
+        %td= link_to t('common.actions.edit'), edit_toc_path(toc)
+        %td= link_to t('common.actions.destroy'), toc, :method => :delete, :data => { :confirm => t('common.actions.confirm_destroy') }
 
 %br
 
-= link_to 'New Toc', new_toc_path
+= link_to t('tocs.index.new_toc'), new_toc_path

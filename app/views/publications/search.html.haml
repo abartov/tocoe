@@ -2,25 +2,25 @@
   #sidebar{ class: 'col-xs-2' }
     sidebar here
   #content{ class: 'col-xs-10' }
-    %h1 Pick a book to make a ToC for:
-    %p Search Open Library for publications with full-text available
+    %h1= t('publications.search.title')
+    %p= t('publications.search.description')
     = form_tag publications_search_path, :method => 'get', :id => 'publications_search' do
       .form-group
-        = label_tag :search, 'General Search:'
-        = text_field_tag :search, params[:search], class: 'form-control', placeholder: 'Search for anything...'
+        = label_tag :search, t('publications.search.form.general_search_label')
+        = text_field_tag :search, params[:search], class: 'form-control', placeholder: t('publications.search.form.general_search_placeholder')
       .form-group
-        = label_tag :title, 'Or Search by Title:'
-        = text_field_tag :title, params[:title], class: 'form-control', placeholder: 'Book title...'
+        = label_tag :title, t('publications.search.form.title_search_label')
+        = text_field_tag :title, params[:title], class: 'form-control', placeholder: t('publications.search.form.title_search_placeholder')
       .form-group
-        = label_tag :author, 'Or Search by Author:'
-        = text_field_tag :author, params[:author], class: 'form-control', placeholder: 'Author name...'
+        = label_tag :author, t('publications.search.form.author_search_label')
+        = text_field_tag :author, params[:author], class: 'form-control', placeholder: t('publications.search.form.author_search_placeholder')
       .form-group
         = check_box_tag :fulltext_only, '1', params[:fulltext_only] == '1'
-        = label_tag :fulltext_only, 'Only show books with full-text publicly available'
-      = submit_tag 'Search', :name => nil, class: 'btn btn-primary'
+        = label_tag :fulltext_only, t('publications.search.form.fulltext_only_label')
+      = submit_tag t('publications.search.form.search_button'), :name => nil, class: 'btn btn-primary'
       - if @num_results
         %p.text-muted
-          Found #{@num_results} result#{ @num_results == 1 ? '' : 's' }
+          = t('publications.search.form.results_found', count: @num_results)
       #results
         != render partial: 'ol_results', locals: { :results => @results}
     %p

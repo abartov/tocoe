@@ -43,7 +43,6 @@ gem 'sdoc', group: :doc
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'debug'
   gem 'cucumber'
   gem 'cucumber-rails', require: false
   gem 'database_cleaner'
@@ -52,10 +51,12 @@ group :development, :test do
   gem 'rails-controller-testing'
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
+  # gem 'debug' # uncomment to debug tests
 end
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
+  gem 'debug'
   gem 'web-console'
   gem 'listen', '~> 3.3'
 end

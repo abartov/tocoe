@@ -1,66 +1,127 @@
-# GitHub Copilot Instructions for Beads
+# GitHub Copilot Instructions for ToCoE
 
 ## Project Overview
 
-**beads** (command: `bd`) is a Git-backed issue tracker designed for AI-supervised coding workflows. We dogfood our own tool for all task tracking.
+**ToCoE** (Table of Contents of Everything) is a Rails 7.1 application for producing CC0 (public domain) tables of contents of written works through volunteer labor and linked open data.
 
 **Key Features:**
-- Dependency-aware issue tracking
-- Auto-sync with Git via JSONL
-- AI-optimized CLI with JSON output
-- Built-in daemon for background operations
-- MCP server integration for Claude and other AI assistants
+- FRBR (Functional Requirements for Bibliographic Records) data model
+- OpenLibrary API integration for book metadata
+- Internet Archive integration for book scans and OCR
+- TOC workflow: empty → pages_marked → transcribed → verified
+- Google OAuth authentication (Devise + omniauth-google-oauth2)
 
 ## Tech Stack
 
-- **Language**: Go 1.21+
-- **Storage**: SQLite (internal/storage/sqlite/)
-- **CLI Framework**: Cobra
-- **Testing**: Go standard testing + table-driven tests
-- **CI/CD**: GitHub Actions
-- **MCP Server**: Python (integrations/beads-mcp/)
+- **Framework**: Rails 7.1
+- **Ruby**: Check `.ruby-version` file (mise tool manager)
+- **Database**: SQLite3 (development), MySQL2 (production)
+- **Views**: HAML templates
+- **Authentication**: Devise + Google OAuth2
+- **Testing**: RSpec (preferred), Minitest (legacy), Cucumber (BDD)
+- **External APIs**: OpenLibrary, Internet Archive, OCR services
 
 ## Coding Guidelines
 
-### Testing
-- Always write tests for new features
-- Use `BEADS_DB=/tmp/test.db` to avoid polluting production database
-- Run `go test -short ./...` before committing
-- Never create test issues in production DB (use temporary DB)
+### Internationalization (I18n) - MANDATORY
 
-### Code Style
-- Run `golangci-lint run ./...` before committing
-- Follow existing patterns in `cmd/bd/` for new commands
-- Add `--json` flag to all commands for programmatic use
-- Update docs when changing behavior
+All user-facing strings MUST use Rails I18n. Never hardcode English strings.
 
-### Git Workflow
-- Always commit `.beads/issues.jsonl` with code changes
-- Run `bd sync` at end of work sessions
-- Install git hooks: `bd hooks install` (ensures DB ↔ JSONL consistency)
+**Controllers:**
+```ruby
+# Good
+flash[:notice] = I18n.t('tocs.flash.pages_marked_successfully')
+flash[:error] = I18n.t('tocs.flash.invalid_openlibrary_uri')
+
+# Bad - NEVER do this
+flash[:notice] = 'TOC pages marked successfully'
+flash[:error] = 'Invalid OpenLibrary book URI'
+```
+
+**Views:**
+```haml
+-# Good
+%h1= t('tocs.index.title')
+= link_to t('common.actions.edit'), edit_toc_path(@toc)
+= label_tag t('tocs.form.book_uri_label')
+
+-# Bad - NEVER do this
+%h1 Listing TOCs
+= link_to 'Edit', edit_toc_path(@toc)
+= label_tag 'Book URI'
+```
+
+**Locale File Organization** (`config/locales/en.yml`):
+- `common.actions` - Shared action strings (Edit, Save, Back, etc.)
+- `common.labels` - Shared label strings (Title, Status, etc.)
+- `tocs.flash` - Flash messages from TocsController
+- `tocs.index`, `tocs.show`, `tocs.edit` - View-specific strings
+- `tocs.form` - Form-specific strings
+- `home.index` - Homepage strings
+- `publications.search` - Publications search strings
+
+### Testing - MANDATORY
+
+All new features and bug fixes MUST include RSpec tests.
+
+**Test Structure:**
+```ruby
+# spec/models/work_spec.rb
+RSpec.describe Work, type: :model do
+  describe 'validations' do
+    it { should validate_presence_of(:title) }
+  end
+
+  describe 'associations' do
+    it { should have_many(:expressions) }
+  end
+
+  describe '#method_name' do
+    it 'does something specific' do
+      # Arrange, Act, Assert
+    end
+  end
+end
+```
+
+**Run tests:**
+```bash
+bundle exec rspec                              # All tests
+bundle exec rspec spec/models/work_spec.rb     # Single file
+bundle exec rspec spec/models/work_spec.rb:42  # Single example
+```
+
+### Git Workflow with Beads
+
+This project uses **bd (beads)** for issue tracking.
+
+**Correct commit workflow:**
+1. Stage code: `git add <files>`
+2. Commit with message: `git commit -m "Descriptive message..."`
+3. Close beads issue: `bd close <id>`
+4. Sync beads: `bd sync`
+5. Push: `git push`
+
+**CRITICAL**: Never run `bd sync` before committing your code, or it will commit with a generic "bd sync: [timestamp]" message.
 
 ## Issue Tracking with bd
 
-**CRITICAL**: This project uses **bd** for ALL task tracking. Do NOT create markdown TODO lists.
+**MANDATORY**: Use **bd** for ALL task tracking. Do NOT create markdown TODO lists.
 
 ### Essential Commands
 
 ```bash
 # Find work
 bd ready --json                    # Unblocked issues
-bd stale --days 30 --json          # Forgotten issues
+bd list --status open --json       # All open issues
 
 # Create and manage
 bd create "Title" -t bug|feature|task -p 0-4 --json
 bd update <id> --status in_progress --json
 bd close <id> --reason "Done" --json
 
-# Search
-bd list --status open --priority 1 --json
-bd show <id> --json
-
-# Sync (CRITICAL at end of session!)
-bd sync  # Force immediate export/commit/push
+# Sync (at end of session!)
+bd sync  # Sync with git remote
 ```
 
 ### Workflow
@@ -68,9 +129,8 @@ bd sync  # Force immediate export/commit/push
 1. **Check ready work**: `bd ready --json`
 2. **Claim task**: `bd update <id> --status in_progress`
 3. **Work on it**: Implement, test, document
-4. **Discover new work?** `bd create "Found bug" -p 1 --deps discovered-from:<parent-id> --json`
-5. **Complete**: `bd close <id> --reason "Done"`
-6. **Sync**: `bd sync` (flushes changes to git immediately)
+4. **Complete**: `bd close <id> --reason "Done"`
+5. **Sync**: `bd sync`
 
 ### Priorities
 
@@ -83,50 +143,40 @@ bd sync  # Force immediate export/commit/push
 ## Project Structure
 
 ```
-beads/
-├── cmd/bd/              # CLI commands (add new commands here)
-├── internal/
-│   ├── types/           # Core data types
-│   └── storage/         # Storage layer
-│       └── sqlite/      # SQLite implementation
-├── integrations/
-│   └── beads-mcp/       # MCP server (Python)
-├── examples/            # Integration examples
-├── docs/                # Documentation
+tocoe/
+├── app/
+│   ├── controllers/       # Rails controllers
+│   ├── models/            # FRBR models (Work, Expression, Manifestation, Person)
+│   ├── views/             # HAML templates
+│   └── assets/            # JavaScript, CSS
+├── config/
+│   ├── locales/           # I18n translation files
+│   └── routes.rb          # URL routing
+├── db/
+│   ├── migrate/           # Database migrations
+│   └── schema.rb          # Current database schema
+├── lib/
+│   ├── open_library/      # OpenLibrary API client
+│   └── subject_headings/  # Wikidata integration
+├── spec/                  # RSpec tests (preferred)
+├── test/                  # Minitest tests (legacy)
+├── features/              # Cucumber BDD tests
 └── .beads/
-    ├── beads.db         # SQLite database (DO NOT COMMIT)
-    └── issues.jsonl     # Git-synced issue storage
+    └── issues.jsonl       # Beads issue tracking
 ```
-
-## Available Resources
-
-### MCP Server (Recommended)
-Use the beads MCP server for native function calls instead of shell commands:
-- Install: `pip install beads-mcp`
-- Functions: `mcp__beads__ready()`, `mcp__beads__create()`, etc.
-- See `integrations/beads-mcp/README.md`
-
-### Scripts
-- `./scripts/bump-version.sh <version> --commit` - Update all version files atomically
-- `./scripts/release.sh <version>` - Complete release workflow
-- `./scripts/update-homebrew.sh <version>` - Update Homebrew formula
-
-### Key Documentation
-- **AGENTS.md** - Comprehensive AI agent guide (detailed workflows, advanced features)
-- **AGENT_INSTRUCTIONS.md** - Development procedures, testing, releases
-- **README.md** - User-facing documentation
-- **docs/CLI_REFERENCE.md** - Complete command reference
 
 ## Important Rules
 
+- ✅ Use `I18n.t()` / `t()` for ALL user-facing strings
+- ✅ Write RSpec tests for all new code
 - ✅ Use bd for ALL task tracking
-- ✅ Always use `--json` flag for programmatic use
-- ✅ Run `bd sync` at end of sessions
-- ✅ Test with `BEADS_DB=/tmp/test.db`
+- ✅ Commit code BEFORE running `bd sync`
+- ✅ Run `bundle exec rspec` before committing
+- ❌ Do NOT hardcode English strings
+- ❌ Do NOT skip writing tests
 - ❌ Do NOT create markdown TODO lists
-- ❌ Do NOT create test issues in production DB
-- ❌ Do NOT commit `.beads/beads.db` (JSONL only)
+- ❌ Do NOT commit without running tests
 
 ---
 
-**For detailed workflows and advanced features, see [AGENTS.md](../AGENTS.md)**
+**For detailed guidelines, see [CLAUDE.md](../CLAUDE.md) and [AGENTS.md](../AGENTS.md)**

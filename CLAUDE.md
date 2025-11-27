@@ -212,6 +212,97 @@ bundle exec rspec spec/models/work_spec.rb
 bundle exec rspec spec/controllers/tocs_controller_spec.rb
 ```
 
+## Internationalization (I18n)
+
+This application uses Rails I18n for all user-facing strings to support future translation to multiple languages.
+
+### Guidelines
+
+**MANDATORY**: All new user-facing strings MUST be added to locale files. Never hardcode English strings in controllers or views.
+
+#### Controllers
+
+Use `I18n.t()` for all flash messages and user-facing text:
+
+```ruby
+# Good
+flash[:notice] = I18n.t('tocs.flash.pages_marked_successfully')
+flash[:error] = I18n.t('tocs.flash.invalid_openlibrary_uri')
+
+# Bad - NEVER do this
+flash[:notice] = 'TOC pages marked successfully'
+flash[:error] = 'Invalid OpenLibrary book URI'
+```
+
+#### Views
+
+Use the `t()` helper for all user-facing strings:
+
+```haml
+-# Good
+%h1= t('tocs.index.title')
+= link_to t('common.actions.edit'), edit_toc_path(@toc)
+= label_tag t('tocs.form.book_uri_label')
+
+-# Bad - NEVER do this
+%h1 Listing TOCs
+= link_to 'Edit', edit_toc_path(@toc)
+= label_tag 'Book URI'
+```
+
+#### Locale File Organization
+
+Strings are organized in `config/locales/en.yml` by namespace:
+
+- `common.actions` - Shared action strings (Edit, Save, Back, etc.)
+- `common.labels` - Shared label strings (Title, Status, etc.)
+- `tocs.flash` - Flash messages from TocsController
+- `tocs.index`, `tocs.show`, `tocs.edit`, etc. - View-specific strings
+- `tocs.form` - Form-specific strings
+- `home.index` - Homepage strings
+- `publications.search` - Publications search strings
+
+#### Pluralization
+
+Use Rails pluralization for count-based messages:
+
+```yaml
+# Locale file
+created_multiple_success:
+  one: "Successfully created %{count} TOC"
+  other: "Successfully created %{count} TOCs"
+
+# Controller
+flash[:notice] = I18n.t('tocs.flash.created_multiple_success', count: created_count)
+```
+
+#### Interpolation
+
+Use interpolation for dynamic values:
+
+```yaml
+# Locale file
+welcome_back: "Welcome back, %{email}!"
+page_number: "TOC Page %{number}"
+
+# View
+t('home.index.welcome_back', email: current_user.email)
+t('tocs.show.page_number', number: index + 1)
+```
+
+#### JavaScript
+
+JavaScript strings in views currently use hardcoded English text. For full I18n support, consider using a JavaScript I18n library like `i18n-js`. For now, JavaScript strings are acceptable as-is but should be documented for future translation work.
+
+#### Testing I18n Changes
+
+When adding new I18n strings:
+
+1. Add strings to `config/locales/en.yml`
+2. Update controllers/views to use `I18n.t()` / `t()`
+3. Run full RSpec suite: `bundle exec rspec`
+4. Verify all tests pass
+
 ## Git Workflow with Beads
 
 This project uses the Beads issue tracker which integrates with git. **CRITICAL**: Follow this exact workflow to ensure proper commit messages.

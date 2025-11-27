@@ -1,75 +1,75 @@
 %p#notice= notice
 
 %p
-  %b Book title and URI:
+  %b= t('tocs.show.book_title_and_uri')
   = "#{@toc.title} - #{@toc.book_uri}"
 %p
-  %b Status:
+  %b= t('common.labels.status')
   = @toc.status
 
 - if @toc.pages_marked?
   .alert.alert-info
     %p
-      %strong Ready to transcribe:
-      The TOC pages have been marked. Transcribe the table of contents and mark it as ready.
+      %strong= t('tocs.show.pages_marked_alert.title')
+      = t('tocs.show.pages_marked_alert.description')
     %p
-      = link_to 'Edit ToC transcription', edit_toc_path(@toc), class: 'btn btn-primary'
-      = button_to 'Mark as Transcribed', mark_transcribed_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: 'Confirm that you have transcribed this TOC?' }
+      = link_to t('tocs.show.pages_marked_alert.edit_button'), edit_toc_path(@toc), class: 'btn btn-primary'
+      = button_to t('tocs.show.pages_marked_alert.mark_transcribed_button'), mark_transcribed_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: t('tocs.show.pages_marked_alert.confirm_transcribed') }
 
 - elsif @toc.transcribed?
   .alert.alert-success
     %p
-      %strong Ready for review:
-      This TOC has been transcribed and is awaiting verification.
+      %strong= t('tocs.show.transcribed_alert.title')
+      = t('tocs.show.transcribed_alert.description')
     %p
-      = button_to 'Verify Transcription', verify_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: 'Confirm that you have verified this transcription is correct?' }
+      = button_to t('tocs.show.transcribed_alert.verify_button'), verify_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: t('tocs.show.transcribed_alert.confirm_verified') }
 
 - if @toc.no_explicit_toc
   %p
-    %b No explicit table of contents
+    %b= t('tocs.show.no_explicit_toc')
 - elsif @toc.empty?
   .alert.alert-warning
     %p
-      %strong Action Required:
-      This TOC has not yet had its pages marked.
+      %strong= t('tocs.show.empty_alert.title')
+      = t('tocs.show.empty_alert.description')
     %p
-      = link_to 'Browse Scans to Mark TOC Pages', browse_scans_toc_path(@toc), class: 'btn btn-primary btn-lg'
+      = link_to t('tocs.show.empty_alert.browse_scans_button'), browse_scans_toc_path(@toc), class: 'btn btn-primary btn-lg'
 
 .row
   .col-md-8
     %p
-      %b Toc body:
+      %b= t('tocs.show.toc_body')
       != @toc.toc_body&.gsub("\n",'<br/>') # TODO: make safe
 
   - if @toc.toc_page_urls.present?
     .col-md-4
       %p
-        %b Marked TOC Pages:
+        %b= t('tocs.show.marked_toc_pages')
         = "(#{@toc.toc_page_urls.split("\n").count})"
       .toc-page-thumbnails
         - @toc.toc_page_urls.split("\n").each_with_index do |url, index|
           .toc-page-thumb.mb-2
             = link_to url, target: '_blank' do
-              = image_tag "#{url}?scale=8", alt: "TOC Page #{index + 1}", class: 'img-thumbnail'
+              = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail'
             .text-center.small
-              Page #{index + 1}
+              = t('tocs.show.page_number', number: index + 1)
 %p
-  %b Contributor:
+  %b= t('common.labels.contributor')
   = @toc.contributor_id
 %p
-  %b Reviewer:
+  %b= t('common.labels.reviewer')
   = @toc.reviewer_id
 %p
-  %b Comments:
+  %b= t('common.labels.comments')
   = @toc.comments
 %hr
 - if @manifestation
   = render partial: 'manifestations/show', locals: { manifestation: @manifestation }
 - unless @toc.empty?
-  = link_to 'Browse Scans', browse_scans_toc_path(@toc), class: 'btn btn-info'
-= link_to 'Edit', edit_toc_path(@toc)
+  = link_to t('tocs.show.browse_scans_link'), browse_scans_toc_path(@toc), class: 'btn btn-info'
+= link_to t('common.actions.edit'), edit_toc_path(@toc)
 \|
-= link_to 'Back', tocs_path
+= link_to t('common.actions.back'), tocs_path
 
 :css
   .toc-page-thumbnails {

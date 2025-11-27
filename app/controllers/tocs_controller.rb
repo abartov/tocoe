@@ -92,6 +92,16 @@ class TocsController < ApplicationController
     else
       get_authors(@toc.book_uri)
     end
+
+    # Check if this is a Gutenberg book and fetch fulltext URL
+    if @toc.book_uri =~ %r{gutenberg\.org/ebooks/(\d+)}
+      pg_book_id = $1
+      gutendex_client = Gutendex::Client.new
+      @fulltext_url = gutendex_client.preferred_fulltext_url(pg_book_id)
+      @is_gutenberg = true
+    else
+      @is_gutenberg = false
+    end
   end
 
   # POST /tocs

@@ -871,6 +871,7 @@ RSpec.describe TocsController, type: :controller do
 
   describe 'GET #edit' do
     context 'with Gutendex book_data stored' do
+      let(:gutendex_client) { instance_double(Gutendex::Client) }
       let(:gutendex_book_data) do
         {
           'title' => 'Pride and Prejudice',
@@ -885,6 +886,11 @@ RSpec.describe TocsController, type: :controller do
           title: 'Pride and Prejudice',
           book_data: gutendex_book_data
         )
+      end
+
+      before do
+        allow(Gutendex::Client).to receive(:new).and_return(gutendex_client)
+        allow(gutendex_client).to receive(:preferred_fulltext_url).with('1342').and_return('https://www.gutenberg.org/files/1342/1342-h/1342-h.htm')
       end
 
       it 'uses stored book_data instead of making network request' do
@@ -936,6 +942,41 @@ RSpec.describe TocsController, type: :controller do
         authors = controller.instance_variable_get(:@authors)
         expect(authors).to be_present
         expect(authors[0]['name']).to eq('Test Author')
+      end
+
+      it 'sets @is_gutenberg to false for Open Library books' do
+        get :edit, params: { id: ol_toc.id }
+
+        expect(assigns(:is_gutenberg)).to eq(false)
+        expect(assigns(:fulltext_url)).to be_nil
+      end
+    end
+
+    context 'with Project Gutenberg book_uri' do
+      let(:gutendex_client) { instance_double(Gutendex::Client) }
+      let(:fulltext_url) { 'https://www.gutenberg.org/files/84/84-h/84-h.htm' }
+      let(:gutenberg_toc) do
+        Toc.create!(
+          book_uri: 'https://www.gutenberg.org/ebooks/84',
+          title: 'Frankenstein',
+          book_data: {
+            'title' => 'Frankenstein',
+            'authors' => [{ 'name' => 'Shelley, Mary Wollstonecraft', 'birth_year' => 1797, 'death_year' => 1851 }]
+          }
+        )
+      end
+
+      before do
+        allow(Gutendex::Client).to receive(:new).and_return(gutendex_client)
+        allow(gutendex_client).to receive(:preferred_fulltext_url).with('84').and_return(fulltext_url)
+      end
+
+      it 'sets @is_gutenberg to true and fetches fulltext URL' do
+        get :edit, params: { id: gutenberg_toc.id }
+
+        expect(assigns(:is_gutenberg)).to eq(true)
+        expect(assigns(:fulltext_url)).to eq(fulltext_url)
+        expect(gutendex_client).to have_received(:preferred_fulltext_url).with('84')
       end
     end
   end

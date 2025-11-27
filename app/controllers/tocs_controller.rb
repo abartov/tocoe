@@ -10,7 +10,13 @@ class TocsController < ApplicationController
   # GET /tocs
   # GET /tocs.json
   def index
-    @tocs = Toc.all
+    # By default, show TOCs that need work (exclude verified)
+    @tocs = if params[:show_all] == 'true'
+              Toc.all
+            else
+              Toc.where.not(status: :verified)
+            end
+    @tocs = @tocs.order(updated_at: :desc)
   end
 
   # GET /tocs/1

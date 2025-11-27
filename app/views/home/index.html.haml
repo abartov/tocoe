@@ -27,7 +27,11 @@
         - if user_signed_in?
           %p
             %strong Welcome back, #{current_user.email}!
-          = link_to 'Continue to ToC Search', publications_search_path, class: 'btn btn-primary btn-lg'
+          %p
+            = link_to 'Search for Books', publications_search_path, class: 'btn btn-primary btn-lg'
+            = link_to 'View Existing TOCs', tocs_path, class: 'btn btn-info btn-lg', style: 'margin-left: 10px;'
+          %p.text-muted
+            %small View existing TOCs to contribute transcriptions or verifications
         - else
           %p
             %strong Sign in to start contributing tables of contents.

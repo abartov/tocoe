@@ -9,6 +9,38 @@ RSpec.describe TocsController, type: :controller do
     sign_in user
   end
 
+  describe 'GET #index' do
+    it 'excludes verified TOCs by default' do
+      verified_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL1M', title: 'Verified', status: :verified)
+      pending_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL2M', title: 'Pending', status: :pages_marked)
+
+      get :index
+
+      expect(assigns(:tocs)).to include(pending_toc)
+      expect(assigns(:tocs)).not_to include(verified_toc)
+    end
+
+    it 'shows all TOCs when show_all parameter is true' do
+      verified_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL1M', title: 'Verified', status: :verified)
+      pending_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL2M', title: 'Pending', status: :pages_marked)
+
+      get :index, params: { show_all: 'true' }
+
+      expect(assigns(:tocs)).to include(verified_toc)
+      expect(assigns(:tocs)).to include(pending_toc)
+    end
+
+    it 'orders TOCs by updated_at descending' do
+      old_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL1M', title: 'Old', status: :empty, updated_at: 2.days.ago)
+      new_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL2M', title: 'New', status: :empty, updated_at: 1.day.ago)
+
+      get :index
+
+      expect(assigns(:tocs).first).to eq(new_toc)
+      expect(assigns(:tocs).last).to eq(old_toc)
+    end
+  end
+
   describe 'GET #browse_scans' do
     context 'with valid OpenLibrary book URI' do
       let(:ol_client) { instance_double(OpenLibrary::Client) }

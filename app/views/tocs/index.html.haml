@@ -1,6 +1,15 @@
-%h1 Listing tocs
+%h1 Listing TOCs
 
-%table
+- if params[:show_all] == 'true'
+  %p.text-muted
+    Showing all TOCs including verified ones.
+    = link_to 'Show only TOCs needing work', tocs_path, class: 'btn btn-sm btn-default'
+- else
+  %p.text-muted
+    Showing TOCs that need work (excluding verified).
+    = link_to 'Show all TOCs', tocs_path(show_all: true), class: 'btn btn-sm btn-default'
+
+%table.table.table-striped
   %thead
     %tr
       %th Title

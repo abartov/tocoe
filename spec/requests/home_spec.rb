@@ -17,5 +17,14 @@ RSpec.describe "Homes", type: :request do
       get root_path
       expect(response.body).to include('Sign in with Google')
     end
+
+    it "shows View Existing TOCs button when logged in" do
+      user = User.create!(email: 'test@example.com', password: 'password123')
+      sign_in user
+
+      get root_path
+      expect(response.body).to include('View Existing TOCs')
+      expect(response.body).to include(tocs_path)
+    end
   end
 end

@@ -123,4 +123,74 @@ RSpec.describe OpenLibrary::Client do
       expect(url).to eq('https://archive.org/download/test_id/page/n5.jpg?scale=8')
     end
   end
+
+  describe '#search' do
+    it 'includes pagination parameters in the request' do
+      # Mock the request method to capture the URL
+      expect(client).to receive(:request) do |path|
+        expect(path).to include('limit=20')
+        expect(path).to include('offset=0')
+        { 'numFound' => 0, 'docs' => [] }
+      end
+
+      client.search(query: 'test', page: 1, per_page: 20)
+    end
+
+    it 'calculates correct offset for page 2' do
+      # Page 2 with 20 per page should have offset of 20
+      expect(client).to receive(:request) do |path|
+        expect(path).to include('limit=20')
+        expect(path).to include('offset=20')
+        { 'numFound' => 0, 'docs' => [] }
+      end
+
+      client.search(query: 'test', page: 2, per_page: 20)
+    end
+
+    it 'calculates correct offset for page 3 with custom per_page' do
+      # Page 3 with 50 per page should have offset of 100
+      expect(client).to receive(:request) do |path|
+        expect(path).to include('limit=50')
+        expect(path).to include('offset=100')
+        { 'numFound' => 0, 'docs' => [] }
+      end
+
+      client.search(query: 'test', page: 3, per_page: 50)
+    end
+
+    it 'defaults to page 1 and per_page 20' do
+      expect(client).to receive(:request) do |path|
+        expect(path).to include('limit=20')
+        expect(path).to include('offset=0')
+        { 'numFound' => 0, 'docs' => [] }
+      end
+
+      client.search(query: 'test')
+    end
+
+    it 'limits per_page to maximum of 1000' do
+      # Even if requested 2000, should cap at 1000
+      expect(client).to receive(:request) do |path|
+        expect(path).to include('limit=1000')
+        expect(path).not_to include('limit=2000')
+        { 'numFound' => 0, 'docs' => [] }
+      end
+
+      client.search(query: 'test', per_page: 2000)
+    end
+
+    it 'includes other search parameters along with pagination' do
+      expect(client).to receive(:request) do |path|
+        expect(path).to include('q=test')
+        expect(path).to include('author=author')
+        expect(path).to include('title=title')
+        expect(path).to include('has_fulltext=true')
+        expect(path).to include('limit=20')
+        expect(path).to include('offset=0')
+        { 'numFound' => 0, 'docs' => [] }
+      end
+
+      client.search(query: 'test', author: 'author', title: 'title', has_fulltext: true, page: 1, per_page: 20)
+    end
+  end
 end

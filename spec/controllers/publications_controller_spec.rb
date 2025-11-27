@@ -193,5 +193,80 @@ RSpec.describe PublicationsController, type: :controller do
         expect(results.length).to eq(0)
       end
     end
+
+    context 'pagination' do
+      let(:large_search_results) do
+        {
+          'numFound' => 50,
+          'docs' => (1..20).map do |i|
+            {
+              'title' => "Book #{i}",
+              'author_name' => ["Author #{i}"],
+              'has_fulltext' => true,
+              'ebook_access' => 'public',
+              'editions' => {
+                'docs' => [
+                  { 'key' => "/books/OL#{i}M" }
+                ]
+              }
+            }
+          end
+        }
+      end
+
+      before do
+        allow(mock_client).to receive(:search).and_return(large_search_results)
+      end
+
+      it 'defaults to page 1 when no page parameter provided' do
+        get :search, params: { search: 'test' }
+
+        expect(assigns(:current_page)).to eq(1)
+      end
+
+      it 'uses the page parameter when provided' do
+        get :search, params: { search: 'test', page: 3 }
+
+        expect(assigns(:current_page)).to eq(3)
+      end
+
+      it 'defaults to 20 results per page' do
+        get :search, params: { search: 'test' }
+
+        expect(assigns(:per_page)).to eq(20)
+      end
+
+      it 'uses the per_page parameter when provided' do
+        get :search, params: { search: 'test', per_page: 50 }
+
+        expect(assigns(:per_page)).to eq(50)
+      end
+
+      it 'calculates total pages correctly' do
+        get :search, params: { search: 'test' }
+
+        # 50 results / 20 per page = 3 pages
+        expect(assigns(:total_pages)).to eq(3)
+      end
+
+      it 'passes pagination parameters to OpenLibrary client' do
+        expect(mock_client).to receive(:search).with(hash_including(
+          page: 2,
+          per_page: 20
+        )).and_return(large_search_results)
+
+        get :search, params: { search: 'test', page: 2 }
+      end
+
+      it 'handles fractional page counts by ceiling' do
+        # 45 results / 20 per page = 2.25 pages -> 3 pages
+        results_45 = large_search_results.merge('numFound' => 45)
+        allow(mock_client).to receive(:search).and_return(results_45)
+
+        get :search, params: { search: 'test' }
+
+        expect(assigns(:total_pages)).to eq(3)
+      end
+    end
   end
 end

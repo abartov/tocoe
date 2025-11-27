@@ -20,16 +20,24 @@ class PublicationsController < ApplicationController
       end
       search_opts[:has_fulltext] = fulltext_only
 
+      # Add pagination parameters
+      @current_page = (params[:page] || 1).to_i
+      @per_page = (params[:per_page] || 20).to_i
+      search_opts[:page] = @current_page
+      search_opts[:per_page] = @per_page
+
       @results = olclient.search(**search_opts)
       @any_fulltext = false
       if @results.present?
         @num_results = @results['numFound']
+        @total_pages = (@num_results.to_f / @per_page).ceil
         @results = @results['docs']
 
         # Filter for public ebook access if fulltext_only is enabled
         if fulltext_only
           @results = @results.select { |r| r['has_fulltext'] && r['ebook_access'] == 'public' }
-          @num_results = @results.length
+          # Note: When filtering, we can't accurately count total results from API
+          # We only know the count on the current page
         end
 
         # Filter out publications that already have ToCs

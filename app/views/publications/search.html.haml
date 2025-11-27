@@ -23,8 +23,56 @@
     - if @num_results
       %p.text-muted
         = t('publications.search.form.results_found', count: @num_results)
+        - if @total_pages && @total_pages > 1
+          = "(#{t('publications.search.page_info', current: @current_page, total: @total_pages)})"
+
     #results
       != render partial: 'ol_results', locals: { :results => @results}
+
+    - if @total_pages && @total_pages > 1
+      .pagination-controls.text-center{style: 'margin: 20px 0;'}
+        %nav
+          %ul.pagination
+            - if @current_page > 1
+              %li
+                = link_to '«', publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], page: @current_page - 1)
+            - else
+              %li.disabled
+                %span «
+
+            - window_start = [@current_page - 2, 1].max
+            - window_end = [window_start + 4, @total_pages].min
+            - window_start = [window_end - 4, 1].max
+
+            - if window_start > 1
+              %li
+                = link_to '1', publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], page: 1)
+              - if window_start > 2
+                %li.disabled
+                  %span ...
+
+            - (window_start..window_end).each do |page|
+              - if page == @current_page
+                %li.active
+                  %span= page
+              - else
+                %li
+                  = link_to page, publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], page: page)
+
+            - if window_end < @total_pages
+              - if window_end < @total_pages - 1
+                %li.disabled
+                  %span ...
+              %li
+                = link_to @total_pages, publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], page: @total_pages)
+
+            - if @current_page < @total_pages
+              %li
+                = link_to '»', publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], page: @current_page + 1)
+            - else
+              %li.disabled
+                %span »
+
     %p
 
 :javascript

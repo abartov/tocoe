@@ -27,7 +27,7 @@ class OpenLibrary::Client
     request("/books/#{olid}")
   end
 
-  def search query: nil, author: nil, title: nil, has_fulltext: false
+  def search query: nil, author: nil, title: nil, has_fulltext: false, page: 1, per_page: 20
     q = []
     q << "q=#{CGI.escape(query)}" unless query.blank?
     q << "author=#{CGI.escape(author)}" unless author.blank?
@@ -35,6 +35,14 @@ class OpenLibrary::Client
     q << "has_fulltext=true" if has_fulltext
     # Request edition information including key, language, and ebook_access
     q << "fields=*,editions,editions.key,editions.language,editions.ebook_access"
+
+    # Add pagination parameters
+    # Ensure per_page doesn't exceed API limit of 1000
+    limit = [per_page.to_i, 1000].min
+    offset = (page.to_i - 1) * limit
+    q << "limit=#{limit}"
+    q << "offset=#{offset}"
+
     request("/search.json?#{q.join('&')}")
   end
 

@@ -213,3 +213,4 @@ en:
       no_edition: "No edition available"
       no_fulltext: "No full-text"
       nothing_found: "Nothing found! Try adjusting your search terms or removing the full-text filter."
+      page_info: "Page %{current} of %{total}"

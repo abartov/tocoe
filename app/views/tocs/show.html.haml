@@ -7,6 +7,12 @@
   %b= t('common.labels.status')
   = @toc.status
 
+.mb-3
+  = link_to t('common.actions.edit'), edit_toc_path(@toc), class: 'btn btn-primary'
+  = link_to t('common.actions.back'), tocs_path, class: 'btn btn-secondary'
+  - unless @toc.no_explicit_toc
+    = link_to t('tocs.show.browse_scans_link'), browse_scans_toc_path(@toc), class: 'btn btn-info'
+
 - if @toc.pages_marked?
   .alert.alert-info
     %p
@@ -32,8 +38,6 @@
     %p
       %strong= t('tocs.show.empty_alert.title')
       = t('tocs.show.empty_alert.description')
-    %p
-      = link_to t('tocs.show.empty_alert.browse_scans_button'), browse_scans_toc_path(@toc), class: 'btn btn-primary btn-lg'
 
 .row
   .col-md-8
@@ -68,11 +72,6 @@
 %hr
 - if @manifestation
   = render partial: 'manifestations/show', locals: { manifestation: @manifestation }
-- unless @toc.empty?
-  = link_to t('tocs.show.browse_scans_link'), browse_scans_toc_path(@toc), class: 'btn btn-info'
-= link_to t('common.actions.edit'), edit_toc_path(@toc)
-\|
-= link_to t('common.actions.back'), tocs_path
 
 :css
   .toc-page-thumbnails {

@@ -9,6 +9,13 @@
 - if @toc.no_explicit_toc
   %p
     %b No explicit table of contents
+- elsif @toc.empty?
+  .alert.alert-warning
+    %p
+      %strong Action Required:
+      This TOC has not yet had its pages marked.
+    %p
+      = link_to 'Browse Scans to Mark TOC Pages', browse_scans_toc_path(@toc), class: 'btn btn-primary btn-lg'
 
 .row
   .col-md-8
@@ -40,7 +47,8 @@
 %hr
 - if @manifestation
   = render partial: 'manifestations/show', locals: { manifestation: @manifestation }
-= link_to 'Browse Scans', browse_scans_toc_path(@toc), class: 'btn btn-primary'
+- unless @toc.empty?
+  = link_to 'Browse Scans', browse_scans_toc_path(@toc), class: 'btn btn-info'
 = link_to 'Edit', edit_toc_path(@toc)
 \|
 = link_to 'Back', tocs_path

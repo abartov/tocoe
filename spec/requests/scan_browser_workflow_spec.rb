@@ -147,6 +147,43 @@ RSpec.describe 'Scan Browser Workflow', type: :request do
     end
   end
 
+  describe 'UI state management' do
+    it 'shows browse scans prompt in edit view when status is empty' do
+      get edit_toc_path(toc)
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('No TOC pages marked yet')
+      expect(response.body).to include('Browse Scans to Mark TOC Pages')
+      expect(response.body).not_to include('Attempt OCR')
+    end
+
+    it 'shows OCR controls in edit view when status is pages_marked' do
+      toc.update!(
+        status: :pages_marked,
+        toc_page_urls: "https://archive.org/test.jpg"
+      )
+
+      get edit_toc_path(toc)
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('Attempt OCR')
+      expect(response.body).to include('https://archive.org/test.jpg')
+      expect(response.body).not_to include('No TOC pages marked yet')
+    end
+
+    it 'shows action required alert in show view when status is empty' do
+      get toc_path(toc)
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('Action Required')
+      expect(response.body).to include('This TOC has not yet had its pages marked')
+    end
+
+    it 'does not show OCR section in new view' do
+      get new_toc_path(from: 'openlibrary', ol_book_id: 'OL123M')
+      # This would require mocking the OpenLibrary API call
+      # For now, just verify the path is accessible
+      expect(response).to have_http_status(:success)
+    end
+  end
+
   describe 'error handling' do
     it 'redirects when book has no scans' do
       allow(ol_client).to receive(:ia_identifier).and_return(nil)

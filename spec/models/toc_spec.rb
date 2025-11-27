@@ -162,4 +162,109 @@ RSpec.describe Toc, type: :model do
       expect(toc.save).to eq(true)
     end
   end
+
+  describe 'status timestamps' do
+    let(:toc) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL127M', title: 'Test Book') }
+
+    describe 'transcribed_at' do
+      it 'is set when status changes to transcribed' do
+        expect(toc.transcribed_at).to be_nil
+
+        toc.status = :transcribed
+        toc.save!
+
+        expect(toc.transcribed_at).to be_present
+        expect(toc.transcribed_at).to be_within(1.second).of(Time.current)
+      end
+
+      it 'is not set when status is not transcribed' do
+        toc.status = :pages_marked
+        toc.save!
+
+        expect(toc.transcribed_at).to be_nil
+      end
+
+      it 'is not updated when status changes from transcribed to another status' do
+        toc.status = :transcribed
+        toc.save!
+        original_time = toc.transcribed_at
+
+        toc.status = :verified
+        toc.save!
+
+        expect(toc.transcribed_at).to eq(original_time)
+      end
+
+      it 'is not updated when saving without status change' do
+        toc.status = :transcribed
+        toc.save!
+        original_time = toc.transcribed_at
+
+        toc.title = 'Updated Title'
+        toc.save!
+
+        expect(toc.transcribed_at).to eq(original_time)
+      end
+    end
+
+    describe 'verified_at' do
+      it 'is set when status changes to verified' do
+        expect(toc.verified_at).to be_nil
+
+        toc.status = :verified
+        toc.save!
+
+        expect(toc.verified_at).to be_present
+        expect(toc.verified_at).to be_within(1.second).of(Time.current)
+      end
+
+      it 'is not set when status is not verified' do
+        toc.status = :transcribed
+        toc.save!
+
+        expect(toc.verified_at).to be_nil
+      end
+
+      it 'is not updated when saving without status change' do
+        toc.status = :verified
+        toc.save!
+        original_time = toc.verified_at
+
+        toc.title = 'Updated Title'
+        toc.save!
+
+        expect(toc.verified_at).to eq(original_time)
+      end
+    end
+
+    describe 'full workflow' do
+      it 'sets both timestamps through the complete workflow' do
+        # Start: empty
+        expect(toc.status).to eq('empty')
+        expect(toc.transcribed_at).to be_nil
+        expect(toc.verified_at).to be_nil
+
+        # Mark as pages_marked
+        toc.status = :pages_marked
+        toc.save!
+        expect(toc.transcribed_at).to be_nil
+        expect(toc.verified_at).to be_nil
+
+        # Mark as transcribed
+        toc.status = :transcribed
+        toc.save!
+        expect(toc.transcribed_at).to be_present
+        expect(toc.verified_at).to be_nil
+
+        transcribed_time = toc.transcribed_at
+
+        # Mark as verified
+        toc.status = :verified
+        toc.save!
+        expect(toc.transcribed_at).to eq(transcribed_time)
+        expect(toc.verified_at).to be_present
+        expect(toc.verified_at).to be >= transcribed_time
+      end
+    end
+  end
 end

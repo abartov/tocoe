@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_27_034301) do
+ActiveRecord::Schema[7.2].define(version: 2025_11_27_035400) do
   create_table "aboutnesses", force: :cascade do |t|
     t.integer "embodiment_id"
     t.string "subject_heading_uri"
@@ -131,6 +131,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_27_034301) do
     t.string "title"
     t.text "toc_page_urls"
     t.boolean "no_explicit_toc", default: false, null: false
+    t.datetime "transcribed_at"
+    t.datetime "verified_at"
     t.index ["book_uri"], name: "index_tocs_on_book_uri", unique: true
     t.index ["contributor_id"], name: "index_tocs_on_contributor_id"
     t.index ["manifestation_id"], name: "index_tocs_on_manifestation_id"

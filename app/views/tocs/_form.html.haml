@@ -48,7 +48,7 @@
             .actions
               %td
                 = submit_tag 'Attempt OCR', id: 'ocr_submit'
-                = button_tag(type: 'button', id: 'paste_ocr', style: 'margin-left: 10px;') do
+                = button_tag(type: 'button', id: 'paste_ocr', style: 'margin-left: 10px; display: none;') do
                   Paste to ToC textarea
                 #ocr_working.text-muted{style: 'display:none; margin-top: 10px;'}
                   %em Processing OCR, please wait...
@@ -63,6 +63,7 @@
         $('#ocr_form').on('ajax:before', function() {
           $('#ocr_submit').prop('disabled', true);
           $('#ocr_working').show();
+          $('#paste_ocr').hide();
           $('#results').html('');
         });
   - elsif @toc.persisted? && @toc.empty?

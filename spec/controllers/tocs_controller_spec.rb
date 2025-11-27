@@ -231,6 +231,7 @@ RSpec.describe TocsController, type: :controller do
         expect(response.body).to include('</pre>')
         expect(response.body).to include('$("#ocr_submit").prop(\'disabled\', false)')
         expect(response.body).to include('$("#ocr_working").hide()')
+        expect(response.body).to include('$("#paste_ocr").show()')
       end
     end
   end

@@ -171,7 +171,7 @@ en:
       gutenberg_section:
         fulltext_available_title: "Full text available"
         view_fulltext_button: "View Full Text on Project Gutenberg"
-        fulltext_help: "Read the full text to transcribe the table of contents, then paste it above."
+        fulltext_help: "Scroll through the full text below to find and transcribe the table of contents into the form above."
 
   # Home page
   home:

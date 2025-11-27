@@ -5,7 +5,7 @@ require 'rest-client'
 # Tables of Contents controller
 # rubocop:disable ClassLength
 class TocsController < ApplicationController
-  before_action :set_toc, only: [:show, :edit, :update, :destroy, :browse_scans, :mark_pages]
+  before_action :set_toc, only: [:show, :edit, :update, :destroy, :browse_scans, :mark_pages, :mark_transcribed, :verify]
 
   # GET /tocs
   # GET /tocs.json
@@ -181,6 +181,46 @@ class TocsController < ApplicationController
     else
       flash[:error] = 'Failed to save marked pages'
       redirect_to browse_scans_toc_path(@toc)
+    end
+  end
+
+  # POST /tocs/:id/mark_transcribed
+  # Marks the TOC as transcribed and records the contributor
+  def mark_transcribed
+    unless @toc.pages_marked?
+      flash[:error] = 'TOC must be in pages_marked status to mark as transcribed'
+      redirect_to @toc and return
+    end
+
+    @toc.contributor_id = current_user.id
+    @toc.status = :transcribed
+
+    if @toc.save
+      flash[:notice] = 'TOC marked as transcribed successfully'
+      redirect_to @toc
+    else
+      flash[:error] = 'Failed to mark TOC as transcribed'
+      redirect_to @toc
+    end
+  end
+
+  # POST /tocs/:id/verify
+  # Verifies the transcription and records the reviewer
+  def verify
+    unless @toc.transcribed?
+      flash[:error] = 'TOC must be in transcribed status to verify'
+      redirect_to @toc and return
+    end
+
+    @toc.reviewer_id = current_user.id
+    @toc.status = :verified
+
+    if @toc.save
+      flash[:notice] = 'TOC verified successfully'
+      redirect_to @toc
+    else
+      flash[:error] = 'Failed to verify TOC'
+      redirect_to @toc
     end
   end
 

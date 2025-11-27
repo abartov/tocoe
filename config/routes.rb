@@ -9,6 +9,8 @@ Rails.application.routes.draw do
     member do
       get :browse_scans
       post :mark_pages
+      post :mark_transcribed
+      post :verify
     end
   end
   get 'publications/search'

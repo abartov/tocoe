@@ -6,6 +6,24 @@
 %p
   %b Status:
   = @toc.status
+
+- if @toc.pages_marked?
+  .alert.alert-info
+    %p
+      %strong Ready to transcribe:
+      The TOC pages have been marked. Transcribe the table of contents and mark it as ready.
+    %p
+      = link_to 'Edit and Mark as Ready', edit_toc_path(@toc), class: 'btn btn-primary'
+      = button_to 'Mark as Transcribed', mark_transcribed_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: 'Confirm that you have transcribed this TOC?' }
+
+- elsif @toc.transcribed?
+  .alert.alert-success
+    %p
+      %strong Ready for review:
+      This TOC has been transcribed and is awaiting verification.
+    %p
+      = button_to 'Verify Transcription', verify_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: 'Confirm that you have verified this transcription is correct?' }
+
 - if @toc.no_explicit_toc
   %p
     %b No explicit table of contents

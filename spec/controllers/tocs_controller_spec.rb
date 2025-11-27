@@ -241,4 +241,73 @@ RSpec.describe TocsController, type: :controller do
       end
     end
   end
+
+  describe 'POST #mark_transcribed' do
+    let(:pages_marked_toc) do
+      Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Test Book',
+        status: :pages_marked
+      )
+    end
+
+    it 'marks TOC as transcribed and sets contributor' do
+      post :mark_transcribed, params: { id: pages_marked_toc.id }
+
+      pages_marked_toc.reload
+      expect(pages_marked_toc.status).to eq('transcribed')
+      expect(pages_marked_toc.contributor_id).to eq(user.id)
+      expect(response).to redirect_to(pages_marked_toc)
+      expect(flash[:notice]).to eq('TOC marked as transcribed successfully')
+    end
+
+    it 'rejects if TOC is not in pages_marked status' do
+      empty_toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Test',
+        status: :empty
+      )
+
+      post :mark_transcribed, params: { id: empty_toc.id }
+
+      empty_toc.reload
+      expect(empty_toc.status).to eq('empty')
+      expect(flash[:error]).to eq('TOC must be in pages_marked status to mark as transcribed')
+    end
+  end
+
+  describe 'POST #verify' do
+    let(:transcribed_toc) do
+      Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Test Book',
+        status: :transcribed,
+        contributor_id: user.id
+      )
+    end
+
+    it 'verifies TOC and sets reviewer' do
+      post :verify, params: { id: transcribed_toc.id }
+
+      transcribed_toc.reload
+      expect(transcribed_toc.status).to eq('verified')
+      expect(transcribed_toc.reviewer_id).to eq(user.id)
+      expect(response).to redirect_to(transcribed_toc)
+      expect(flash[:notice]).to eq('TOC verified successfully')
+    end
+
+    it 'rejects if TOC is not in transcribed status' do
+      pages_marked_toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Test',
+        status: :pages_marked
+      )
+
+      post :verify, params: { id: pages_marked_toc.id }
+
+      pages_marked_toc.reload
+      expect(pages_marked_toc.status).to eq('pages_marked')
+      expect(flash[:error]).to eq('TOC must be in transcribed status to verify')
+    end
+  end
 end

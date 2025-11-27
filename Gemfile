@@ -7,6 +7,7 @@ gem 'sqlite3'
 gem 'mysql2'
 gem 'devise'
 gem 'omniauth-google-oauth2'
+gem "omniauth-rails_csrf_protection"
 gem 'haml-rails'
 gem 'puma'
 gem 'logger'

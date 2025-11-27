@@ -53,6 +53,9 @@
             $.each(data, function(index, result) {
               html += '<a href="#" class="list-group-item result-item" data-uri="' + result.uri + '" data-label="' + result.label + '" data-source="' + source + '">';
               html += '<h4 class="list-group-item-heading">' + result.label + '</h4>';
+              if (result.instance_of && result.instance_of.length > 0) {
+                html += '<p class="list-group-item-text"><small>Instance of: ' + result.instance_of.join(', ') + '</small></p>';
+              }
               html += '<p class="list-group-item-text"><small>' + result.uri + '</small></p>';
               html += '</a>';
             });

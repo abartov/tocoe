@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  extend Devise::Models
   devise :database_authenticatable, :recoverable, :rememberable, :validatable,
          :registerable, :omniauthable, omniauth_providers: %i[google_oauth2]
 

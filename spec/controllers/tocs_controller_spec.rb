@@ -178,4 +178,44 @@ RSpec.describe TocsController, type: :controller do
       ])
     end
   end
+
+  describe 'POST #do_ocr' do
+    context 'with provided URLs' do
+      it 'uses the provided URLs for OCR' do
+        allow(controller).to receive(:valid?).and_return(true)
+        allow(controller).to receive(:get_ocr_from_service).and_return('OCR result')
+
+        post :do_ocr, params: { ocr_images: 'https://archive.org/test.jpg' }, xhr: true
+
+        expect(controller).to have_received(:get_ocr_from_service).with('https://archive.org/test.jpg')
+        expect(assigns(:results)).to include('OCR result')
+      end
+    end
+
+    context 'without provided URLs but with marked TOC pages' do
+      it 'falls back to using marked TOC pages' do
+        toc_with_pages = Toc.create!(
+          book_uri: 'http://openlibrary.org/books/OL123M',
+          title: 'Test',
+          toc_page_urls: "https://archive.org/page1.jpg\nhttps://archive.org/page2.jpg"
+        )
+
+        allow(controller).to receive(:valid?).and_return(true)
+        allow(controller).to receive(:get_ocr_from_service).and_return('OCR result')
+
+        post :do_ocr, params: { toc_id: toc_with_pages.id, ocr_images: '' }, xhr: true
+
+        expect(controller).to have_received(:get_ocr_from_service).twice
+        expect(assigns(:results)).to include('OCR result')
+      end
+    end
+
+    context 'without URLs and without marked pages' do
+      it 'processes empty list gracefully' do
+        post :do_ocr, params: { ocr_images: '' }, xhr: true
+
+        expect(assigns(:results)).to eq('')
+      end
+    end
+  end
 end

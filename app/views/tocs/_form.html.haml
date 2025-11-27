@@ -37,13 +37,18 @@
             %td= f.submit 'Save'
   #ocr{ class: 'col-xs-5'}
     = form_tag({action: 'do_ocr'}, {remote: true}) do
+      = hidden_field_tag :toc_id, @toc.id if @toc.persisted?
       %table{class: 'table'}
         %tr
           .field
             %td= label_tag 'URLs of ToC page images'
-            %td= text_area_tag :ocr_images
+            %td
+              = text_area_tag :ocr_images, @toc.toc_page_urls
+              - if @toc.toc_page_urls.present?
+                %small.text-muted
+                  Pre-filled with marked TOC pages. Clear to enter different URLs.
         %tr
-          .actions 
+          .actions
             %td= submit_tag 'Attempt OCR'
         %tr
           %td

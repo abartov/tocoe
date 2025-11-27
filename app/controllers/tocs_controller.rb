@@ -90,7 +90,15 @@ class TocsController < ApplicationController
   # called via AJAX from tocs#new and tocs#edit
   def do_ocr
     error = false
-    ocr_images = params[:ocr_images].split
+
+    # Use provided URLs, or fall back to marked TOC pages if available
+    ocr_images_param = params[:ocr_images].to_s.strip
+    if ocr_images_param.blank? && params[:toc_id].present?
+      toc = Toc.find(params[:toc_id])
+      ocr_images_param = toc.toc_page_urls if toc.toc_page_urls.present?
+    end
+
+    ocr_images = ocr_images_param.to_s.split
     ocr_images.each do |uri|
       next unless uri =~ /\S/
       error = true unless valid?(uri)

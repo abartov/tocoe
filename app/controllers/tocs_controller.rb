@@ -61,6 +61,8 @@ class TocsController < ApplicationController
         p.save!
       end
       @authors[i]['person'] = p
+      # Add standardized link field for view layer
+      @authors[i]['link'] = "http://openlibrary.org#{p.openlibrary_id}"
     end
   end
 
@@ -334,12 +336,14 @@ class TocsController < ApplicationController
     @book = book_data
     @authors = book_data['authors'] || []
 
-    # Transform Gutendex authors to match the OpenLibrary format for the view
+    # Transform Gutendex authors to standardized format for the view
     @authors = @authors.map do |author|
       {
         'name' => author['name'],
         'birth_year' => author['birth_year'],
-        'death_year' => author['death_year']
+        'death_year' => author['death_year'],
+        # Standardized link field - nil for Gutenberg authors (no author page)
+        'link' => nil
       }
     end
   end

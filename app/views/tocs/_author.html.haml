@@ -1,1 +1,4 @@
-= link_to author['name'], "http://openlibrary.org#{author['person'].openlibrary_id}"
+- if author['link']
+  = link_to author['name'], author['link']
+- else
+  = author['name']

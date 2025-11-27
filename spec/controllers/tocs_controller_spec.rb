@@ -554,6 +554,94 @@ RSpec.describe TocsController, type: :controller do
     end
   end
 
+  describe '#map_authors' do
+    it 'adds standardized link field to OpenLibrary authors' do
+      author_data = [
+        { 'key' => '/authors/OL123A', 'name' => 'Test Author' }
+      ]
+
+      controller.instance_variable_set(:@authors, author_data)
+      controller.send(:map_authors)
+
+      authors = controller.instance_variable_get(:@authors)
+      expect(authors[0]['link']).to eq('http://openlibrary.org/authors/OL123A')
+    end
+
+    it 'creates Person record for new authors' do
+      author_data = [
+        { 'key' => '/authors/OL456A', 'name' => 'New Author' }
+      ]
+
+      controller.instance_variable_set(:@authors, author_data)
+
+      expect {
+        controller.send(:map_authors)
+      }.to change(Person, :count).by(1)
+
+      person = Person.find_by_openlibrary_id('/authors/OL456A')
+      expect(person).to be_present
+      expect(person.name).to eq('New Author')
+    end
+
+    it 'reuses existing Person records' do
+      existing_person = Person.create!(openlibrary_id: '/authors/OL789A', name: 'Existing Author')
+
+      author_data = [
+        { 'key' => '/authors/OL789A', 'name' => 'Existing Author' }
+      ]
+
+      controller.instance_variable_set(:@authors, author_data)
+
+      expect {
+        controller.send(:map_authors)
+      }.not_to change(Person, :count)
+
+      authors = controller.instance_variable_get(:@authors)
+      expect(authors[0]['person']).to eq(existing_person)
+    end
+  end
+
+  describe '#new_from_gutendex' do
+    let(:gutendex_client) { instance_double(Gutendex::Client) }
+    let(:book_data) do
+      {
+        'title' => 'Pride and Prejudice',
+        'authors' => [
+          { 'name' => 'Austen, Jane', 'birth_year' => 1775, 'death_year' => 1817 }
+        ]
+      }
+    end
+
+    before do
+      allow(Gutendex::Client).to receive(:new).and_return(gutendex_client)
+      allow(gutendex_client).to receive(:book).and_return(book_data)
+      controller.instance_variable_set(:@toc, Toc.new)
+    end
+
+    it 'creates standardized author format with nil link for Gutenberg authors' do
+      controller.send(:new_from_gutendex)
+
+      authors = controller.instance_variable_get(:@authors)
+      expect(authors).to be_present
+      expect(authors[0]).to include(
+        'name' => 'Austen, Jane',
+        'birth_year' => 1775,
+        'death_year' => 1817,
+        'link' => nil
+      )
+    end
+
+    it 'handles books with no authors' do
+      book_data_no_authors = book_data.merge('authors' => nil)
+      allow(gutendex_client).to receive(:book).and_return(book_data_no_authors)
+
+      controller.send(:new_from_gutendex)
+
+      authors = controller.instance_variable_get(:@authors)
+      expect(authors).to eq([])
+    end
+  end
+
   describe 'DELETE #destroy' do
     let(:admin_user) { User.create!(email: 'admin@example.com', password: 'password', admin: true) }
     let(:regular_user) { User.create!(email: 'user@example.com', password: 'password', admin: false) }

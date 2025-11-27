@@ -20,12 +20,8 @@ class TocsController < ApplicationController
               Toc.where.not(status: :verified)
             end
 
-    # Order by created_at desc if showing empty status, otherwise updated_at desc
-    @tocs = if params[:status] == 'empty'
-              @tocs.order(created_at: :desc)
-            else
-              @tocs.order(updated_at: :desc)
-            end
+    # Apply sorting
+    @tocs = apply_sorting(@tocs)
   end
 
   # GET /tocs/1
@@ -515,6 +511,33 @@ class TocsController < ApplicationController
   def parse_marked_pages(toc_page_urls)
     return [] if toc_page_urls.blank?
     toc_page_urls.split("\n").map(&:strip).reject(&:blank?)
+  end
+
+  # Apply sorting to TOCs collection based on params
+  def apply_sorting(tocs)
+    # Whitelist of allowed sort columns
+    allowed_columns = %w[title status created_at contributor_id reviewer_id]
+    sort_column = params[:sort].presence_in(allowed_columns)
+    sort_direction = params[:direction] == 'desc' ? :desc : :asc
+
+    if sort_column
+      # Handle contributor/reviewer sorting with joins
+      case sort_column
+      when 'contributor_id'
+        tocs.left_joins(:contributor).order("users.name #{sort_direction}")
+      when 'reviewer_id'
+        tocs.left_joins(:reviewer).order("users.name #{sort_direction}")
+      else
+        tocs.order(sort_column => sort_direction)
+      end
+    else
+      # Default sorting: created_at desc if showing empty status, otherwise updated_at desc
+      if params[:status] == 'empty'
+        tocs.order(created_at: :desc)
+      else
+        tocs.order(updated_at: :desc)
+      end
+    end
   end
 end
 

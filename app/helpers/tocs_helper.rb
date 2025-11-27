@@ -1,4 +1,27 @@
 module TocsHelper
+  # Generate a sortable column header link
+  # column: the database column to sort by
+  # title: the display text for the header
+  def sortable_column(column, title = nil)
+    title ||= column.titleize
+    direction = column == params[:sort] && params[:direction] == 'asc' ? 'desc' : 'asc'
+
+    # Build CSS classes
+    css_class = 'sortable'
+    css_class += ' sorted' if column == params[:sort]
+
+    # Add direction indicator if this column is currently sorted
+    indicator = if column == params[:sort]
+                  params[:direction] == 'asc' ? ' ↑' : ' ↓'
+                else
+                  ''
+                end
+
+    link_to "#{title}#{indicator}".html_safe,
+            tocs_path(sort: column, direction: direction, status: params[:status], show_all: params[:show_all]),
+            class: css_class
+  end
+
   def toc_markdown_to_html_preview(markdown)
     return '' if markdown.blank?
 

@@ -59,6 +59,135 @@ RSpec.describe TocsController, type: :controller do
       expect(assigns(:tocs).first).to eq(new_empty)
       expect(assigns(:tocs).last).to eq(old_empty)
     end
+
+    describe 'sorting' do
+      let!(:toc_a) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL1M', title: 'Alpha Book', status: :empty, created_at: 3.days.ago) }
+      let!(:toc_b) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL2M', title: 'Beta Book', status: :pages_marked, created_at: 2.days.ago) }
+      let!(:toc_c) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL3M', title: 'Gamma Book', status: :transcribed, created_at: 1.day.ago) }
+
+      it 'sorts by title ascending' do
+        get :index, params: { sort: 'title', direction: 'asc', show_all: 'true' }
+
+        tocs = assigns(:tocs).to_a
+        expect(tocs[0]).to eq(toc_a)
+        expect(tocs[1]).to eq(toc_b)
+        expect(tocs[2]).to eq(toc_c)
+      end
+
+      it 'sorts by title descending' do
+        get :index, params: { sort: 'title', direction: 'desc', show_all: 'true' }
+
+        tocs = assigns(:tocs).to_a
+        expect(tocs[0]).to eq(toc_c)
+        expect(tocs[1]).to eq(toc_b)
+        expect(tocs[2]).to eq(toc_a)
+      end
+
+      it 'sorts by status ascending' do
+        get :index, params: { sort: 'status', direction: 'asc', show_all: 'true' }
+
+        tocs = assigns(:tocs).to_a
+        expect(tocs[0]).to eq(toc_a) # empty
+        expect(tocs[1]).to eq(toc_b) # pages_marked
+        expect(tocs[2]).to eq(toc_c) # transcribed
+      end
+
+      it 'sorts by status descending' do
+        get :index, params: { sort: 'status', direction: 'desc', show_all: 'true' }
+
+        tocs = assigns(:tocs).to_a
+        expect(tocs[0]).to eq(toc_c) # transcribed
+        expect(tocs[1]).to eq(toc_b) # pages_marked
+        expect(tocs[2]).to eq(toc_a) # empty
+      end
+
+      it 'sorts by created_at ascending' do
+        get :index, params: { sort: 'created_at', direction: 'asc', show_all: 'true' }
+
+        tocs = assigns(:tocs).to_a
+        expect(tocs[0]).to eq(toc_a) # oldest
+        expect(tocs[1]).to eq(toc_b)
+        expect(tocs[2]).to eq(toc_c) # newest
+      end
+
+      it 'sorts by created_at descending' do
+        get :index, params: { sort: 'created_at', direction: 'desc', show_all: 'true' }
+
+        tocs = assigns(:tocs).to_a
+        expect(tocs[0]).to eq(toc_c) # newest
+        expect(tocs[1]).to eq(toc_b)
+        expect(tocs[2]).to eq(toc_a) # oldest
+      end
+
+      context 'sorting by contributor' do
+        let(:contributor1) { User.create!(email: 'alice@example.com', password: 'password', name: 'Alice') }
+        let(:contributor2) { User.create!(email: 'bob@example.com', password: 'password', name: 'Bob') }
+        let!(:toc_with_contributor1) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL4M', title: 'Book 1', contributor: contributor1) }
+        let!(:toc_with_contributor2) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL5M', title: 'Book 2', contributor: contributor2) }
+        let!(:toc_without_contributor) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL6M', title: 'Book 3') }
+
+        it 'sorts by contributor name ascending' do
+          get :index, params: { sort: 'contributor_id', direction: 'asc', show_all: 'true' }
+
+          tocs = assigns(:tocs)
+          # NULLs typically come first in SQL ascending order
+          expect(tocs).to include(toc_with_contributor1, toc_with_contributor2, toc_without_contributor)
+        end
+
+        it 'sorts by contributor name descending' do
+          get :index, params: { sort: 'contributor_id', direction: 'desc', show_all: 'true' }
+
+          tocs = assigns(:tocs)
+          expect(tocs).to include(toc_with_contributor1, toc_with_contributor2, toc_without_contributor)
+        end
+      end
+
+      context 'sorting by reviewer' do
+        let(:reviewer1) { User.create!(email: 'reviewer1@example.com', password: 'password', name: 'Alice Reviewer') }
+        let(:reviewer2) { User.create!(email: 'reviewer2@example.com', password: 'password', name: 'Bob Reviewer') }
+        let!(:toc_with_reviewer1) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL7M', title: 'Book 1', reviewer: reviewer1) }
+        let!(:toc_with_reviewer2) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL8M', title: 'Book 2', reviewer: reviewer2) }
+        let!(:toc_without_reviewer) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL9M', title: 'Book 3') }
+
+        it 'sorts by reviewer name ascending' do
+          get :index, params: { sort: 'reviewer_id', direction: 'asc', show_all: 'true' }
+
+          tocs = assigns(:tocs)
+          expect(tocs).to include(toc_with_reviewer1, toc_with_reviewer2, toc_without_reviewer)
+        end
+
+        it 'sorts by reviewer name descending' do
+          get :index, params: { sort: 'reviewer_id', direction: 'desc', show_all: 'true' }
+
+          tocs = assigns(:tocs)
+          expect(tocs).to include(toc_with_reviewer1, toc_with_reviewer2, toc_without_reviewer)
+        end
+      end
+
+      it 'ignores invalid sort column and uses default sorting' do
+        get :index, params: { sort: 'invalid_column', direction: 'asc', show_all: 'true' }
+
+        # Should fall back to default sorting (updated_at desc)
+        expect(response).to have_http_status(:success)
+        expect(assigns(:tocs)).to be_present
+      end
+
+      it 'defaults to ascending when direction is not specified' do
+        get :index, params: { sort: 'title', show_all: 'true' }
+
+        tocs = assigns(:tocs).to_a
+        expect(tocs[0]).to eq(toc_a) # Alpha
+        expect(tocs[1]).to eq(toc_b) # Beta
+        expect(tocs[2]).to eq(toc_c) # Gamma
+      end
+
+      it 'preserves status filter while sorting' do
+        get :index, params: { sort: 'title', direction: 'asc', status: 'empty' }
+
+        tocs = assigns(:tocs).to_a
+        expect(tocs).to eq([toc_a])
+      end
+    end
   end
 
   describe 'POST #create_multiple' do

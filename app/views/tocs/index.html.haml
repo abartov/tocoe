@@ -16,13 +16,14 @@
 %table.table.table-striped
   %thead
     %tr
-      %th= t('tocs.index.headers.title')
+      %th= sortable_column('title', t('tocs.index.headers.title'))
       %th= t('tocs.index.headers.uri')
       %th= t('tocs.index.headers.toc')
-      %th= t('tocs.index.headers.status')
+      %th= sortable_column('status', t('tocs.index.headers.status'))
+      %th= sortable_column('created_at', t('tocs.index.headers.created'))
       - if current_user&.admin?
-        %th= t('tocs.index.headers.contributor')
-        %th= t('tocs.index.headers.reviewer')
+        %th= sortable_column('contributor_id', t('tocs.index.headers.contributor'))
+        %th= sortable_column('reviewer_id', t('tocs.index.headers.reviewer'))
       %th= t('tocs.index.headers.comments')
       %th{colspan: 2}= t('tocs.index.headers.actions')
 
@@ -33,6 +34,7 @@
         %td= toc.book_uri
         %td= toc.toc_body
         %td= toc.status
+        %td= toc.created_at.strftime('%Y-%m-%d')
         - if current_user&.admin?
           %td= toc.contributor&.name || toc.contributor_id
           %td= toc.reviewer&.name || toc.reviewer_id

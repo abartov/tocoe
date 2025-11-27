@@ -56,7 +56,7 @@
               if (result.instance_of && result.instance_of.length > 0) {
                 html += '<p class="list-group-item-text"><small>Instance of: ' + result.instance_of.join(', ') + '</small></p>';
               }
-              html += '<p class="list-group-item-text"><small>' + result.uri + '</small></p>';
+              html += '<p class="list-group-item-text"><small><a href="' + result.uri + '" target="_blank">' + result.uri + '</a></small></p>';
               html += '</a>';
             });
             html += '</div>';

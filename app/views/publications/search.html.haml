@@ -18,12 +18,9 @@
         = check_box_tag :fulltext_only, '1', params[:fulltext_only] == '1'
         = label_tag :fulltext_only, t('publications.search.form.fulltext_only_label')
       = submit_tag t('publications.search.form.search_button'), :name => nil, class: 'btn btn-primary'
-    - if @num_results && @num_results > 0
-      .results-header
-        %span.text-muted{style: 'display: inline-block; margin-right: 15px;'}
-          = t('publications.search.form.results_found', count: @num_results)
-        %span{style: 'display: inline-block;'}
-          = button_tag t('publications.search.multi_select_button'), type: 'button', class: 'btn btn-sm btn-default', id: 'toggle-multiselect'
+    - if @num_results
+      %p.text-muted
+        = t('publications.search.form.results_found', count: @num_results)
     #results
       != render partial: 'ol_results', locals: { :results => @results}
     %p

@@ -26,10 +26,6 @@
             %td= f.text_area :toc_body, rows:20, cols: 40, id: 'toc_area'
         %tr
           .field
-            %td= f.label :status
-            %td= f.text_field :status
-        %tr
-          .field
             %td= f.label :comments
             %td= f.text_area :comments
         %tr
@@ -37,7 +33,7 @@
             %td= f.submit 'Save'
   - if @toc.persisted? && !@toc.empty?
     #ocr{ class: 'col-xs-5'}
-      = form_tag({action: 'do_ocr'}, {remote: true}) do
+      = form_tag({action: 'do_ocr'}, {remote: true, id: 'ocr_form'}) do
         = hidden_field_tag :toc_id, @toc.id
         %table{class: 'table'}
           %tr
@@ -50,7 +46,10 @@
                     Pre-filled with marked TOC pages. Clear to enter different URLs.
           %tr
             .actions
-              %td= submit_tag 'Attempt OCR'
+              %td
+                = submit_tag 'Attempt OCR', id: 'ocr_submit'
+                #ocr_working.text-muted{style: 'display:none; margin-top: 10px;'}
+                  %em Processing OCR, please wait...
           %tr
             %td
               #results
@@ -61,6 +60,12 @@
       :javascript
         $('#paste_ocr').click(function() {
           $('#toc_area').html($('#results').html());
+        });
+
+        $('#ocr_form').on('ajax:before', function() {
+          $('#ocr_submit').prop('disabled', true);
+          $('#ocr_working').show();
+          $('#results').html('');
         });
   - elsif @toc.persisted? && @toc.empty?
     #browse_scans_prompt{ class: 'col-xs-5'}

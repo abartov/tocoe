@@ -339,7 +339,7 @@ class TocsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def toc_params
-    params.require(:toc).permit(:book_uri, :toc_body, :status, :contributor_id, :reviewer_id, :comments, :title)
+    params.require(:toc).permit(:book_uri, :toc_body, :contributor_id, :reviewer_id, :comments, :title)
   end
 
   def valid?(url)

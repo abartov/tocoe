@@ -217,5 +217,21 @@ RSpec.describe TocsController, type: :controller do
         expect(assigns(:results)).to eq('')
       end
     end
+
+    context 'JavaScript response format' do
+      render_views
+
+      it 'wraps results in PRE tag and re-enables submit button' do
+        allow(controller).to receive(:valid?).and_return(true)
+        allow(controller).to receive(:get_ocr_from_service).and_return("Line 1\nLine 2\nLine 3")
+
+        post :do_ocr, params: { ocr_images: 'https://archive.org/test.jpg' }, format: :js
+
+        expect(response.body).to include('<pre>')
+        expect(response.body).to include('</pre>')
+        expect(response.body).to include('$("#ocr_submit").prop(\'disabled\', false)')
+        expect(response.body).to include('$("#ocr_working").hide()')
+      end
+    end
   end
 end

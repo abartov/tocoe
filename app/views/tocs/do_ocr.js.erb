@@ -1,1 +1,3 @@
-$("#results").html("<%= escape_javascript(@results) %>");
+$("#results").html("<pre><%= escape_javascript(@results) %></pre>");
+$("#ocr_submit").prop('disabled', false);
+$("#ocr_working").hide();

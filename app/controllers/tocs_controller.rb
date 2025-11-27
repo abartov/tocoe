@@ -95,6 +95,11 @@ class TocsController < ApplicationController
   # DELETE /tocs/1
   # DELETE /tocs/1.json
   def destroy
+    unless current_user&.admin?
+      flash[:error] = I18n.t('tocs.flash.admin_required')
+      redirect_to tocs_url and return
+    end
+
     @toc.destroy
     respond_to do |format|
       format.html { redirect_to tocs_url, notice: 'Toc was successfully destroyed.' }

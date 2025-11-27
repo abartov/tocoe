@@ -38,7 +38,8 @@
           %td= toc.reviewer&.name || toc.reviewer_id
         %td= toc.comments
         %td= link_to t('common.actions.edit'), edit_toc_path(toc)
-        %td= link_to t('common.actions.destroy'), toc, :method => :delete, :data => { :confirm => t('common.actions.confirm_destroy') }
+        - if current_user&.admin?
+          %td= link_to t('common.actions.destroy'), toc, :method => :delete, :data => { :confirm => t('common.actions.confirm_destroy') }
 
 %br
 

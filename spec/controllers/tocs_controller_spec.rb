@@ -424,4 +424,42 @@ RSpec.describe TocsController, type: :controller do
       expect(flash[:error]).to eq('TOC must be in transcribed status to verify')
     end
   end
+
+  describe 'DELETE #destroy' do
+    let(:admin_user) { User.create!(email: 'admin@example.com', password: 'password', admin: true) }
+    let(:regular_user) { User.create!(email: 'user@example.com', password: 'password', admin: false) }
+    let!(:toc_to_destroy) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL999M', title: 'To Delete') }
+
+    context 'when user is an admin' do
+      before { sign_in admin_user }
+
+      it 'allows the admin to destroy the TOC' do
+        expect {
+          delete :destroy, params: { id: toc_to_destroy.id }
+        }.to change(Toc, :count).by(-1)
+
+        expect(response).to redirect_to(tocs_url)
+        expect(flash[:notice]).to eq('Toc was successfully destroyed.')
+      end
+    end
+
+    context 'when user is not an admin' do
+      before { sign_in regular_user }
+
+      it 'prevents non-admin from destroying the TOC' do
+        expect {
+          delete :destroy, params: { id: toc_to_destroy.id }
+        }.not_to change(Toc, :count)
+
+        expect(response).to redirect_to(tocs_url)
+        expect(flash[:error]).to eq('You must be an admin to perform this action')
+      end
+
+      it 'does not destroy the TOC' do
+        delete :destroy, params: { id: toc_to_destroy.id }
+
+        expect(Toc.exists?(toc_to_destroy.id)).to be true
+      end
+    end
+  end
 end

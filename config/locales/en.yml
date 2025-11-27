@@ -42,6 +42,7 @@ en:
   tocs:
     # Flash messages
     flash:
+      admin_required: "You must be an admin to perform this action"
       invalid_openlibrary_uri: "Invalid OpenLibrary book URI"
       no_scans_available: "No scans available for this book"
       unable_to_fetch_metadata: "Unable to fetch scan metadata"

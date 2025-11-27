@@ -37,9 +37,11 @@
 
 .row
   .col-md-8
-    %p
-      %b= t('tocs.show.toc_body')
-      != @toc.toc_body&.gsub("\n",'<br/>') # TODO: make safe
+    - if @toc.toc_body.present?
+      %p
+        %b= t('tocs.show.toc_body')
+      .toc-preview
+        = toc_markdown_to_html_preview(@toc.toc_body)
 
   - if @toc.toc_page_urls.present?
     .col-md-4
@@ -91,4 +93,33 @@
     padding: 8px;
     border-radius: 4px;
     background-color: #f8f9fa;
+  }
+  .toc-preview {
+    border: 1px solid #dee2e6;
+    padding: 15px;
+    border-radius: 4px;
+    background-color: #fff;
+  }
+  .toc-preview h1 {
+    font-size: 1.5em;
+    margin: 10px 0;
+    font-weight: bold;
+  }
+  .toc-preview h2 {
+    font-size: 1.2em;
+    margin: 8px 0 8px 20px;
+    font-weight: normal;
+  }
+  .toc-preview .toc-section {
+    color: #6c757d;
+    font-style: italic;
+  }
+  .toc-preview .toc-author {
+    color: #6c757d;
+    font-size: 0.9em;
+    font-weight: normal;
+    margin-left: 10px;
+  }
+  .toc-preview .toc-author:before {
+    content: "— ";
   }

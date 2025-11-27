@@ -139,4 +139,44 @@ RSpec.describe "tocs/show.html.haml", type: :view do
       expect(rendered).to have_content('Test comment')
     end
   end
+
+  context 'ToC body preview' do
+    let(:toc_with_body) do
+      Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL456M',
+        title: 'Book With ToC',
+        status: :transcribed,
+        toc_body: "# The Great Gatsby || F. Scott Fitzgerald\n## Chapter 1\n# Part Two /"
+      )
+    end
+
+    before do
+      assign(:toc, toc_with_body)
+      assign(:manifestation, nil)
+      allow(view).to receive(:current_user).and_return(regular_user)
+      render
+    end
+
+    it 'displays toc body as HTML preview with hierarchical headings' do
+      expect(rendered).to have_selector('.toc-preview')
+      expect(rendered).to have_selector('h1.toc-entry', text: /The Great Gatsby/)
+      expect(rendered).to have_selector('h2.toc-entry', text: 'Chapter 1')
+      expect(rendered).to have_selector('h1.toc-section', text: 'Part Two')
+    end
+
+    it 'displays author names in toc preview' do
+      expect(rendered).to have_selector('.toc-author', text: 'F. Scott Fitzgerald')
+    end
+  end
+
+  context 'when toc body is empty' do
+    before do
+      allow(view).to receive(:current_user).and_return(regular_user)
+      render
+    end
+
+    it 'does not display toc preview section' do
+      expect(rendered).not_to have_selector('.toc-preview')
+    end
+  end
 end

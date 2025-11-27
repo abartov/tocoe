@@ -9,16 +9,22 @@
 <body>
 <div id="main-container" class="container-fluid">
   <header class="mb-4">
-    <% if user_signed_in? %>
-      <p class="float-end">
-        Signed in as <strong><%= current_user.email %></strong> | <%= link_to 'Sign out', destroy_user_session_path, method: :delete %>
-      </p>
-    <% elsif Devise.omniauth_configs[:google_oauth2] %>
-      <p class="float-end">
-        <%= link_to 'Sign in with Google', user_google_oauth2_omniauth_authorize_path, method: :post %>
-      </p>
-    <% end %>
-    <div class="clearfix"></div>
+    <div class="d-flex align-items-center justify-content-between">
+      <%= link_to root_path, class: 'tocoe-logo-link' do %>
+        <%= image_tag 'tocoe-logo.svg', alt: 'ToCoE', class: 'tocoe-logo' %>
+      <% end %>
+      <div>
+        <% if user_signed_in? %>
+          <p class="mb-0">
+            Signed in as <strong><%= current_user.email %></strong> | <%= link_to 'Sign out', destroy_user_session_path, method: :delete %>
+          </p>
+        <% elsif Devise.omniauth_configs[:google_oauth2] %>
+          <p class="mb-0">
+            <%= link_to 'Sign in with Google', user_google_oauth2_omniauth_authorize_path, method: :post %>
+          </p>
+        <% end %>
+      </div>
+    </div>
   </header>
 <%= yield %>
 </div>

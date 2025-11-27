@@ -1,6 +1,7 @@
 - unless @results.blank?
   #multi-select-controls.mb-3
     = form_tag create_multiple_tocs_path, method: :post, id: 'bulk-toc-form', style: 'margin-top: 10px;' do
+      = hidden_field_tag :source, @source
       = button_tag t('publications.search.make_tocs_button'), type: 'submit', class: 'btn btn-success btn-lg', id: 'bulk-create-btn', style: 'display: none;'
   %table{ class: 'table table-striped', id: 'search-results-table' }
     %thead
@@ -12,36 +13,55 @@
         %th= t('publications.search.headers.action')
     %tbody
       - @results.each do |book|
-        - edition = book.dig('editions', 'docs')&.first
-        - edition_key = edition&.dig('key')&.split('/')&.last
-        - can_make_toc = book['has_fulltext'] && book['ebook_access'] == 'public' && edition_key
-        %tr
-          %td.checkbox-column{style: 'display: none;'}
-            - if can_make_toc
-              = check_box_tag "book_ids[]", edition_key, false, class: 'book-checkbox', data: { title: book['title'], authors: Array(book['author_name']).join(', ') }
-          %td
-            %code= edition_key || book['key']
-          %td
-            %strong= book['title']
-            %br
-            - if book['author_name']
-              %small.text-muted
-                = t('publications.search.by_authors', authors: Array(book['author_name']).join(', '))
-          %td
-            - if book['has_fulltext']
-              - if book['ebook_access'] == 'public'
-                %span.label.label-success= t('publications.search.fulltext_labels.public')
+        - if book['source'] == 'gutendex'
+          - book_id = book['id']
+          - can_make_toc = true
+          %tr
+            %td.checkbox-column{style: 'display: none;'}
+              = check_box_tag "book_ids[]", book_id, false, class: 'book-checkbox', data: { title: book['title'], authors: Array(book['author_name']).join(', '), source: 'gutendex' }
+            %td
+              %code= "PG-#{book_id}"
+            %td
+              %strong= book['title']
+              %br
+              - if book['author_name']
+                %small.text-muted
+                  = t('publications.search.by_authors', authors: Array(book['author_name']).join(', '))
+            %td
+              %span.label.label-success= t('publications.search.fulltext_labels.public')
+            %td
+              = link_to t('publications.search.make_toc_button'), new_toc_path(:params => {pg_book_id: book_id, from: :gutendex}), class: 'btn btn-sm btn-primary'
+        - else
+          - edition = book.dig('editions', 'docs')&.first
+          - edition_key = edition&.dig('key')&.split('/')&.last
+          - can_make_toc = book['has_fulltext'] && book['ebook_access'] == 'public' && edition_key
+          %tr
+            %td.checkbox-column{style: 'display: none;'}
+              - if can_make_toc
+                = check_box_tag "book_ids[]", edition_key, false, class: 'book-checkbox', data: { title: book['title'], authors: Array(book['author_name']).join(', '), source: 'openlibrary' }
+            %td
+              %code= edition_key || book['key']
+            %td
+              %strong= book['title']
+              %br
+              - if book['author_name']
+                %small.text-muted
+                  = t('publications.search.by_authors', authors: Array(book['author_name']).join(', '))
+            %td
+              - if book['has_fulltext']
+                - if book['ebook_access'] == 'public'
+                  %span.label.label-success= t('publications.search.fulltext_labels.public')
+                - else
+                  %span.label.label-warning= t('publications.search.fulltext_labels.restricted')
               - else
-                %span.label.label-warning= t('publications.search.fulltext_labels.restricted')
-            - else
-              %span.label.label-default= t('publications.search.fulltext_labels.metadata_only')
-          %td
-            - if can_make_toc
-              = link_to t('publications.search.make_toc_button'), new_toc_path(:params => {ol_book_id: edition_key, from: :openlibrary}), class: 'btn btn-sm btn-primary'
-            - elsif !edition_key
-              %span.text-muted= t('publications.search.no_edition')
-            - else
-              %span.text-muted= t('publications.search.no_fulltext')
+                %span.label.label-default= t('publications.search.fulltext_labels.metadata_only')
+            %td
+              - if can_make_toc
+                = link_to t('publications.search.make_toc_button'), new_toc_path(:params => {ol_book_id: edition_key, from: :openlibrary}), class: 'btn btn-sm btn-primary'
+              - elsif !edition_key
+                %span.text-muted= t('publications.search.no_edition')
+              - else
+                %span.text-muted= t('publications.search.no_fulltext')
 - else
   - if params[:search].present? || params[:title].present? || params[:author].present?
     %p.alert.alert-info= t('publications.search.nothing_found')

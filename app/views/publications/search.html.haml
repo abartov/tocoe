@@ -6,6 +6,16 @@
     %p= t('publications.search.description')
     = form_tag publications_search_path, :method => 'get', :id => 'publications_search' do
       .form-group
+        = label_tag :source, t('publications.search.form.source_label')
+        .radio
+          = label_tag 'source_openlibrary' do
+            = radio_button_tag :source, 'openlibrary', (@source.nil? || @source == 'openlibrary'), id: 'source_openlibrary'
+            = t('publications.search.form.source_openlibrary')
+        .radio
+          = label_tag 'source_gutendex' do
+            = radio_button_tag :source, 'gutendex', (@source == 'gutendex'), id: 'source_gutendex'
+            = t('publications.search.form.source_gutendex')
+      .form-group
         = label_tag :search, t('publications.search.form.general_search_label')
         = text_field_tag :search, params[:search], class: 'form-control', placeholder: t('publications.search.form.general_search_placeholder')
       .form-group
@@ -14,7 +24,7 @@
       .form-group
         = label_tag :author, t('publications.search.form.author_search_label')
         = text_field_tag :author, params[:author], class: 'form-control', placeholder: t('publications.search.form.author_search_placeholder')
-      .form-group
+      .form-group#fulltext-only-group
         = check_box_tag :fulltext_only, '1', params[:fulltext_only] == '1'
         = label_tag :fulltext_only, t('publications.search.form.fulltext_only_label')
       = submit_tag t('publications.search.form.search_button'), :name => nil, class: 'btn btn-primary'
@@ -35,7 +45,7 @@
           %ul.pagination
             - if @current_page > 1
               %li
-                = link_to '«', publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], page: @current_page - 1)
+                = link_to '«', publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], source: params[:source], page: @current_page - 1)
             - else
               %li.disabled
                 %span «
@@ -46,7 +56,7 @@
 
             - if window_start > 1
               %li
-                = link_to '1', publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], page: 1)
+                = link_to '1', publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], source: params[:source], page: 1)
               - if window_start > 2
                 %li.disabled
                   %span ...
@@ -57,18 +67,18 @@
                   %span= page
               - else
                 %li
-                  = link_to page, publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], page: page)
+                  = link_to page, publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], source: params[:source], page: page)
 
             - if window_end < @total_pages
               - if window_end < @total_pages - 1
                 %li.disabled
                   %span ...
               %li
-                = link_to @total_pages, publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], page: @total_pages)
+                = link_to @total_pages, publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], source: params[:source], page: @total_pages)
 
             - if @current_page < @total_pages
               %li
-                = link_to '»', publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], page: @current_page + 1)
+                = link_to '»', publications_search_path(search: params[:search], title: params[:title], author: params[:author], fulltext_only: params[:fulltext_only], source: params[:source], page: @current_page + 1)
             - else
               %li.disabled
                 %span »
@@ -78,6 +88,24 @@
 :javascript
   $(document).ready(function() {
     var multiselectActive = false;
+
+    // Hide/show fulltext_only checkbox based on source selection
+    function updateFulltextOnlyVisibility() {
+      var source = $('input[name="source"]:checked').val();
+      if (source === 'gutendex') {
+        $('#fulltext-only-group').hide();
+      } else {
+        $('#fulltext-only-group').show();
+      }
+    }
+
+    // Initialize visibility on page load
+    updateFulltextOnlyVisibility();
+
+    // Update visibility when source changes
+    $('input[name="source"]').change(function() {
+      updateFulltextOnlyVisibility();
+    });
 
     // Toggle multi-select mode
     $('#toggle-multiselect').click(function() {

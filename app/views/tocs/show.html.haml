@@ -10,7 +10,7 @@
 .mb-3
   = link_to t('common.actions.edit'), edit_toc_path(@toc), class: 'btn btn-primary'
   = link_to t('common.actions.back'), tocs_path, class: 'btn btn-secondary'
-  - unless @toc.no_explicit_toc
+  - unless @toc.no_explicit_toc || @is_gutenberg
     = link_to t('tocs.show.browse_scans_link'), browse_scans_toc_path(@toc), class: 'btn btn-info'
 
 - if @toc.pages_marked?
@@ -44,25 +44,38 @@
       = t('tocs.show.empty_alert.description')
 
 .row
-  .col-md-8
-    - if @toc.toc_body.present?
+  - if @is_gutenberg && @fulltext_url.present?
+    .col-md-6
+      - if @toc.toc_body.present?
+        %p
+          %b= t('tocs.show.toc_body')
+        .toc-preview
+          = toc_markdown_to_html_preview(@toc.toc_body)
+    .col-md-6
       %p
-        %b= t('tocs.show.toc_body')
-      .toc-preview
-        = toc_markdown_to_html_preview(@toc.toc_body)
+        %b= t('tocs.show.fulltext')
+      .fulltext-viewer
+        %iframe{src: @fulltext_url, style: 'width: 100%; height: 600px; border: 1px solid #dee2e6; border-radius: 4px;'}
+  - else
+    .col-md-8
+      - if @toc.toc_body.present?
+        %p
+          %b= t('tocs.show.toc_body')
+        .toc-preview
+          = toc_markdown_to_html_preview(@toc.toc_body)
 
-  - if @toc.toc_page_urls.present?
-    .col-md-4
-      %p
-        %b= t('tocs.show.marked_toc_pages')
-        = "(#{@toc.toc_page_urls.split("\n").count})"
-      .toc-page-thumbnails
-        - @toc.toc_page_urls.split("\n").each_with_index do |url, index|
-          .toc-page-thumb.mb-2
-            = link_to url, target: '_blank' do
-              = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail'
-            .text-center.small
-              = t('tocs.show.page_number', number: index + 1)
+    - if @toc.toc_page_urls.present?
+      .col-md-4
+        %p
+          %b= t('tocs.show.marked_toc_pages')
+          = "(#{@toc.toc_page_urls.split("\n").count})"
+        .toc-page-thumbnails
+          - @toc.toc_page_urls.split("\n").each_with_index do |url, index|
+            .toc-page-thumb.mb-2
+              = link_to url, target: '_blank' do
+                = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail'
+              .text-center.small
+                = t('tocs.show.page_number', number: index + 1)
 - if current_user&.admin?
   %p
     %b= t('common.labels.contributor')

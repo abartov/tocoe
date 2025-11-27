@@ -33,6 +33,16 @@ class TocsController < ApplicationController
   def show
     # @toc = Toc.find(params[:id])
     @manifestation = @toc.manifestation
+
+    # Check if this is a Gutenberg book and fetch fulltext URL
+    if @toc.book_uri =~ %r{gutenberg\.org/ebooks/(\d+)}
+      pg_book_id = $1
+      gutendex_client = Gutendex::Client.new
+      @fulltext_url = gutendex_client.preferred_fulltext_url(pg_book_id)
+      @is_gutenberg = true
+    else
+      @is_gutenberg = false
+    end
   end
 
   # GET /tocs/new
@@ -41,6 +51,8 @@ class TocsController < ApplicationController
     case params[:from]
     when 'openlibrary'
       new_from_openlibrary
+    when 'gutendex'
+      new_from_gutendex
     end
   end
 
@@ -254,6 +266,7 @@ class TocsController < ApplicationController
   # Creates multiple TOC entries from selected publications
   def create_multiple
     book_ids = params[:book_ids] || []
+    source = params[:source] || 'openlibrary'
 
     if book_ids.empty?
       flash[:error] = I18n.t('tocs.flash.no_books_selected')
@@ -263,16 +276,30 @@ class TocsController < ApplicationController
     created_count = 0
     book_ids.each do |book_id|
       begin
-        # Fetch book details from OpenLibrary
-        book_uri = "http://openlibrary.org/books/#{book_id}"
-        book_data = rest_get("#{book_uri}.json")
+        if source == 'gutendex'
+          # Fetch book details from Gutendex
+          gutendex_client = Gutendex::Client.new
+          book_data = gutendex_client.book(book_id)
+          book_uri = "https://www.gutenberg.org/ebooks/#{book_id}"
 
-        # Create TOC with empty status
-        toc = Toc.new(
-          book_uri: book_uri,
-          title: book_data['title'] || "Book #{book_id}",
-          status: :empty
-        )
+          # Create TOC with empty status
+          toc = Toc.new(
+            book_uri: book_uri,
+            title: book_data['title'] || "Book #{book_id}",
+            status: :empty
+          )
+        else
+          # Fetch book details from OpenLibrary
+          book_uri = "http://openlibrary.org/books/#{book_id}"
+          book_data = rest_get("#{book_uri}.json")
+
+          # Create TOC with empty status
+          toc = Toc.new(
+            book_uri: book_uri,
+            title: book_data['title'] || "Book #{book_id}",
+            status: :empty
+          )
+        end
 
         if toc.save
           created_count += 1
@@ -297,6 +324,28 @@ class TocsController < ApplicationController
     @toc.book_uri = "http://openlibrary.org/books/#{params[:ol_book_id]}"
     get_authors(@toc.book_uri)
     @toc.title = @book['title']
+  end
+
+  def new_from_gutendex
+    pg_book_id = params[:pg_book_id]
+    @toc.book_uri = "https://www.gutenberg.org/ebooks/#{pg_book_id}"
+
+    # Fetch book details from Gutendex
+    gutendex_client = Gutendex::Client.new
+    book_data = gutendex_client.book(pg_book_id)
+
+    @toc.title = book_data['title']
+    @book = book_data
+    @authors = book_data['authors'] || []
+
+    # Transform Gutendex authors to match the OpenLibrary format for the view
+    @authors = @authors.map do |author|
+      {
+        'name' => author['name'],
+        'birth_year' => author['birth_year'],
+        'death_year' => author['death_year']
+      }
+    end
   end
 
   def get_authors(uri)

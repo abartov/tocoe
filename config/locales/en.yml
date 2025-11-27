@@ -89,6 +89,8 @@ en:
       toc_body: "Toc body:"
       marked_toc_pages: "Marked TOC Pages:"
       page_number: "TOC Page %{number}"
+      fulltext: "Full Text:"
+      browse_scans_link: "Browse Scans"
 
       pages_marked_alert:
         title: "Ready to transcribe:"
@@ -180,8 +182,11 @@ en:
   publications:
     search:
       title: "Pick a book to make a ToC for:"
-      description: "Search Open Library for publications with full-text available"
+      description: "Search Open Library or Project Gutenberg for publications with full-text available"
       form:
+        source_label: "Source:"
+        source_openlibrary: "Open Library"
+        source_gutendex: "Project Gutenberg"
         general_search_label: "General Search:"
         general_search_placeholder: "Search for anything..."
         title_search_label: "Or Search by Title:"

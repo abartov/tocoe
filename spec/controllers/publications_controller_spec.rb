@@ -269,4 +269,109 @@ RSpec.describe PublicationsController, type: :controller do
       end
     end
   end
+
+  describe 'GET #search with Gutendex source' do
+    let(:gutendex_response) do
+      {
+        'count' => 1,
+        'next' => nil,
+        'previous' => nil,
+        'results' => [
+          {
+            'id' => 1342,
+            'title' => 'Pride and Prejudice',
+            'authors' => [
+              { 'name' => 'Austen, Jane', 'birth_year' => 1775, 'death_year' => 1817 }
+            ],
+            'formats' => {
+              'text/html' => 'https://www.gutenberg.org/files/1342/1342-h/1342-h.htm'
+            }
+          }
+        ]
+      }
+    end
+
+    let(:mock_gutendex_client) { instance_double(Gutendex::Client) }
+
+    before do
+      allow(controller).to receive(:gutendex_client).and_return(mock_gutendex_client)
+      allow(mock_gutendex_client).to receive(:search).and_return(gutendex_response)
+    end
+
+    it 'searches Gutendex when source is gutendex' do
+      get :search, params: { source: 'gutendex', search: 'pride' }
+
+      expect(response).to have_http_status(:success)
+      expect(assigns(:source)).to eq('gutendex')
+      expect(assigns(:results)).not_to be_nil
+      expect(assigns(:results).first['title']).to eq('Pride and Prejudice')
+      expect(assigns(:results).first['source']).to eq('gutendex')
+    end
+
+    it 'marks all Gutendex results as having fulltext' do
+      get :search, params: { source: 'gutendex', search: 'pride' }
+
+      results = assigns(:results)
+      expect(results.first['has_fulltext']).to be true
+      expect(results.first['ebook_access']).to eq('public')
+      expect(assigns(:any_fulltext)).to be true
+    end
+
+    it 'filters out existing Gutenberg ToCs' do
+      # Create a ToC for a Gutenberg book
+      Toc.create!(
+        title: 'Pride and Prejudice',
+        book_uri: 'https://www.gutenberg.org/ebooks/1342',
+        status: :empty
+      )
+
+      get :search, params: { source: 'gutendex', search: 'pride' }
+
+      expect(assigns(:results)).to be_empty
+    end
+
+    it 'transforms author names to array format' do
+      get :search, params: { source: 'gutendex', search: 'pride' }
+
+      results = assigns(:results)
+      expect(results.first['author_name']).to be_an(Array)
+      expect(results.first['author_name']).to eq(['Austen, Jane'])
+    end
+  end
+
+  describe 'source parameter handling' do
+    let(:mock_client) { instance_double(OpenLibrary::Client) }
+    let(:mock_gutendex_client) { instance_double(Gutendex::Client) }
+
+    before do
+      allow(controller).to receive(:olclient).and_return(mock_client)
+      allow(controller).to receive(:gutendex_client).and_return(mock_gutendex_client)
+      allow(mock_client).to receive(:search).and_return({ 'numFound' => 0, 'docs' => [] })
+      allow(mock_gutendex_client).to receive(:search).and_return({ 'count' => 0, 'results' => [] })
+    end
+
+    it 'defaults to OpenLibrary when no source is specified' do
+      get :search, params: { search: 'test' }
+
+      expect(assigns(:source)).to eq('openlibrary')
+      expect(mock_client).to have_received(:search)
+      expect(mock_gutendex_client).not_to have_received(:search)
+    end
+
+    it 'uses OpenLibrary when source is openlibrary' do
+      get :search, params: { source: 'openlibrary', search: 'test' }
+
+      expect(assigns(:source)).to eq('openlibrary')
+      expect(mock_client).to have_received(:search)
+      expect(mock_gutendex_client).not_to have_received(:search)
+    end
+
+    it 'uses Gutendex when source is gutendex' do
+      get :search, params: { source: 'gutendex', search: 'test' }
+
+      expect(assigns(:source)).to eq('gutendex')
+      expect(mock_gutendex_client).to have_received(:search)
+      expect(mock_client).not_to have_received(:search)
+    end
+  end
 end

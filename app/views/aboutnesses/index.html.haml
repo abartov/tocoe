@@ -11,3 +11,5 @@
 
     %p
       = link_to 'Add Subject Heading', new_embodiment_aboutness_path(@embodiment), class: 'btn btn-primary'
+      - if @embodiment.manifestation&.toc
+        = link_to 'Back to ToC', toc_path(@embodiment.manifestation.toc), class: 'btn btn-default'

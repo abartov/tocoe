@@ -53,7 +53,7 @@ class Gutendex::Client
     offset = (page.to_i - 1) * limit
     params[:page] = offset / 32 + 1 if offset > 0
 
-    result = request('/books', params)
+    result = request('/books/', params)
 
     # Transform response to include pagination info similar to OpenLibrary
     {

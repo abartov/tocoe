@@ -48,18 +48,16 @@
             .actions
               %td
                 = submit_tag 'Attempt OCR', id: 'ocr_submit'
+                = button_tag(type: 'button', id: 'paste_ocr', style: 'margin-left: 10px;') do
+                  Paste to ToC textarea
                 #ocr_working.text-muted{style: 'display:none; margin-top: 10px;'}
                   %em Processing OCR, please wait...
           %tr
             %td
-              #results
-          %tr
-            %td
-              = button_tag(type: 'button', id: 'paste_ocr') do
-                = '<-- paste to ToC textarea'
+              #results{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 5px;'}
       :javascript
         $('#paste_ocr').click(function() {
-          $('#toc_area').html($('#results').html());
+          $('#toc_area').val($('#results').text());
         });
 
         $('#ocr_form').on('ajax:before', function() {

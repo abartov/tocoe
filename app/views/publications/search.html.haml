@@ -18,6 +18,8 @@
         = check_box_tag :fulltext_only, '1', params[:fulltext_only] == '1'
         = label_tag :fulltext_only, t('publications.search.form.fulltext_only_label')
       = submit_tag t('publications.search.form.search_button'), :name => nil, class: 'btn btn-primary'
+      = button_tag t('publications.search.multi_select_button'), type: 'button', class: 'btn btn-default', id: 'toggle-multiselect', style: 'margin-left: 10px; display: none;'
+
     - if @num_results
       %p.text-muted
         = t('publications.search.form.results_found', count: @num_results)

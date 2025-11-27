@@ -21,7 +21,7 @@ class PublicationsController < ApplicationController
       search_opts[:has_fulltext] = fulltext_only
 
       @results = olclient.search(**search_opts)
-
+      @any_fulltext = false
       if @results.present?
         @num_results = @results['numFound']
         @results = @results['docs']
@@ -32,7 +32,9 @@ class PublicationsController < ApplicationController
           @num_results = @results.length
         end
 
-        @results.each {|r| logger.info "#{r['title']} / #{r['author_name']} #{(r['has_fulltext'] && r['ebook_access'] == 'public') ? "[ebook!]" : "metadata only"}"}
+        @results.each {|r| logger.info "#{r['title']} / #{r['author_name']} #{(r['has_fulltext'] && r['ebook_access'] == 'public') ? "[ebook!]" : "metadata only"}"
+          @any_fulltext = true if r['has_fulltext'] && r['ebook_access'] == 'public'
+        }
       end
     end
   end

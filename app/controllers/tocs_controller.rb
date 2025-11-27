@@ -85,7 +85,13 @@ class TocsController < ApplicationController
 
   # GET /tocs/1/edit
   def edit
-    get_authors(@toc.book_uri)
+    # Use stored book_data if available (for Gutendex titles),
+    # otherwise fall back to book_uri (for Open Library titles)
+    if @toc.book_data.present?
+      get_authors(@toc.book_data)
+    else
+      get_authors(@toc.book_uri)
+    end
   end
 
   # POST /tocs
@@ -439,6 +445,8 @@ class TocsController < ApplicationController
 
     @toc.title = book_data['title']
     @toc.imported_subjects = extract_subjects_from_gutendex(book_data)
+    # Store book_data for later use (e.g., in edit action)
+    @toc.book_data = book_data
 
     # Use generalized get_authors method with Gutendex book data
     get_authors(book_data)

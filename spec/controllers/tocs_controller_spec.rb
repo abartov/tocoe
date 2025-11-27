@@ -868,4 +868,75 @@ RSpec.describe TocsController, type: :controller do
       end
     end
   end
+
+  describe 'GET #edit' do
+    context 'with Gutendex book_data stored' do
+      let(:gutendex_book_data) do
+        {
+          'title' => 'Pride and Prejudice',
+          'authors' => [
+            { 'name' => 'Austen, Jane', 'birth_year' => 1775, 'death_year' => 1817 }
+          ]
+        }
+      end
+      let(:gutendex_toc) do
+        Toc.create!(
+          book_uri: 'https://www.gutenberg.org/ebooks/1342',
+          title: 'Pride and Prejudice',
+          book_data: gutendex_book_data
+        )
+      end
+
+      it 'uses stored book_data instead of making network request' do
+        # Should NOT call rest_get since we have book_data
+        expect(controller).not_to receive(:rest_get)
+
+        get :edit, params: { id: gutendex_toc.id }
+
+        expect(response).to have_http_status(:success)
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors).to be_present
+        expect(authors[0]['name']).to eq('Austen, Jane')
+      end
+
+      it 'populates @book and @authors from stored book_data' do
+        get :edit, params: { id: gutendex_toc.id }
+
+        book = controller.instance_variable_get(:@book)
+        authors = controller.instance_variable_get(:@authors)
+
+        expect(book).to eq(gutendex_book_data)
+        expect(authors[0]['name']).to eq('Austen, Jane')
+        expect(authors[0]['birth_year']).to eq(1775)
+      end
+    end
+
+    context 'with Open Library book_uri (no book_data)' do
+      let(:ol_toc) do
+        Toc.create!(
+          book_uri: 'http://openlibrary.org/books/OL123M',
+          title: 'Open Library Book'
+        )
+      end
+      let(:book_data) { { 'title' => 'Open Library Book', 'authors' => [{ 'key' => '/authors/OL123A' }] } }
+      let(:author_data) { { 'key' => '/authors/OL123A', 'name' => 'Test Author' } }
+
+      before do
+        allow(controller).to receive(:rest_get).with('http://openlibrary.org/books/OL123M.json').and_return(book_data)
+        allow(controller).to receive(:rest_get).with('http://openlibrary.org/authors/OL123A.json').and_return(author_data)
+      end
+
+      it 'fetches book and author data from book_uri' do
+        expect(controller).to receive(:rest_get).with('http://openlibrary.org/books/OL123M.json')
+        expect(controller).to receive(:rest_get).with('http://openlibrary.org/authors/OL123A.json')
+
+        get :edit, params: { id: ol_toc.id }
+
+        expect(response).to have_http_status(:success)
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors).to be_present
+        expect(authors[0]['name']).to eq('Test Author')
+      end
+    end
+  end
 end

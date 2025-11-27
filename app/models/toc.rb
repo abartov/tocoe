@@ -9,6 +9,9 @@ class Toc < ActiveRecord::Base
 
   before_save :set_status_timestamps
 
+  # Serialize book_data as JSON
+  serialize :book_data, coder: JSON
+
   private
 
   def contributor_cannot_be_reviewer

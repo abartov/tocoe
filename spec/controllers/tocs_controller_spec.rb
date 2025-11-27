@@ -30,7 +30,7 @@ RSpec.describe TocsController, type: :controller do
       expect(assigns(:tocs)).to include(pending_toc)
     end
 
-    it 'orders TOCs by updated_at descending' do
+    it 'orders TOCs by updated_at descending by default' do
       old_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL1M', title: 'Old', status: :empty, updated_at: 2.days.ago)
       new_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL2M', title: 'New', status: :empty, updated_at: 1.day.ago)
 
@@ -38,6 +38,67 @@ RSpec.describe TocsController, type: :controller do
 
       expect(assigns(:tocs).first).to eq(new_toc)
       expect(assigns(:tocs).last).to eq(old_toc)
+    end
+
+    it 'filters by status parameter' do
+      empty_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL1M', title: 'Empty', status: :empty)
+      verified_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL2M', title: 'Verified', status: :verified)
+
+      get :index, params: { status: 'empty' }
+
+      expect(assigns(:tocs)).to include(empty_toc)
+      expect(assigns(:tocs)).not_to include(verified_toc)
+    end
+
+    it 'orders by created_at descending when showing empty status' do
+      old_empty = Toc.create!(book_uri: 'http://openlibrary.org/books/OL1M', title: 'Old', status: :empty, created_at: 2.days.ago)
+      new_empty = Toc.create!(book_uri: 'http://openlibrary.org/books/OL2M', title: 'New', status: :empty, created_at: 1.day.ago)
+
+      get :index, params: { status: 'empty' }
+
+      expect(assigns(:tocs).first).to eq(new_empty)
+      expect(assigns(:tocs).last).to eq(old_empty)
+    end
+  end
+
+  describe 'POST #create_multiple' do
+    it 'creates multiple TOCs from book IDs' do
+      book_data = { 'title' => 'Test Book' }
+      allow(controller).to receive(:rest_get).and_return(book_data)
+
+      expect {
+        post :create_multiple, params: { book_ids: ['OL1M', 'OL2M'] }
+      }.to change(Toc, :count).by(2)
+
+      expect(flash[:notice]).to match(/Successfully created 2 TOCs/)
+      expect(response).to redirect_to(tocs_path(status: 'empty'))
+    end
+
+    it 'creates TOCs with empty status' do
+      book_data = { 'title' => 'Test Book' }
+      allow(controller).to receive(:rest_get).and_return(book_data)
+
+      post :create_multiple, params: { book_ids: ['OL1M'] }
+
+      toc = Toc.last
+      expect(toc.status).to eq('empty')
+      expect(toc.book_uri).to eq('http://openlibrary.org/books/OL1M')
+    end
+
+    it 'handles no books selected' do
+      post :create_multiple, params: { book_ids: [] }
+
+      expect(flash[:error]).to eq('No books selected')
+      expect(response).to redirect_to(publications_search_path)
+    end
+
+    it 'handles API errors gracefully' do
+      allow(controller).to receive(:rest_get).and_raise(StandardError.new('API error'))
+
+      post :create_multiple, params: { book_ids: ['OL1M'] }
+
+      expect(Toc.count).to eq(0)
+      expect(flash[:error]).to eq('Failed to create any TOCs')
     end
   end
 

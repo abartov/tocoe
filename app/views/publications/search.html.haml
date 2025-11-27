@@ -24,3 +24,40 @@
       #results
         != render partial: 'ol_results', locals: { :results => @results}
     %p
+
+:javascript
+  $(document).ready(function() {
+    var multiselectActive = false;
+
+    // Toggle multi-select mode
+    $('#toggle-multiselect').click(function() {
+      multiselectActive = !multiselectActive;
+
+      if (multiselectActive) {
+        $('.checkbox-column').show();
+        $(this).addClass('btn-primary').removeClass('btn-default');
+        $(this).text('Exit Multi-select');
+      } else {
+        $('.checkbox-column').hide();
+        $('.book-checkbox').prop('checked', false);
+        $(this).removeClass('btn-primary').addClass('btn-default');
+        $(this).text('Multi-select');
+        $('#bulk-toc-form').hide();
+      }
+      updateBulkButton();
+    });
+
+    // Update bulk create button visibility
+    function updateBulkButton() {
+      var checkedCount = $('.book-checkbox:checked').length;
+      if (checkedCount > 0) {
+        $('#bulk-toc-form').show();
+        $('#bulk-create-btn').text('Make TOCs for ' + checkedCount + ' selected!');
+      } else {
+        $('#bulk-toc-form').hide();
+      }
+    }
+
+    // Listen for checkbox changes
+    $(document).on('change', '.book-checkbox', updateBulkButton);
+  });

@@ -1,7 +1,12 @@
 - unless @results.blank?
-  %table{ class: 'table table-striped' }
+  #multi-select-controls.mb-3
+    = button_tag 'Multi-select', type: 'button', class: 'btn btn-default', id: 'toggle-multiselect'
+    = form_tag create_multiple_tocs_path, method: :post, id: 'bulk-toc-form', style: 'display: none; margin-top: 10px;' do
+      = button_tag 'Make TOCs for selected!', type: 'submit', class: 'btn btn-success btn-lg', id: 'bulk-create-btn'
+  %table{ class: 'table table-striped', id: 'search-results-table' }
     %thead
       %tr
+        %th.checkbox-column{style: 'display: none;'}
         %th Edition Key
         %th Title / Author
         %th Full-text Status
@@ -10,7 +15,11 @@
       - @results.each do |book|
         - edition = book.dig('editions', 'docs')&.first
         - edition_key = edition&.dig('key')&.split('/')&.last
+        - can_make_toc = book['has_fulltext'] && book['ebook_access'] == 'public' && edition_key
         %tr
+          %td.checkbox-column{style: 'display: none;'}
+            - if can_make_toc
+              = check_box_tag "book_ids[]", edition_key, false, class: 'book-checkbox', data: { title: book['title'], authors: Array(book['author_name']).join(', ') }
           %td
             %code= edition_key || book['key']
           %td
@@ -28,7 +37,7 @@
             - else
               %span.label.label-default Metadata Only
           %td
-            - if book['has_fulltext'] && book['ebook_access'] == 'public' && edition_key
+            - if can_make_toc
               = link_to 'Make ToC!', new_toc_path(:params => {ol_book_id: edition_key, from: :openlibrary}), class: 'btn btn-sm btn-primary'
             - elsif !edition_key
               %span.text-muted No edition available

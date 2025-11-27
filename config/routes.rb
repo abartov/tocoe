@@ -6,6 +6,9 @@ Rails.application.routes.draw do
   get 'manifestations/approve'
 
   resources :tocs do
+    collection do
+      post :create_multiple
+    end
     member do
       get :browse_scans
       post :mark_pages

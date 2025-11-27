@@ -13,7 +13,7 @@
       %strong Ready to transcribe:
       The TOC pages have been marked. Transcribe the table of contents and mark it as ready.
     %p
-      = link_to 'Edit and Mark as Ready', edit_toc_path(@toc), class: 'btn btn-primary'
+      = link_to 'Edit ToC transcription', edit_toc_path(@toc), class: 'btn btn-primary'
       = button_to 'Mark as Transcribed', mark_transcribed_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: 'Confirm that you have transcribed this TOC?' }
 
 - elsif @toc.transcribed?

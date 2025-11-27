@@ -10,13 +10,22 @@ class TocsController < ApplicationController
   # GET /tocs
   # GET /tocs.json
   def index
-    # By default, show TOCs that need work (exclude verified)
-    @tocs = if params[:show_all] == 'true'
+    # Filter by status if specified
+    @tocs = if params[:status].present?
+              Toc.where(status: params[:status])
+            elsif params[:show_all] == 'true'
               Toc.all
             else
+              # By default, show TOCs that need work (exclude verified)
               Toc.where.not(status: :verified)
             end
-    @tocs = @tocs.order(updated_at: :desc)
+
+    # Order by created_at desc if showing empty status, otherwise updated_at desc
+    @tocs = if params[:status] == 'empty'
+              @tocs.order(created_at: :desc)
+            else
+              @tocs.order(updated_at: :desc)
+            end
   end
 
   # GET /tocs/1
@@ -227,6 +236,47 @@ class TocsController < ApplicationController
     else
       flash[:error] = 'Failed to verify TOC'
       redirect_to @toc
+    end
+  end
+
+  # POST /tocs/create_multiple
+  # Creates multiple TOC entries from selected publications
+  def create_multiple
+    book_ids = params[:book_ids] || []
+
+    if book_ids.empty?
+      flash[:error] = 'No books selected'
+      redirect_to publications_search_path and return
+    end
+
+    created_count = 0
+    book_ids.each do |book_id|
+      begin
+        # Fetch book details from OpenLibrary
+        book_uri = "http://openlibrary.org/books/#{book_id}"
+        book_data = rest_get("#{book_uri}.json")
+
+        # Create TOC with empty status
+        toc = Toc.new(
+          book_uri: book_uri,
+          title: book_data['title'] || "Book #{book_id}",
+          status: :empty
+        )
+
+        if toc.save
+          created_count += 1
+        end
+      rescue => e
+        logger.error "Failed to create TOC for #{book_id}: #{e.message}"
+      end
+    end
+
+    if created_count > 0
+      flash[:notice] = "Successfully created #{created_count} TOC#{created_count == 1 ? '' : 's'}"
+      redirect_to tocs_path(status: 'empty')
+    else
+      flash[:error] = 'Failed to create any TOCs'
+      redirect_to publications_search_path
     end
   end
 

@@ -17,8 +17,14 @@ RSpec.feature 'Bulk create TOCs', type: :feature, js: true do
 
     # Stub rest_get so create_multiple doesn't perform real HTTP calls
     allow_any_instance_of(ApplicationController).to receive(:rest_get) do |_, url|
-      # Return a simple hash with a title based on the URL
-      { 'title' => "Title for #{url}" }
+      # Return appropriate title based on the book ID in the URL
+      if url.include?('OL1M')
+        { 'title' => 'First Book' }
+      elsif url.include?('OL2M')
+        { 'title' => 'Second Book' }
+      else
+        { 'title' => "Title for #{url}" }
+      end
     end
   end
 
@@ -36,8 +42,9 @@ RSpec.feature 'Bulk create TOCs', type: :feature, js: true do
     # Click the bulk create button
     find('#bulk-create-btn', visible: true).click
 
-    # Expect to be redirected to the TOCs index and see success flash
-    expect(page).to have_current_path('/tocs')
-    expect(page).to have_content('Successfully created 2 TOCs')
+    # Expect to be redirected to the TOCs index with the created TOCs visible
+    expect(page.current_path).to eq('/tocs')
+    expect(page).to have_content('First Book')
+    expect(page).to have_content('Second Book')
   end
 end

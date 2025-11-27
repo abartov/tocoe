@@ -18,11 +18,11 @@
         = check_box_tag :fulltext_only, '1', params[:fulltext_only] == '1'
         = label_tag :fulltext_only, t('publications.search.form.fulltext_only_label')
       = submit_tag t('publications.search.form.search_button'), :name => nil, class: 'btn btn-primary'
-      - if @num_results
-        %p.text-muted
-          = t('publications.search.form.results_found', count: @num_results)
-      #results
-        != render partial: 'ol_results', locals: { :results => @results}
+    - if @num_results
+      %p.text-muted
+        = t('publications.search.form.results_found', count: @num_results)
+    #results
+      != render partial: 'ol_results', locals: { :results => @results}
     %p
 
 :javascript
@@ -63,9 +63,6 @@
 
     // Collect checked book IDs and inject into the bulk form before submission
     $('#bulk-toc-form').on('submit', function(e) {
-      // CRITICAL: Stop propagation to prevent the outer search form from submitting
-      e.stopPropagation();
-
       // Gather checked checkboxes values
       var checked = $('.book-checkbox:checked').map(function() { return this.value; }).get();
 
@@ -86,10 +83,5 @@
 
       // Allow the form to submit normally with the injected inputs
       return true;
-    });
-
-    // Also prevent the bulk create button from triggering the outer form
-    $('#bulk-create-btn').on('click', function(e) {
-      e.stopPropagation();
     });
   });

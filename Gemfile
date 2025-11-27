@@ -60,3 +60,8 @@ group :development do
   gem 'web-console'
   gem 'listen', '~> 3.3'
 end
+
+group :test do
+  gem 'faker'
+  gem 'shoulda-matchers'
+end

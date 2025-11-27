@@ -640,6 +640,195 @@ RSpec.describe TocsController, type: :controller do
       authors = controller.instance_variable_get(:@authors)
       expect(authors).to eq([])
     end
+
+    it 'creates Person records for Gutendex authors' do
+      expect {
+        controller.send(:new_from_gutendex)
+      }.to change(Person, :count).by(1)
+
+      person = Person.find_by(name: 'Austen, Jane')
+      expect(person).to be_present
+      expect(person.openlibrary_id).to be_nil
+    end
+
+    it 'reuses existing Person records for Gutendex authors' do
+      existing_person = Person.create!(name: 'Austen, Jane')
+
+      expect {
+        controller.send(:new_from_gutendex)
+      }.not_to change(Person, :count)
+
+      authors = controller.instance_variable_get(:@authors)
+      expect(authors[0]['person']).to eq(existing_person)
+    end
+
+    it 'adds person reference to Gutendex authors' do
+      controller.send(:new_from_gutendex)
+
+      authors = controller.instance_variable_get(:@authors)
+      expect(authors[0]['person']).to be_a(Person)
+      expect(authors[0]['person'].name).to eq('Austen, Jane')
+    end
+  end
+
+  describe '#get_authors' do
+    context 'with Open Library URI' do
+      let(:book_data) { { 'title' => 'Test Book', 'authors' => [{ 'key' => '/authors/OL123A' }] } }
+      let(:author_data) { { 'key' => '/authors/OL123A', 'name' => 'Test Author' } }
+
+      before do
+        allow(controller).to receive(:rest_get).with('http://openlibrary.org/books/OL1M.json').and_return(book_data)
+        allow(controller).to receive(:rest_get).with('http://openlibrary.org/authors/OL123A.json').and_return(author_data)
+      end
+
+      it 'fetches book and author data from Open Library' do
+        controller.send(:get_authors, 'http://openlibrary.org/books/OL1M')
+
+        book = controller.instance_variable_get(:@book)
+        authors = controller.instance_variable_get(:@authors)
+
+        expect(book).to eq(book_data)
+        expect(authors).to be_present
+        expect(authors[0]['name']).to eq('Test Author')
+      end
+
+      it 'creates Person records for Open Library authors' do
+        expect {
+          controller.send(:get_authors, 'http://openlibrary.org/books/OL1M')
+        }.to change(Person, :count).by(1)
+
+        person = Person.find_by_openlibrary_id('/authors/OL123A')
+        expect(person).to be_present
+        expect(person.name).to eq('Test Author')
+      end
+    end
+
+    context 'with Gutendex book data' do
+      let(:gutendex_book_data) do
+        {
+          'title' => 'Pride and Prejudice',
+          'authors' => [
+            { 'name' => 'Austen, Jane', 'birth_year' => 1775, 'death_year' => 1817 }
+          ]
+        }
+      end
+
+      it 'processes Gutendex book data directly' do
+        controller.send(:get_authors, gutendex_book_data)
+
+        book = controller.instance_variable_get(:@book)
+        authors = controller.instance_variable_get(:@authors)
+
+        expect(book).to eq(gutendex_book_data)
+        expect(authors).to be_present
+        expect(authors[0]['name']).to eq('Austen, Jane')
+        expect(authors[0]['birth_year']).to eq(1775)
+        expect(authors[0]['death_year']).to eq(1817)
+      end
+
+      it 'creates Person records for Gutendex authors' do
+        expect {
+          controller.send(:get_authors, gutendex_book_data)
+        }.to change(Person, :count).by(1)
+
+        person = Person.find_by(name: 'Austen, Jane')
+        expect(person).to be_present
+        expect(person.openlibrary_id).to be_nil
+      end
+
+      it 'adds person reference to Gutendex authors' do
+        controller.send(:get_authors, gutendex_book_data)
+
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors[0]['person']).to be_a(Person)
+        expect(authors[0]['person'].name).to eq('Austen, Jane')
+        expect(authors[0]['link']).to be_nil
+      end
+
+      it 'handles books with no authors' do
+        book_data_no_authors = gutendex_book_data.merge('authors' => nil)
+
+        controller.send(:get_authors, book_data_no_authors)
+
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors).to eq([])
+      end
+    end
+  end
+
+  describe '#map_authors - generalized for both sources' do
+    context 'with Gutendex authors (no key field)' do
+      it 'creates Person records by name for new Gutendex authors' do
+        gutendex_authors = [
+          { 'name' => 'Twain, Mark', 'birth_year' => 1835, 'death_year' => 1910 }
+        ]
+        controller.instance_variable_set(:@authors, gutendex_authors)
+
+        expect {
+          controller.send(:map_authors)
+        }.to change(Person, :count).by(1)
+
+        person = Person.find_by(name: 'Twain, Mark')
+        expect(person).to be_present
+        expect(person.openlibrary_id).to be_nil
+      end
+
+      it 'reuses existing Person records for Gutendex authors' do
+        existing_person = Person.create!(name: 'Dickens, Charles')
+        gutendex_authors = [
+          { 'name' => 'Dickens, Charles', 'birth_year' => 1812, 'death_year' => 1870 }
+        ]
+        controller.instance_variable_set(:@authors, gutendex_authors)
+
+        expect {
+          controller.send(:map_authors)
+        }.not_to change(Person, :count)
+
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors[0]['person']).to eq(existing_person)
+      end
+
+      it 'sets link to nil for Gutendex authors' do
+        gutendex_authors = [
+          { 'name' => 'Shelley, Mary', 'birth_year' => 1797, 'death_year' => 1851 }
+        ]
+        controller.instance_variable_set(:@authors, gutendex_authors)
+
+        controller.send(:map_authors)
+
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors[0]['link']).to be_nil
+      end
+    end
+
+    context 'with Open Library authors (has key field)' do
+      it 'creates Person records by openlibrary_id for new authors' do
+        ol_authors = [
+          { 'key' => '/authors/OL999A', 'name' => 'New OL Author' }
+        ]
+        controller.instance_variable_set(:@authors, ol_authors)
+
+        expect {
+          controller.send(:map_authors)
+        }.to change(Person, :count).by(1)
+
+        person = Person.find_by_openlibrary_id('/authors/OL999A')
+        expect(person).to be_present
+        expect(person.name).to eq('New OL Author')
+      end
+
+      it 'sets link for Open Library authors' do
+        ol_authors = [
+          { 'key' => '/authors/OL888A', 'name' => 'OL Author' }
+        ]
+        controller.instance_variable_set(:@authors, ol_authors)
+
+        controller.send(:map_authors)
+
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors[0]['link']).to eq('http://openlibrary.org/authors/OL888A')
+      end
+    end
   end
 
   describe 'DELETE #destroy' do

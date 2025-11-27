@@ -54,15 +54,32 @@ class TocsController < ApplicationController
 
   def map_authors
     @authors.each_index do |i|
-      p = Person.find_by_openlibrary_id(@authors[i]['key'])
-      if p.nil?
-        # create a new Person and link to Open Library ID
-        p = Person.new(openlibrary_id: @authors[i]['key'], name: @authors[i]['name'])
-        p.save!
+      author = @authors[i]
+
+      # Detect source type by presence of 'key' field
+      if author['key']
+        # Open Library author format
+        p = Person.find_by_openlibrary_id(author['key'])
+        if p.nil?
+          # create a new Person and link to Open Library ID
+          p = Person.new(openlibrary_id: author['key'], name: author['name'])
+          p.save!
+        end
+        @authors[i]['person'] = p
+        # Add standardized link field for view layer
+        @authors[i]['link'] = "http://openlibrary.org#{p.openlibrary_id}"
+      else
+        # Gutendex author format (no 'key' field)
+        # Find existing Person by name or create new one
+        p = Person.find_by(name: author['name'])
+        if p.nil?
+          p = Person.new(name: author['name'])
+          p.save!
+        end
+        @authors[i]['person'] = p
+        # Standardized link field - nil for Gutenberg authors (no author page)
+        @authors[i]['link'] = nil
       end
-      @authors[i]['person'] = p
-      # Add standardized link field for view layer
-      @authors[i]['link'] = "http://openlibrary.org#{p.openlibrary_id}"
     end
   end
 
@@ -333,25 +350,32 @@ class TocsController < ApplicationController
     book_data = gutendex_client.book(pg_book_id)
 
     @toc.title = book_data['title']
-    @book = book_data
-    @authors = book_data['authors'] || []
 
-    # Transform Gutendex authors to standardized format for the view
-    @authors = @authors.map do |author|
-      {
-        'name' => author['name'],
-        'birth_year' => author['birth_year'],
-        'death_year' => author['death_year'],
-        # Standardized link field - nil for Gutenberg authors (no author page)
-        'link' => nil
-      }
-    end
+    # Use generalized get_authors method with Gutendex book data
+    get_authors(book_data)
   end
 
-  def get_authors(uri)
-    @book = rest_get("#{uri}.json")
-    author_keys = @book['authors'].collect { |b| b['key'] }
-    @authors = author_keys.map { |k| rest_get("http://openlibrary.org#{k}.json") }
+  def get_authors(uri_or_book_data)
+    # Support both Open Library URI and Gutendex book data
+    if uri_or_book_data.is_a?(Hash)
+      # Gutendex book data passed directly
+      @book = uri_or_book_data
+      @authors = @book['authors'] || []
+      # Transform Gutendex authors to ensure consistent format
+      @authors = @authors.map do |author|
+        {
+          'name' => author['name'],
+          'birth_year' => author['birth_year'],
+          'death_year' => author['death_year']
+        }
+      end
+    else
+      # Open Library URI
+      uri = uri_or_book_data
+      @book = rest_get("#{uri}.json")
+      author_keys = @book['authors'].collect { |b| b['key'] }
+      @authors = author_keys.map { |k| rest_get("http://openlibrary.org#{k}.json") }
+    end
     map_authors
   end
 

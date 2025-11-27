@@ -34,6 +34,18 @@ RSpec.describe 'Scan Browser Workflow', type: :request do
     allow(ol_client).to receive(:ia_identifier).with('OL7928212M').and_return('test_ia_id')
     allow(ol_client).to receive(:ia_metadata).with('test_ia_id').and_return(ia_metadata)
     allow(ol_client).to receive(:ia_page_images).and_return(page_images)
+
+    # Stub API calls for get_authors method
+    book_data = { 'title' => 'The Big Year', 'authors' => [{ 'key' => '/authors/OL123A' }] }
+    author_data = { 'key' => '/authors/OL123A', 'name' => 'Test Author' }
+    allow_any_instance_of(ApplicationController).to receive(:rest_get)
+      .with('http://openlibrary.org/books/OL7928212M.json').and_return(book_data)
+    allow_any_instance_of(ApplicationController).to receive(:rest_get)
+      .with('http://openlibrary.org/authors/OL123A.json').and_return(author_data)
+    # Also stub for OL123M book used in another test
+    book_data2 = { 'title' => 'Test Book', 'authors' => [{ 'key' => '/authors/OL123A' }] }
+    allow_any_instance_of(ApplicationController).to receive(:rest_get)
+      .with('http://openlibrary.org/books/OL123M.json').and_return(book_data2)
   end
 
   describe 'complete workflow: browse and mark TOC pages' do

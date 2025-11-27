@@ -199,6 +199,33 @@ RSpec.describe Work, type: :model do
 end
 ```
 
+#### Authentication in Feature Specs
+
+Feature specs (Capybara tests) require authentication mocking since the application uses Devise. Use the `sign_in_as` helper:
+
+```ruby
+# spec/features/my_feature_spec.rb
+RSpec.feature 'My feature', type: :feature do
+  let(:user) { User.create!(email: 'test@example.com', password: 'password123', password_confirmation: 'password123') }
+
+  before do
+    sign_in_as(user)
+  end
+
+  scenario 'user can access protected page' do
+    visit '/tocs'
+    expect(page).to have_current_path('/tocs')
+  end
+end
+```
+
+The `sign_in_as` helper:
+- Bypasses the authentication UI using Warden test helpers
+- Is automatically available in all feature specs via `spec/support/devise_feature_helpers.rb`
+- Automatically cleans up after each test
+
+**IMPORTANT**: All feature specs that access protected routes MUST use `sign_in_as` to authenticate a user.
+
 #### Running Tests
 
 Always run the full suite before committing:
@@ -210,6 +237,7 @@ For TDD workflow, run specific specs during development:
 ```bash
 bundle exec rspec spec/models/work_spec.rb
 bundle exec rspec spec/controllers/tocs_controller_spec.rb
+bundle exec rspec spec/features/my_feature_spec.rb
 ```
 
 ## Internationalization (I18n)

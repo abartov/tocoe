@@ -1,7 +1,12 @@
 require 'rails_helper'
 
 RSpec.feature 'Bulk create TOCs', type: :feature, js: true do
+  let(:user) { User.create!(email: 'test@example.com', password: 'password123', password_confirmation: 'password123') }
+
   before do
+    # Sign in the user for this feature test
+    sign_in_as(user)
+
     # Stub OpenLibrary search to return two mock books
     docs = [
       { 'editions' => { 'docs' => [{ 'key' => '/books/OL1M' }] }, 'title' => 'First Book', 'author_name' => ['Author One'], 'has_fulltext' => true, 'ebook_access' => 'public' },

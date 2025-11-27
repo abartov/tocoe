@@ -74,3 +74,29 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 end
+
+# Capybara and JS driver configuration for feature specs
+begin
+  require 'capybara/rspec'
+  require 'webdrivers'
+  require 'database_cleaner'
+
+  Capybara.server = :puma, { Silent: true }
+  Capybara.javascript_driver = :selenium_chrome_headless
+
+  RSpec.configure do |config|
+    config.before(:suite) do
+      DatabaseCleaner.clean_with(:truncation)
+    end
+
+#    config.before(:each) do
+#      DatabaseCleaner.strategy = :transaction
+#    end
+#
+#    config.before(:each, js: true) do
+#      DatabaseCleaner.strategy = :truncation
+#    end
+  end
+rescue LoadError
+  # Capybara/webdrivers not available in all environments; feature specs may be skipped.
+end

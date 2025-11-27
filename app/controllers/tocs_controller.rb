@@ -5,7 +5,7 @@ require 'rest-client'
 # Tables of Contents controller
 # rubocop:disable ClassLength
 class TocsController < ApplicationController
-  before_action :set_toc, only: [:show, :edit, :update, :destroy, :browse_scans, :mark_pages, :mark_transcribed, :verify]
+  before_action :set_toc, only: [:show, :edit, :update, :destroy, :browse_scans, :mark_pages, :mark_transcribed, :verify, :auto_match_subjects]
 
   # GET /tocs
   # GET /tocs.json
@@ -161,6 +161,93 @@ class TocsController < ApplicationController
     end
   end
 
+  # POST /tocs/:id/auto_match_subjects
+  # Auto-match imported subjects with Library of Congress Subject Headings
+  def auto_match_subjects
+    # Check if TOC has been processed (has manifestation)
+    unless @toc.manifestation
+      @error = "TOC must be processed first before auto-matching subjects"
+      @exact_matches = []
+      @suggestions = []
+      return
+    end
+
+    # Get or ensure main embodiment exists (sequence_number: nil)
+    main_embodiment = @toc.manifestation.embodiments.find_by(sequence_number: nil)
+    unless main_embodiment
+      @error = "Could not find main embodiment for this TOC"
+      @exact_matches = []
+      @suggestions = []
+      return
+    end
+
+    # Parse imported subjects
+    imported_subjects_array = @toc.imported_subjects.to_s.split("\n").map(&:strip).reject(&:blank?)
+
+    if imported_subjects_array.empty?
+      @error = "No imported subjects to match"
+      @exact_matches = []
+      @suggestions = []
+      return
+    end
+
+    # Initialize LC client
+    lc_client = LibraryOfCongress::Client.new
+
+    @exact_matches = []
+    @suggestions = []
+    remaining_subjects = []
+
+    imported_subjects_array.each do |subject|
+      # Normalize: replace ' -- ' with '--'
+      normalized_subject = subject.gsub(' -- ', '--')
+
+      # Try to find exact match
+      exact_match = lc_client.find_exact_match(normalized_subject)
+
+      if exact_match
+        # Create Aboutness for exact match
+        aboutness = Aboutness.new(
+          embodiment: main_embodiment,
+          subject_heading_uri: exact_match[:uri],
+          source_name: 'LCSH',
+          subject_heading_label: exact_match[:label]
+        )
+
+        if aboutness.save
+          @exact_matches << {
+            original_subject: subject,
+            matched_label: exact_match[:label],
+            uri: exact_match[:uri]
+          }
+        else
+          # If save failed (e.g., duplicate), keep the subject
+          remaining_subjects << subject
+        end
+      else
+        # No exact match - get suggestions
+        search_results = lc_client.search_subjects(normalized_subject)
+
+        if search_results.any?
+          @suggestions << {
+            original_subject: subject,
+            matches: search_results.take(3) # Top 3 suggestions
+          }
+          remaining_subjects << subject
+        else
+          # No matches at all
+          remaining_subjects << subject
+        end
+      end
+    end
+
+    # Update imported_subjects to remove exact matches
+    @toc.imported_subjects = remaining_subjects.join("\n")
+    @toc.save
+
+    @error = nil
+  end
+
   # GET /tocs/:id/browse_scans
   # Display book page scans for user to identify TOC pages
   def browse_scans
@@ -301,7 +388,8 @@ class TocsController < ApplicationController
           toc = Toc.new(
             book_uri: book_uri,
             title: book_data['title'] || "Book #{book_id}",
-            status: :empty
+            status: :empty,
+            imported_subjects: extract_subjects_from_gutendex(book_data)
           )
         else
           # Fetch book details from OpenLibrary
@@ -350,6 +438,7 @@ class TocsController < ApplicationController
     book_data = gutendex_client.book(pg_book_id)
 
     @toc.title = book_data['title']
+    @toc.imported_subjects = extract_subjects_from_gutendex(book_data)
 
     # Use generalized get_authors method with Gutendex book data
     get_authors(book_data)
@@ -566,6 +655,17 @@ class TocsController < ApplicationController
         tocs.order(updated_at: :desc)
       end
     end
+  end
+
+  # Extract subject headings from Gutendex book data
+  # Returns newline-separated string of subjects, or nil if no subjects
+  def extract_subjects_from_gutendex(book_data)
+    return nil unless book_data && book_data['subjects']
+
+    subjects = book_data['subjects']
+    return nil if subjects.empty?
+
+    subjects.join("\n")
   end
 end
 

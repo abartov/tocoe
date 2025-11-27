@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       post :mark_pages
       post :mark_transcribed
       post :verify
+      post :auto_match_subjects
     end
   end
   get 'publications/search'

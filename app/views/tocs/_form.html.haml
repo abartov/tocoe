@@ -22,6 +22,40 @@
             %td= render partial: 'authors', locals: {:authors => @authors}
         %tr
           .field
+            %td{ valign: 'top' }= t('tocs.form.subjects_section.title')
+            %td
+              .subjects-section
+                - if @toc.imported_subjects.present?
+                  %p
+                    %strong= t('tocs.form.subjects_section.imported_label')
+                  %textarea#imported_subjects{ readonly: true, rows: 5, style: 'width: 100%; font-size: 12px;' }
+                    = @toc.imported_subjects
+                  %small.text-muted= t('tocs.form.subjects_section.imported_help')
+                - else
+                  %p.text-muted= t('tocs.form.subjects_section.no_imported')
+
+                - if @toc.manifestation
+                  - main_embodiment = @toc.manifestation.embodiments.find_by(sequence_number: nil)
+                  - if main_embodiment && main_embodiment.aboutnesses.any?
+                    %p{ style: 'margin-top: 10px;' }
+                      %strong= t('tocs.form.subjects_section.existing_label')
+                    %ul.list-unstyled
+                      - main_embodiment.aboutnesses.each do |aboutness|
+                        %li
+                          %span.label.label-info= aboutness.source_name
+                          = aboutness.subject_heading_label
+                          %small.text-muted
+                            = link_to aboutness.subject_heading_uri, aboutness.subject_heading_uri, target: '_blank'
+
+                - if @toc.imported_subjects.present?
+                  %p{ style: 'margin-top: 10px;' }
+                    = button_tag(type: 'button', id: 'auto_match_subjects', class: 'btn btn-primary') do
+                      = t('tocs.form.subjects_section.auto_match_button')
+                    #auto_match_working.text-muted{style: 'display:none; margin-top: 10px;'}
+                      %em= t('tocs.form.subjects_section.auto_matching')
+                    #auto_match_results{style: 'margin-top: 10px;'}
+        %tr
+          .field
             %td= f.label t('tocs.form.toc_body_label')
             %td= f.text_area :toc_body, rows:20, cols: 40, id: 'toc_area'
         %tr
@@ -65,6 +99,67 @@
           $('#ocr_working').show();
           $('#paste_ocr').hide();
           $('#results').html('');
+        });
+
+        // Auto-match subjects button
+        $('#auto_match_subjects').click(function() {
+          $('#auto_match_subjects').prop('disabled', true);
+          $('#auto_match_working').show();
+          $('#auto_match_results').html('');
+
+          $.ajax({
+            url: '<%= @toc.persisted? ? auto_match_subjects_toc_path(@toc) : "" %>',
+            type: 'POST',
+            dataType: 'script',
+            headers: {
+              'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+            }
+          });
+        });
+
+        // Handle accept match button clicks (delegated event handler)
+        $(document).on('click', '.accept-match', function() {
+          var button = $(this);
+          var subject = button.data('subject');
+          var uri = button.data('uri');
+          var label = button.data('label');
+          var embodimentId = '<%= @toc.manifestation ? @toc.manifestation.embodiments.find_by(sequence_number: nil)&.id : "" %>';
+
+          button.prop('disabled', true);
+          button.text('Adding...');
+
+          $.ajax({
+            url: '/embodiments/' + embodimentId + '/aboutnesses',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+              aboutness: {
+                subject_heading_uri: uri,
+                subject_heading_label: label,
+                source_name: 'LCSH'
+              },
+              remove_subject: subject
+            },
+            headers: {
+              'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(data) {
+              // Remove the suggestion item
+              button.closest('.suggestion-item').fadeOut(function() {
+                $(this).remove();
+              });
+
+              // Reload page to show updated aboutnesses and imported_subjects
+              setTimeout(function() {
+                location.reload();
+              }, 500);
+            },
+            error: function(xhr, status, error) {
+              button.prop('disabled', false);
+              button.text('<%= I18n.t('tocs.form.subjects_section.accept_match') %>');
+              alert('Error adding subject heading: ' + error);
+            }
+          });
         });
   - elsif @toc.persisted? && @toc.empty?
     #browse_scans_prompt{ class: 'col-xs-5'}

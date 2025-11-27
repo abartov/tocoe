@@ -85,6 +85,49 @@ RSpec.describe Toc, type: :model do
     it 'has comments column' do
       expect(subject).to respond_to(:comments)
     end
+
+    it 'has imported_subjects column' do
+      expect(subject).to respond_to(:imported_subjects)
+    end
+  end
+
+  describe 'imported_subjects field' do
+    it 'can store multiple subjects as newline-separated text' do
+      toc = Toc.create!(
+        book_uri: 'https://www.gutenberg.org/ebooks/1234',
+        title: 'Test Book',
+        imported_subjects: "Fiction\nAdventure\nHistorical fiction"
+      )
+      expect(toc.imported_subjects).to include('Fiction')
+      expect(toc.imported_subjects).to include('Adventure')
+      expect(toc.imported_subjects).to include('Historical fiction')
+    end
+
+    it 'allows nil value for imported_subjects' do
+      toc = Toc.create!(
+        book_uri: 'https://www.gutenberg.org/ebooks/5678',
+        title: 'Test Book',
+        imported_subjects: nil
+      )
+      expect(toc.imported_subjects).to be_nil
+    end
+
+    it 'can be updated to remove subjects' do
+      toc = Toc.create!(
+        book_uri: 'https://www.gutenberg.org/ebooks/9999',
+        title: 'Test Book',
+        imported_subjects: "Fiction\nAdventure\nHistorical fiction"
+      )
+
+      subjects = toc.imported_subjects.split("\n")
+      subjects.delete("Adventure")
+      toc.imported_subjects = subjects.join("\n")
+      toc.save!
+
+      expect(toc.imported_subjects).not_to include('Adventure')
+      expect(toc.imported_subjects).to include('Fiction')
+      expect(toc.imported_subjects).to include('Historical fiction')
+    end
   end
 
   describe 'toc_page_urls field' do

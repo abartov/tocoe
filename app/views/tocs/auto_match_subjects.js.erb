@@ -1,0 +1,79 @@
+<%# Disable auto-match button and hide working message %>
+$("#auto_match_subjects").prop('disabled', false);
+$("#auto_match_working").hide();
+
+<%# Build results HTML %>
+<% if @error %>
+  $("#auto_match_results").html("<div class='alert alert-danger'><%= escape_javascript(@error) %></div>");
+<% else %>
+  var resultsHtml = "";
+
+  <%# Show exact matches %>
+  <% if @exact_matches.any? %>
+    resultsHtml += "<div class='alert alert-success'>";
+    resultsHtml += "<strong><%= I18n.t('tocs.form.subjects_section.exact_match_added', label: '') %></strong>";
+    resultsHtml += "<ul>";
+    <% @exact_matches.each do |match| %>
+      resultsHtml += "<li>";
+      resultsHtml += "<strong><%= escape_javascript(match[:matched_label]) %></strong> ";
+      resultsHtml += "<small class='text-muted'>(<%= escape_javascript(match[:uri]) %>)</small>";
+      resultsHtml += "</li>";
+    <% end %>
+    resultsHtml += "</ul>";
+    resultsHtml += "</div>";
+
+    <%# Update the imported_subjects textarea to reflect removed subjects %>
+    $("#imported_subjects").val("<%= escape_javascript(@toc.imported_subjects || '') %>");
+  <% end %>
+
+  <%# Show suggestions %>
+  <% if @suggestions.any? %>
+    resultsHtml += "<div class='panel panel-info'>";
+    resultsHtml += "<div class='panel-heading'>";
+    resultsHtml += "<h4 class='panel-title'>Suggested Matches</h4>";
+    resultsHtml += "</div>";
+    resultsHtml += "<div class='panel-body'>";
+
+    <% @suggestions.each_with_index do |suggestion, index| %>
+      resultsHtml += "<div class='suggestion-item' style='margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;' data-subject='<%= escape_javascript(suggestion[:original_subject]) %>'>";
+      resultsHtml += "<p><strong><%= I18n.t('tocs.form.subjects_section.suggested_match', subject: escape_javascript(suggestion[:original_subject])) %></strong></p>";
+      resultsHtml += "<ul class='list-unstyled'>";
+
+      <% suggestion[:matches].each_with_index do |match, match_index| %>
+        resultsHtml += "<li style='margin-bottom: 10px;'>";
+        resultsHtml += "<button class='btn btn-sm btn-success accept-match' ";
+        resultsHtml += "data-subject='<%= escape_javascript(suggestion[:original_subject]) %>' ";
+        resultsHtml += "data-uri='<%= escape_javascript(match[:uri]) %>' ";
+        resultsHtml += "data-label='<%= escape_javascript(match[:label]) %>'>";
+        resultsHtml += "<%= I18n.t('tocs.form.subjects_section.accept_match') %>";
+        resultsHtml += "</button> ";
+        resultsHtml += "<strong><%= escape_javascript(match[:label]) %></strong> ";
+        resultsHtml += "<small class='text-muted'>(<%= escape_javascript(match[:uri]) %>)</small>";
+        resultsHtml += "</li>";
+      <% end %>
+
+      resultsHtml += "</ul>";
+      resultsHtml += "</div>";
+    <% end %>
+
+    resultsHtml += "</div>";
+    resultsHtml += "</div>";
+  <% end %>
+
+  <%# Show message if no matches or suggestions %>
+  <% if @exact_matches.empty? && @suggestions.empty? %>
+    resultsHtml += "<div class='alert alert-warning'>";
+    resultsHtml += "<%= I18n.t('tocs.form.subjects_section.no_match_found', subject: 'any subjects') %>";
+    resultsHtml += "</div>";
+  <% end %>
+
+  $("#auto_match_results").html(resultsHtml);
+
+  <%# Reload the page to show updated aboutnesses in the existing section %>
+  <% if @exact_matches.any? %>
+    <%# Use setTimeout to allow user to see the results before reload %>
+    setTimeout(function() {
+      location.reload();
+    }, 2000);
+  <% end %>
+<% end %>

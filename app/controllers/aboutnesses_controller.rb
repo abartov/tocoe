@@ -39,9 +39,27 @@ class AboutnessesController < ApplicationController
     @aboutness = @embodiment.aboutnesses.new(aboutness_params)
 
     if @aboutness.save
-      redirect_to embodiment_aboutnesses_path(@embodiment), notice: 'Subject heading was successfully added.'
+      # If remove_subject parameter is provided, remove it from the TOC's imported_subjects
+      if params[:remove_subject].present?
+        # Find the TOC associated with this embodiment
+        toc = Toc.find_by(manifestation_id: @embodiment.manifestation_id)
+        if toc && toc.imported_subjects.present?
+          subjects = toc.imported_subjects.split("\n").map(&:strip).reject(&:blank?)
+          subjects.delete(params[:remove_subject])
+          toc.imported_subjects = subjects.join("\n")
+          toc.save
+        end
+      end
+
+      respond_to do |format|
+        format.html { redirect_to embodiment_aboutnesses_path(@embodiment), notice: 'Subject heading was successfully added.' }
+        format.json { render json: { success: true, aboutness: @aboutness }, status: :created }
+      end
     else
-      render :new
+      respond_to do |format|
+        format.html { render :new }
+        format.json { render json: { success: false, errors: @aboutness.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 

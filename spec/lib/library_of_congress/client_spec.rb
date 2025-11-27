@@ -52,6 +52,76 @@ RSpec.describe LibraryOfCongress::Client do
       expect(result.first[:label]).to eq('Fiction')
       expect(result.last[:label]).to eq('Fiction--Adventure')
     end
+
+    it 'filters out results with nil uri' do
+      mock_data = [
+        { 'uri' => nil, 'label' => 'Fiction', 'score' => 100 },
+        { 'uri' => 'http://id.loc.gov/authorities/subjects/sh85048051', 'label' => 'Valid Result', 'score' => 95 }
+      ]
+      mock_response = double('response', success?: true, body: mock_data.to_json)
+      allow(described_class).to receive(:get).and_return(mock_response)
+
+      result = client.search_subjects('Fiction')
+
+      expect(result.length).to eq(1)
+      expect(result.first[:label]).to eq('Valid Result')
+    end
+
+    it 'filters out results with empty uri' do
+      mock_data = [
+        { 'uri' => '', 'label' => 'Fiction', 'score' => 100 },
+        { 'uri' => 'http://id.loc.gov/authorities/subjects/sh85048051', 'label' => 'Valid Result', 'score' => 95 }
+      ]
+      mock_response = double('response', success?: true, body: mock_data.to_json)
+      allow(described_class).to receive(:get).and_return(mock_response)
+
+      result = client.search_subjects('Fiction')
+
+      expect(result.length).to eq(1)
+      expect(result.first[:label]).to eq('Valid Result')
+    end
+
+    it 'filters out results with nil label' do
+      mock_data = [
+        { 'uri' => 'http://id.loc.gov/authorities/subjects/sh85048050', 'label' => nil, 'aLabel' => nil, 'score' => 100 },
+        { 'uri' => 'http://id.loc.gov/authorities/subjects/sh85048051', 'label' => 'Valid Result', 'score' => 95 }
+      ]
+      mock_response = double('response', success?: true, body: mock_data.to_json)
+      allow(described_class).to receive(:get).and_return(mock_response)
+
+      result = client.search_subjects('Fiction')
+
+      expect(result.length).to eq(1)
+      expect(result.first[:label]).to eq('Valid Result')
+    end
+
+    it 'filters out results with empty label' do
+      mock_data = [
+        { 'uri' => 'http://id.loc.gov/authorities/subjects/sh85048050', 'label' => '', 'score' => 100 },
+        { 'uri' => 'http://id.loc.gov/authorities/subjects/sh85048051', 'label' => 'Valid Result', 'score' => 95 }
+      ]
+      mock_response = double('response', success?: true, body: mock_data.to_json)
+      allow(described_class).to receive(:get).and_return(mock_response)
+
+      result = client.search_subjects('Fiction')
+
+      expect(result.length).to eq(1)
+      expect(result.first[:label]).to eq('Valid Result')
+    end
+
+    it 'returns empty array when all results have nil or empty uri/label' do
+      mock_data = [
+        { 'uri' => nil, 'label' => 'Fiction', 'score' => 100 },
+        { 'uri' => 'http://id.loc.gov/authorities/subjects/sh85048050', 'label' => '', 'score' => 95 },
+        { 'uri' => '', 'label' => 'Test', 'score' => 90 }
+      ]
+      mock_response = double('response', success?: true, body: mock_data.to_json)
+      allow(described_class).to receive(:get).and_return(mock_response)
+
+      result = client.search_subjects('Fiction')
+
+      expect(result).to eq([])
+    end
   end
 
   describe '#find_exact_match' do

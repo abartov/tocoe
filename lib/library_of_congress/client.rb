@@ -49,9 +49,15 @@ module LibraryOfCongress
       data.map do |item|
         next unless item.is_a?(Hash)
 
+        uri = item['uri']
+        label = item['label'] || item['aLabel']
+
+        # Only include results that have both uri and label
+        next if uri.nil? || uri.empty? || label.nil? || label.empty?
+
         {
-          uri: item['uri'],
-          label: item['label'] || item['aLabel'],
+          uri: uri,
+          label: label,
           score: item['score']
         }
       end.compact

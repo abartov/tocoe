@@ -27,4 +27,14 @@ RSpec.describe "Authentication", type: :request do
       expect(response).to have_http_status(:success)
     end
   end
+
+  describe "Devise routes" do
+    it "allows access to OAuth authorize endpoint without authentication" do
+      # This should not redirect to sign in - it should process the OAuth flow
+      post user_google_oauth2_omniauth_authorize_path
+      # Expect it to redirect to Google OAuth (not to sign in page)
+      expect(response).to have_http_status(:redirect)
+      expect(response.location).not_to include('users/sign_in')
+    end
+  end
 end

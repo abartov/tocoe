@@ -65,7 +65,7 @@ RSpec.describe SubjectHeadings::WikidataClient do
     end
 
     context 'with stubbed API response' do
-      let(:mock_response) do
+      let(:mock_search_response) do
         {
           searchinfo: { search: 'douglas adams' },
           search: [
@@ -83,9 +83,71 @@ RSpec.describe SubjectHeadings::WikidataClient do
         }.to_json
       end
 
+      let(:mock_entities_response) do
+        {
+          entities: {
+            'Q42' => {
+              claims: {
+                'P31' => [
+                  {
+                    mainsnak: {
+                      datavalue: {
+                        value: { id: 'Q5' }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            'Q5685' => {
+              claims: {
+                'P31' => [
+                  {
+                    mainsnak: {
+                      datavalue: {
+                        value: { id: 'Q8261' }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }.to_json
+      end
+
+      let(:mock_labels_response) do
+        {
+          entities: {
+            'Q5' => {
+              labels: {
+                'en' => { value: 'human' }
+              }
+            },
+            'Q8261' => {
+              labels: {
+                'en' => { value: 'novel' }
+              }
+            }
+          }
+        }.to_json
+      end
+
       before do
-        response = instance_double(Net::HTTPResponse, code: '200', body: mock_response)
-        allow(Net::HTTP).to receive(:get_response).and_return(response)
+        # Stub the three different API calls based on URL parameters
+        allow(Net::HTTP).to receive(:get_response) do |uri|
+          url = uri.to_s
+          response_body = if url.include?('wbsearchentities')
+                            mock_search_response
+                          elsif url.include?('wbgetentities') && url.include?('props=claims')
+                            mock_entities_response
+                          elsif url.include?('wbgetentities') && url.include?('props=labels')
+                            mock_labels_response
+                          else
+                            '{}'
+                          end
+          instance_double(Net::HTTPResponse, code: '200', body: response_body, is_a?: true)
+        end
       end
 
       it 'parses the API response correctly' do
@@ -94,11 +156,13 @@ RSpec.describe SubjectHeadings::WikidataClient do
         expect(results.length).to eq(2)
         expect(results[0]).to eq(
           uri: 'http://www.wikidata.org/entity/Q42',
-          label: 'Douglas Adams'
+          label: 'Douglas Adams',
+          instance_of: ['human']
         )
         expect(results[1]).to eq(
           uri: 'http://www.wikidata.org/entity/Q5685',
-          label: 'The Hitchhiker\'s Guide to the Galaxy'
+          label: 'The Hitchhiker\'s Guide to the Galaxy',
+          instance_of: ['novel']
         )
       end
     end

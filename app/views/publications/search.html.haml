@@ -63,27 +63,4 @@
     // Listen for checkbox changes
     $(document).on('change', '.book-checkbox', updateBulkButton);
 
-    // Collect checked book IDs and inject into the bulk form before submission
-    $('#bulk-toc-form').on('submit', function(e) {
-      // Gather checked checkboxes values
-      var checked = $('.book-checkbox:checked').map(function() { return this.value; }).get();
-
-      if (checked.length === 0) {
-        // No books selected - prevent submit and show an inline message
-        e.preventDefault();
-        alert('Please select at least one book to create TOCs for.');
-        return false;
-      }
-
-      // Remove any previously injected inputs to avoid duplicates
-      $(this).find('input[name="book_ids[]"]').remove();
-
-      // Inject hidden inputs for each selected book id so Rails receives `book_ids[]`
-      checked.forEach(function(id) {
-        $('<input>').attr({ type: 'hidden', name: 'book_ids[]', value: id }).appendTo('#bulk-toc-form');
-      });
-
-      // Allow the form to submit normally with the injected inputs
-      return true;
-    });
   });

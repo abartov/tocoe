@@ -18,7 +18,7 @@ class Gutendex::Client
 
   # Get a specific book by Project Gutenberg ID
   def book(pg_id)
-    request("/books/#{pg_id}")
+    request("/books/#{pg_id}/")
   end
 
   # Search for books

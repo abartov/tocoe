@@ -97,7 +97,6 @@ GEM
       regexp_parser (>= 1.5, < 3.0)
       xpath (~> 3.2)
     cgi (0.5.0)
-    childprocess (4.1.0)
     coffee-rails (5.0.0)
       coffee-script (>= 2.2.0)
       railties (>= 5.2.0)
@@ -137,7 +136,7 @@ GEM
       capybara (>= 3.25, < 4)
       cucumber (>= 7, < 11)
       railties (>= 6.1, < 9)
-    cucumber-tag-expressions (8.0.0)
+    cucumber-tag-expressions (8.1.0)
     database_cleaner (2.1.0)
       database_cleaner-active_record (>= 2, < 3)
     database_cleaner-active_record (2.2.2)
@@ -160,8 +159,8 @@ GEM
     erb (6.0.0)
     erubi (1.13.1)
     execjs (2.10.0)
-    faker (2.19.0)
-      i18n (>= 1.6, < 2)
+    faker (3.5.2)
+      i18n (>= 1.8.11, < 2)
     faraday (2.14.0)
       faraday-net_http (>= 2.0, < 3.5)
       json
@@ -271,7 +270,7 @@ GEM
     omniauth-oauth2 (1.8.0)
       oauth2 (>= 1.4, < 3)
       omniauth (~> 2.0)
-    omniauth-rails_csrf_protection (1.0.2)
+    omniauth-rails_csrf_protection (2.0.0)
       actionpack (>= 4.2)
       omniauth (~> 2.0)
     orm_adapter (0.5.0)
@@ -387,12 +386,14 @@ GEM
     sdoc (2.6.5)
       rdoc (>= 5.0)
     securerandom (0.4.1)
-    selenium-webdriver (4.1.0)
-      childprocess (>= 0.5, < 5.0)
+    selenium-webdriver (4.38.0)
+      base64 (~> 0.2)
+      logger (~> 1.4)
       rexml (~> 3.2, >= 3.2.5)
-      rubyzip (>= 1.2.2)
-    shoulda-matchers (6.5.0)
-      activesupport (>= 5.2.0)
+      rubyzip (>= 1.2.2, < 4.0)
+      websocket (~> 1.0)
+    shoulda-matchers (7.0.1)
+      activesupport (>= 7.1)
     snaky_hash (2.0.3)
       hashie (>= 0.1.0, < 6)
       version_gem (>= 1.1.8, < 3)
@@ -432,10 +433,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webdrivers (5.3.1)
-      nokogiri (~> 1.6)
-      rubyzip (>= 1.3.0)
-      selenium-webdriver (~> 4.0, < 4.11)
+    websocket (1.2.11)
     websocket-driver (0.8.0)
       base64
       websocket-extensions (>= 0.1.0)
@@ -461,7 +459,7 @@ DEPENDENCIES
   httparty
   jbuilder
   jquery-rails
-  listen (~> 3.3)
+  listen
   logger
   mini_racer
   mysql2
@@ -482,7 +480,6 @@ DEPENDENCIES
   turbolinks
   uglifier (>= 1.3.0)
   web-console
-  webdrivers
 
 BUNDLED WITH
    2.4.17

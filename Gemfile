@@ -58,7 +58,7 @@ group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'debug'
   gem 'web-console'
-  gem 'listen', '~> 3.3'
+  gem 'listen'
 end
 
 group :test do
@@ -66,5 +66,4 @@ group :test do
   gem 'shoulda-matchers'
   gem 'capybara'
   gem 'selenium-webdriver'
-  gem 'webdrivers'
 end

@@ -869,6 +869,164 @@ RSpec.describe TocsController, type: :controller do
     end
   end
 
+  describe 'POST #auto_match_subjects' do
+    let(:work) { Work.create!(title: 'Test Work') }
+    let(:expression) { Expression.create!(work: work, title: 'Test Expression') }
+    let(:manifestation) { Manifestation.create! }
+    let!(:main_embodiment) { Embodiment.create!(expression: expression, manifestation: manifestation, sequence_number: nil) }
+    let(:processed_toc) do
+      # Create manifestation and embodiment first
+      main_embodiment # Force creation
+      toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Test Book',
+        imported_subjects: "Fiction\nScience Fiction\nHistorical Fiction",
+        manifestation: manifestation
+      )
+      toc
+    end
+
+    let(:lc_client) { instance_double(LibraryOfCongress::Client) }
+
+    before do
+      allow(LibraryOfCongress::Client).to receive(:new).and_return(lc_client)
+      # Default stub to return empty array for any subject
+      allow(lc_client).to receive(:search_subjects).and_return([])
+      # Stub find_exact_match even though it shouldn't be called (for spy to work)
+      allow(lc_client).to receive(:find_exact_match).and_return(nil)
+    end
+
+    it 'calls search_subjects only once per subject (not twice)' do
+      fiction_results = [
+        { uri: 'http://id.loc.gov/authorities/subjects/sh85048050', label: 'Fiction' }
+      ]
+      sf_results = [
+        { uri: 'http://id.loc.gov/authorities/subjects/sh85048051', label: 'Science Fiction' }
+      ]
+      hf_results = [
+        { uri: 'http://id.loc.gov/authorities/subjects/sh85048052', label: 'Historical Fiction' }
+      ]
+
+      # Mock search_subjects to return different results for each subject
+      allow(lc_client).to receive(:search_subjects).with('Fiction').and_return(fiction_results)
+      allow(lc_client).to receive(:search_subjects).with('Science Fiction').and_return(sf_results)
+      allow(lc_client).to receive(:search_subjects).with('Historical Fiction').and_return(hf_results)
+
+      post :auto_match_subjects, params: { id: processed_toc.id }, format: :js
+
+      # Verify search_subjects was called exactly once per subject
+      expect(lc_client).to have_received(:search_subjects).with('Fiction').once
+      expect(lc_client).to have_received(:search_subjects).with('Science Fiction').once
+      expect(lc_client).to have_received(:search_subjects).with('Historical Fiction').once
+
+      # Verify find_exact_match was NOT called
+      expect(lc_client).not_to have_received(:find_exact_match)
+    end
+
+    it 'creates Aboutness for exact matches found in search results' do
+      fiction_results = [
+        { uri: 'http://id.loc.gov/authorities/subjects/sh85048050', label: 'Fiction' }
+      ]
+
+      allow(lc_client).to receive(:search_subjects).with('Fiction').and_return(fiction_results)
+
+      expect {
+        post :auto_match_subjects, params: { id: processed_toc.id }, format: :js
+      }.to change(Aboutness, :count).by(1)
+
+      aboutness = Aboutness.last
+      expect(aboutness.embodiment).to eq(main_embodiment)
+      expect(aboutness.subject_heading_uri).to eq('http://id.loc.gov/authorities/subjects/sh85048050')
+      expect(aboutness.subject_heading_label).to eq('Fiction')
+      expect(aboutness.source_name).to eq('LCSH')
+    end
+
+    it 'shows all matches as suggestions (not just top 3)' do
+      # Create 10 results to test that all are shown
+      many_results = (1..10).map do |i|
+        { uri: "http://id.loc.gov/authorities/subjects/sh8504805#{i}", label: "Fiction variant #{i}" }
+      end
+
+      allow(lc_client).to receive(:search_subjects).with('Fiction').and_return(many_results)
+
+      post :auto_match_subjects, params: { id: processed_toc.id }, format: :js
+
+      suggestions = assigns(:suggestions)
+      expect(suggestions).to be_present
+      expect(suggestions.first[:matches].length).to eq(10) # All 10, not just 3
+    end
+
+    it 'handles subjects with no matches' do
+      allow(lc_client).to receive(:search_subjects).with('Fiction').and_return([])
+      allow(lc_client).to receive(:search_subjects).with('Science Fiction').and_return([])
+      allow(lc_client).to receive(:search_subjects).with('Historical Fiction').and_return([])
+
+      post :auto_match_subjects, params: { id: processed_toc.id }, format: :js
+
+      expect(assigns(:exact_matches)).to be_empty
+      expect(assigns(:suggestions)).to be_empty
+
+      # All subjects should remain in imported_subjects
+      processed_toc.reload
+      expect(processed_toc.imported_subjects).to include('Fiction')
+      expect(processed_toc.imported_subjects).to include('Science Fiction')
+      expect(processed_toc.imported_subjects).to include('Historical Fiction')
+    end
+
+    it 'removes exact matches from imported_subjects' do
+      fiction_results = [
+        { uri: 'http://id.loc.gov/authorities/subjects/sh85048050', label: 'Fiction' }
+      ]
+      sf_results = [
+        { uri: 'http://id.loc.gov/authorities/subjects/sh85048051', label: 'Science Fiction' }
+      ]
+
+      allow(lc_client).to receive(:search_subjects).with('Fiction').and_return(fiction_results)
+      allow(lc_client).to receive(:search_subjects).with('Science Fiction').and_return(sf_results)
+      allow(lc_client).to receive(:search_subjects).with('Historical Fiction').and_return([
+        { uri: 'http://id.loc.gov/authorities/subjects/sh85048099', label: 'Some other fiction' }
+      ])
+
+      post :auto_match_subjects, params: { id: processed_toc.id }, format: :js
+
+      processed_toc.reload
+      remaining = processed_toc.imported_subjects.split("\n").map(&:strip)
+      # Fiction and Science Fiction should be removed (exact matches)
+      expect(remaining).not_to include('Fiction')
+      expect(remaining).not_to include('Science Fiction')
+      # Historical Fiction should remain (no exact match)
+      expect(remaining).to include('Historical Fiction')
+    end
+
+    it 'is case-insensitive when matching' do
+      fiction_results = [
+        { uri: 'http://id.loc.gov/authorities/subjects/sh85048050', label: 'fiction' } # lowercase
+      ]
+
+      allow(lc_client).to receive(:search_subjects).with('Fiction').and_return(fiction_results)
+
+      post :auto_match_subjects, params: { id: processed_toc.id }, format: :js
+
+      # Should recognize 'fiction' as an exact match for 'Fiction'
+      expect(assigns(:exact_matches).length).to eq(1)
+      expect(assigns(:exact_matches).first[:matched_label]).to eq('fiction')
+    end
+
+    it 'shows error when TOC has not been processed' do
+      unprocessed_toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL999M',
+        title: 'Unprocessed',
+        imported_subjects: 'Fiction'
+      )
+
+      post :auto_match_subjects, params: { id: unprocessed_toc.id }, format: :js
+
+      expect(assigns(:error)).to eq('TOC must be processed first before auto-matching subjects')
+      expect(assigns(:exact_matches)).to be_empty
+      expect(assigns(:suggestions)).to be_empty
+    end
+  end
+
   describe 'GET #edit' do
     context 'with Gutendex book_data stored' do
       let(:gutendex_client) { instance_double(Gutendex::Client) }

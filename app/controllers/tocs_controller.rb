@@ -218,8 +218,20 @@ class TocsController < ApplicationController
       # Normalize: replace ' -- ' with '--'
       normalized_subject = subject.gsub(' -- ', '--')
 
-      # Try to find exact match
-      exact_match = lc_client.find_exact_match(normalized_subject)
+      # Search LC API once to get all matches
+      search_results = lc_client.search_subjects(normalized_subject)
+
+      if search_results.empty?
+        # No matches at all
+        remaining_subjects << subject
+        next
+      end
+
+      # Check if there's an exact match in the results
+      normalized_query = normalized_subject.strip.downcase
+      exact_match = search_results.find do |result|
+        result[:label]&.strip&.downcase == normalized_query
+      end
 
       if exact_match
         # Create Aboutness for exact match
@@ -241,19 +253,12 @@ class TocsController < ApplicationController
           remaining_subjects << subject
         end
       else
-        # No exact match - get suggestions
-        search_results = lc_client.search_subjects(normalized_subject)
-
-        if search_results.any?
-          @suggestions << {
-            original_subject: subject,
-            matches: search_results.take(3) # Top 3 suggestions
-          }
-          remaining_subjects << subject
-        else
-          # No matches at all
-          remaining_subjects << subject
-        end
+        # No exact match - show all results as suggestions
+        @suggestions << {
+          original_subject: subject,
+          matches: search_results # All matches, not just top 3
+        }
+        remaining_subjects << subject
       end
     end
 

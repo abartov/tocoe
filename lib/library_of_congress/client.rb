@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'httparty'
+require 'cgi'
+require 'uri'
 
 module LibraryOfCongress
   # Client for interacting with Library of Congress Subject Headings API
@@ -10,24 +12,33 @@ module LibraryOfCongress
 
     # Search for subject headings by label
     # Returns array of results with uri, label, and other metadata
+    # Automatically follows pagination to retrieve all results
     def search_subjects(query)
       # Normalize query: replace ' -- ' with '--' per LC norms
       normalized_query = query.gsub(' -- ', '--')
 
-      # Search the LC subject headings
-      # Use 'cs' parameter to limit to subject headings collection
-      response = self.class.get('/search/', query: {
-        q: "#{normalized_query} cs:http://id.loc.gov/authorities/subjects",
-        format: 'json'
-      })
+      all_results = []
+      next_url = build_search_url(normalized_query)
+      max_pages = 100 # Safety limit to prevent infinite loops
 
-      return [] unless response.success?
+      page_count = 0
+      while next_url && page_count < max_pages
+        response = self.class.get(next_url)
+        return all_results unless response.success?
 
-      data = JSON.parse(response.body)
-      parse_search_results(data)
+        data = JSON.parse(response.body)
+        page_results = parse_search_results(data)
+        all_results.concat(page_results)
+
+        # Extract next page URL from atom:link with rel="next"
+        next_url = extract_next_link(data)
+        page_count += 1
+      end
+
+      all_results
     rescue StandardError => e
       Rails.logger.error "LC API search error: #{e.message}"
-      []
+      all_results.empty? ? [] : all_results
     end
 
     # Find exact match for a subject heading
@@ -118,6 +129,36 @@ module LibraryOfCongress
       return nil unless element.is_a?(Array) && element.length > 1 && element[1].is_a?(Hash)
 
       element[1]['href']
+    end
+
+    # Build the initial search URL with query parameters
+    def build_search_url(normalized_query)
+      "/search/?q=#{CGI.escape(normalized_query)} cs:http://id.loc.gov/authorities/subjects&format=json"
+    end
+
+    # Extract the next page URL from atom:link with rel="next"
+    def extract_next_link(data)
+      return nil unless data.is_a?(Array)
+
+      # Find all atom:link elements
+      links = find_elements_by_tag(data, 'atom:link')
+
+      # Find the link with rel="next"
+      next_link = links.find do |link|
+        link[1].is_a?(Hash) && link[1]['rel'] == 'next'
+      end
+
+      return nil unless next_link
+
+      # Extract href and convert to relative path for HTTParty
+      href = next_link[1]['href']
+      return nil unless href
+
+      # Convert absolute URL to relative path if needed
+      uri = URI.parse(href)
+      uri.request_uri
+    rescue URI::InvalidURIError
+      nil
     end
   end
 end

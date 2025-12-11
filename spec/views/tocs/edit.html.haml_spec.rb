@@ -187,14 +187,14 @@ RSpec.describe "tocs/edit.html.haml", type: :view do
       end
 
       it 'displays thumbnail images with correct URLs and scale' do
-        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page1.jpg?scale=4"]')
-        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page2.jpg?scale=4"]')
-        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page3.jpg?scale=4"]')
+        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page1.jpg?scale=8"]')
+        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page2.jpg?scale=8"]')
+        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page3.jpg?scale=8"]')
       end
 
       it 'displays thumbnails with fixed width for compact layout' do
-        expect(rendered).to have_selector('.toc-scan-thumb[style*="width: 150px"]')
-        expect(rendered).to have_selector('img[style*="width: 150px"]')
+        expect(rendered).to have_selector('.toc-scan-thumb[style*="width: 450px"]')
+        expect(rendered).to have_selector('img[style*="width: 450px"]')
       end
 
       it 'displays thumbnails inline for side-by-side layout' do
@@ -218,6 +218,40 @@ RSpec.describe "tocs/edit.html.haml", type: :view do
         expect(rendered).to have_content(I18n.t('tocs.show.page_number', number: 1))
         expect(rendered).to have_content(I18n.t('tocs.show.page_number', number: 2))
         expect(rendered).to have_content(I18n.t('tocs.show.page_number', number: 3))
+      end
+
+      it 'displays zoom controls' do
+        expect(rendered).to have_selector('.toc-scans-controls')
+        expect(rendered).to have_content(I18n.t('tocs.form.ocr_section.zoom_label'))
+      end
+
+      it 'displays zoom in button' do
+        expect(rendered).to have_selector('button#zoomInBtn')
+        expect(rendered).to have_selector('button#zoomInBtn[title*="larger"]')
+      end
+
+      it 'displays zoom out button' do
+        expect(rendered).to have_selector('button#zoomOutBtn')
+        expect(rendered).to have_selector('button#zoomOutBtn[title*="smaller"]')
+      end
+
+      it 'displays zoom default button' do
+        expect(rendered).to have_selector('button#zoomDefaultBtn')
+        expect(rendered).to have_selector('button#zoomDefaultBtn[title*="default"]')
+      end
+
+      it 'includes JavaScript handlers for zoom controls' do
+        expect(rendered).to include("$('#zoomInBtn').click(function()")
+        expect(rendered).to include("$('#zoomOutBtn').click(function()")
+        expect(rendered).to include("$('#zoomDefaultBtn').click(function()")
+      end
+
+      it 'thumbnails have default-width data attribute for zoom reset' do
+        expect(rendered).to have_selector('.toc-scan-thumb[data-default-width="450"]')
+      end
+
+      it 'thumbnail images have toc-scan-image class for zoom targeting' do
+        expect(rendered).to have_selector('img.toc-scan-image')
       end
     end
 

@@ -172,6 +172,10 @@ en:
         browse_scans_help: "Once you mark the pages containing the table of contents, you can return here to use OCR."
         view_scans_button: "View TOC Page Scans"
         scan_modal_title: "TOC Page Scan (Zoomed)"
+        zoom_label: "Zoom:"
+        zoom_in_title: "Zoom in (make thumbnails larger)"
+        zoom_out_title: "Zoom out (make thumbnails smaller)"
+        zoom_default_title: "Reset to default size"
       gutenberg_section:
         fulltext_available_title: "Full text available"
         view_fulltext_button: "View Full Text on Project Gutenberg"

@@ -103,10 +103,19 @@
             = t('tocs.form.ocr_section.view_scans_button')
             %span.caret
           .collapse#tocScansCollapse{style: 'margin-top: 10px;'}
+            .toc-scans-controls{style: 'margin-bottom: 10px; padding: 5px; background-color: #e9ecef; border: 1px solid #ddd; border-radius: 3px;'}
+              %span{style: 'margin-right: 10px; font-weight: bold;'}
+                = t('tocs.form.ocr_section.zoom_label')
+              %button.btn.btn-sm.btn-default#zoomInBtn{type: 'button', title: t('tocs.form.ocr_section.zoom_in_title')}
+                %span{style: 'font-weight: bold; font-size: 16px;'} +
+              %button.btn.btn-sm.btn-default#zoomOutBtn{type: 'button', title: t('tocs.form.ocr_section.zoom_out_title'), style: 'margin-left: 5px;'}
+                %span{style: 'font-weight: bold; font-size: 16px;'} −
+              %button.btn.btn-sm.btn-default#zoomDefaultBtn{type: 'button', title: t('tocs.form.ocr_section.zoom_default_title'), style: 'margin-left: 5px;'}
+                %span{style: 'font-weight: bold;'} def
             .toc-scans-thumbnails{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa;'}
               - @toc.toc_page_urls.split("\n").map(&:strip).reject(&:blank?).each_with_index do |url, index|
-                .toc-scan-thumb{style: 'display: inline-block; margin: 5px; cursor: pointer; vertical-align: top; width: 450px;', 'data-image-url' => url, 'data-page-number' => index + 1}
-                  = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail', style: 'width: 450px; height: auto;'
+                .toc-scan-thumb{style: 'display: inline-block; margin: 5px; cursor: pointer; vertical-align: top; width: 450px;', 'data-image-url' => url, 'data-page-number' => index + 1, 'data-default-width' => '450'}
+                  = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail toc-scan-image', style: 'width: 450px; height: auto;'
                   .text-center.small
                     = t('tocs.show.page_number', number: index + 1)
       -# Modal for zoomed scan view
@@ -144,6 +153,45 @@
           $('#scanZoomImage').attr('src', imageUrl);
           $('#scanZoomImage').attr('alt', modalTitle);
           $('#scanZoomModal').modal('show');
+        });
+
+        // Zoom controls for TOC scan thumbnails
+        $('#zoomInBtn').click(function() {
+          $('.toc-scan-thumb').each(function() {
+            var $thumb = $(this);
+            var $img = $thumb.find('.toc-scan-image');
+            var currentWidth = $img.width();
+            var newWidth = Math.round(currentWidth * 1.2);
+
+            $thumb.css('width', newWidth + 'px');
+            $img.css('width', newWidth + 'px');
+          });
+        });
+
+        $('#zoomOutBtn').click(function() {
+          $('.toc-scan-thumb').each(function() {
+            var $thumb = $(this);
+            var $img = $thumb.find('.toc-scan-image');
+            var currentWidth = $img.width();
+            var newWidth = Math.round(currentWidth * 0.8);
+
+            // Don't go below 100px
+            if (newWidth < 100) newWidth = 100;
+
+            $thumb.css('width', newWidth + 'px');
+            $img.css('width', newWidth + 'px');
+          });
+        });
+
+        $('#zoomDefaultBtn').click(function() {
+          $('.toc-scan-thumb').each(function() {
+            var $thumb = $(this);
+            var $img = $thumb.find('.toc-scan-image');
+            var defaultWidth = $thumb.data('default-width');
+
+            $thumb.css('width', defaultWidth + 'px');
+            $img.css('width', defaultWidth + 'px');
+          });
         });
   - elsif @toc.persisted?
     #browse_scans_prompt{ class: 'col-xs-5'}

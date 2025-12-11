@@ -59,6 +59,13 @@
             %li.page-item.disabled
               %span.page-link= t('tocs.browse_scans.next')
 
+          - if @current_page < @total_pages
+            %li.page-item
+              = link_to t('tocs.browse_scans.last'), browse_scans_toc_path(@toc, page: @total_pages), class: 'page-link'
+          - else
+            %li.page-item.disabled
+              %span.page-link= t('tocs.browse_scans.last')
+
   .row.mt-3
     .col-md-12
       = submit_tag t('tocs.browse_scans.save_button'), class: 'btn btn-primary'

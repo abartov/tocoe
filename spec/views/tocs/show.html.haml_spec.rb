@@ -130,8 +130,9 @@ RSpec.describe "tocs/show.html.haml", type: :view do
       expect(rendered).to have_content('http://openlibrary.org/books/OL123M')
     end
 
-    it 'displays status' do
-      expect(rendered).to have_content('Status')
+    it 'displays status badge' do
+      expect(rendered).to have_selector('.status-badge')
+      expect(rendered).to have_content('Empty')
     end
 
     it 'displays comments' do

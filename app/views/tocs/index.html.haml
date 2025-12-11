@@ -2,14 +2,7 @@
   %h1{style: 'font-size: 1.8rem; margin-bottom: 1rem; color: #2d3748;'}= t('tocs.index.title')
 
   .filter-tabs{style: 'display: flex; gap: 0.5rem; flex-wrap: wrap;'}
-    - status_counts = {
-      needs_work: @tocs.count,
-      empty: Toc.where(status: :empty).count,
-      pages_marked: Toc.where(status: :pages_marked).count,
-      transcribed: Toc.where(status: :transcribed).count,
-      verified: Toc.where(status: :verified).count,
-      all: Toc.count
-    }
+    - status_counts = { needs_work: @tocs.count, empty: Toc.where(status: :empty).count, pages_marked: Toc.where(status: :pages_marked).count, transcribed: Toc.where(status: :transcribed).count, verified: Toc.where(status: :verified).count, all: Toc.count }
 
     - current_filter = params[:status] || (params[:show_all] == 'true' ? 'all' : 'needs_work')
 

@@ -38,20 +38,22 @@ RSpec.describe "tocs/index.html.haml", type: :view do
       render
     end
 
-    it 'displays contributor column header' do
-      expect(rendered).to have_selector('th', text: 'Contributor')
+    it 'displays contributor information' do
+      expect(rendered).to have_selector('.toc-meta', text: /👤/)
     end
 
-    it 'displays reviewer column header' do
-      expect(rendered).to have_selector('th', text: 'Reviewer')
+    it 'displays contributor name for admins' do
+      # Contributor is shown to admins in the card layout
+      expect(rendered).to have_content('John Contributor')
     end
 
     it 'displays contributor name instead of ID' do
       expect(rendered).to have_content('John Contributor')
     end
 
-    it 'displays reviewer name instead of ID' do
-      expect(rendered).to have_content('Jane Reviewer')
+    it 'does not display reviewer in index view' do
+      # Reviewer info is not shown in the index card layout
+      expect(rendered).not_to have_content('Jane Reviewer')
     end
 
     it 'displays contributor ID when user has no name' do
@@ -74,12 +76,14 @@ RSpec.describe "tocs/index.html.haml", type: :view do
       render
     end
 
-    it 'does not display contributor column header' do
-      expect(rendered).not_to have_selector('th', text: 'Contributor')
+    it 'does not display contributor information to non-admin' do
+      # Contributor info is only shown to admins
+      expect(rendered).not_to have_content('John Contributor')
     end
 
-    it 'does not display reviewer column header' do
-      expect(rendered).not_to have_selector('th', text: 'Reviewer')
+    it 'does not display reviewer information to non-admin' do
+      # Reviewer info is only shown to admins
+      expect(rendered).not_to have_content('Jane Reviewer')
     end
 
     it 'does not display contributor name' do
@@ -97,12 +101,14 @@ RSpec.describe "tocs/index.html.haml", type: :view do
       render
     end
 
-    it 'does not display contributor column header' do
-      expect(rendered).not_to have_selector('th', text: 'Contributor')
+    it 'does not display contributor information when not logged in' do
+      # Contributor info is only shown to admins
+      expect(rendered).not_to have_content('John Contributor')
     end
 
-    it 'does not display reviewer column header' do
-      expect(rendered).not_to have_selector('th', text: 'Reviewer')
+    it 'does not display reviewer information when not logged in' do
+      # Reviewer info is only shown to admins
+      expect(rendered).not_to have_content('Jane Reviewer')
     end
   end
 
@@ -112,18 +118,18 @@ RSpec.describe "tocs/index.html.haml", type: :view do
       render
     end
 
-    it 'displays title column' do
-      expect(rendered).to have_selector('th', text: 'Title')
+    it 'displays titles in card layout' do
+      expect(rendered).to have_selector('.toc-card')
       expect(rendered).to have_content('Test Book 1')
       expect(rendered).to have_content('Test Book 2')
     end
 
-    it 'displays status column' do
-      expect(rendered).to have_selector('th', text: 'Status')
+    it 'displays status badges' do
+      expect(rendered).to have_selector('.status-badge')
     end
 
-    it 'displays comments column' do
-      expect(rendered).to have_selector('th', text: 'Comments')
+    it 'displays comments in cards' do
+      expect(rendered).to have_selector('.toc-comments')
       expect(rendered).to have_content('Test comment 1')
       expect(rendered).to have_content('Test comment 2')
     end

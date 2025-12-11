@@ -17,12 +17,7 @@
 
 .workflow-stepper{style: 'background: #f7fafc; padding: 1.5rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 2rem;'}
   .workflow-steps{style: 'display: flex; justify-content: space-between; max-width: 700px; margin: 0 auto; position: relative;'}
-    - steps = [
-      { key: :create, label: t('tocs.workflow.create', default: 'Create'), number: 1 },
-      { key: :mark_pages, label: t('tocs.workflow.mark_pages', default: 'Mark Pages'), number: 2 },
-      { key: :transcribe, label: t('tocs.workflow.transcribe', default: 'Transcribe'), number: 3 },
-      { key: :verify, label: t('tocs.workflow.verify', default: 'Verify'), number: 4 }
-    ]
+    - steps = [{ key: :create, label: t('tocs.workflow.create', default: 'Create'), number: 1 }, { key: :mark_pages, label: t('tocs.workflow.mark_pages', default: 'Mark Pages'), number: 2 }, { key: :transcribe, label: t('tocs.workflow.transcribe', default: 'Transcribe'), number: 3 }, { key: :verify, label: t('tocs.workflow.verify', default: 'Verify'), number: 4 }]
 
     - steps.each_with_index do |step, index|
       - is_current = (current_step == step[:key])

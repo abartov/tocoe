@@ -18,13 +18,12 @@ RSpec.describe "Homes", type: :request do
       expect(response.body).to include('Sign in with Google')
     end
 
-    it "shows View Existing TOCs button when logged in" do
-      user = User.create!(email: 'test@example.com', password: 'password123')
+    it "redirects to dashboard when logged in" do
+      user = User.create!(email: 'test@example.com', password: 'password123', password_confirmation: 'password123')
       sign_in user
 
       get root_path
-      expect(response.body).to include('View Existing TOCs')
-      expect(response.body).to include(tocs_path)
+      expect(response).to redirect_to(dashboard_index_path)
     end
   end
 end

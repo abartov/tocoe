@@ -27,8 +27,8 @@ RSpec.describe "layouts/application.html.erb", type: :view do
       render
 
       expect(rendered).to have_selector('a.tocoe-logo-link[href="/"]')
-      expect(rendered).to have_content('Signed in as')
       expect(rendered).to have_content('test@example.com')
+      expect(rendered).to have_selector('.user-menu-wrapper')
     end
   end
 end

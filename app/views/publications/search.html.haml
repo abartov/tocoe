@@ -105,36 +105,6 @@
       updateFulltextOnlyVisibility();
     });
 
-    // Toggle multi-select mode
-    $('#toggle-multiselect').click(function() {
-      multiselectActive = !multiselectActive;
-
-      if (multiselectActive) {
-        $('.checkbox-column').css('display', 'table-cell');
-        $(this).addClass('btn-primary').removeClass('btn-default');
-        $(this).text('Exit Multi-select');
-      } else {
-        $('.checkbox-column').css('display', 'none');
-        $('.book-checkbox').prop('checked', false);
-        $(this).removeClass('btn-primary').addClass('btn-default');
-        $(this).text('Multi-select');
-      }
-      updateBulkButton();
-    });
-
-    // Update bulk create button visibility
-    function updateBulkButton() {
-      var checkedCount = $('.book-checkbox:checked').length;
-      var shouldShowBulkButton = multiselectActive && checkedCount > 0;
-      if (shouldShowBulkButton) {
-        $('#bulk-create-btn').show();
-        $('#bulk-create-btn').text('Make TOCs for ' + checkedCount + ' selected!');
-      } else {
-        $('#bulk-create-btn').hide();
-      }
-    }
-
-    // Listen for checkbox changes
-    $(document).on('change', '.book-checkbox', updateBulkButton);
+    // Multi-select functionality is now handled in _ol_results partial
 
   });

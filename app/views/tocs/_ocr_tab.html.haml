@@ -1,0 +1,152 @@
+.ocr-section
+  - if @toc.source == 'openlibrary' && !@toc.empty?
+    .panel.panel-default
+      .panel-heading
+        %h4= t('tocs.form.ocr_section.title')
+      .panel-body
+        = form_tag({action: 'do_ocr'}, {remote: true, id: 'ocr_form'}) do
+          = hidden_field_tag :toc_id, @toc.id
+
+          .form-group
+            = label_tag t('tocs.form.ocr_section.urls_label'), nil, class: 'control-label'
+            = text_area_tag :ocr_images, @toc.toc_page_urls, rows: 4, class: 'form-control'
+            - if @toc.toc_page_urls.present?
+              %span.help-block= t('tocs.form.ocr_section.prefilled_help')
+            - else
+              %span.help-block= t('tocs.form.ocr_section.urls_help')
+
+          .ocr-actions
+            = submit_tag t('tocs.form.ocr_section.attempt_button'), id: 'ocr_submit', class: 'btn btn-primary btn-lg'
+            = button_tag(type: 'button', id: 'paste_ocr', class: 'btn btn-success btn-lg', style: 'display: none;') do
+              %span.glyphicon.glyphicon-paste
+              = t('tocs.form.ocr_section.paste_button')
+            #ocr_working.text-muted{style: 'display:none; margin-left: 15px;'}
+              %em
+                %span.glyphicon.glyphicon-refresh.glyphicon-spin
+                = t('tocs.form.ocr_section.processing')
+
+          .form-group{style: 'margin-top: 1.5rem;'}
+            = label_tag t('tocs.form.ocr_section.results_label'), nil, class: 'control-label'
+            #results{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f9f9f9; font-family: monospace; font-size: 0.9rem;'}
+
+    -# Collapsible TOC scans area
+    - if @toc.toc_page_urls.present?
+      .scan-thumbnails-section
+        .panel.panel-default
+          .panel-heading
+            .clearfix
+              %h4{style: 'float: left; margin: 0;'}= t('tocs.form.ocr_section.scans_title')
+              %button.btn.btn-sm.btn-info{type: 'button', 'data-toggle' => 'collapse', 'data-target' => '#tocScansCollapse', style: 'float: right;'}
+                = t('tocs.form.ocr_section.toggle_scans')
+                %span.caret
+          .collapse#tocScansCollapse
+            .panel-body
+              .toc-scans-controls{style: 'margin-bottom: 10px; padding: 10px; background-color: #e9ecef; border: 1px solid #ddd; border-radius: 3px;'}
+                %span{style: 'margin-right: 10px; font-weight: bold;'}
+                  = t('tocs.form.ocr_section.zoom_label')
+                %button.btn.btn-sm.btn-default#zoomInBtn{type: 'button', title: t('tocs.form.ocr_section.zoom_in_title')}
+                  %span{style: 'font-weight: bold; font-size: 16px;'} +
+                %button.btn.btn-sm.btn-default#zoomOutBtn{type: 'button', title: t('tocs.form.ocr_section.zoom_out_title'), style: 'margin-left: 5px;'}
+                  %span{style: 'font-weight: bold; font-size: 16px;'} −
+                %button.btn.btn-sm.btn-default#zoomDefaultBtn{type: 'button', title: t('tocs.form.ocr_section.zoom_default_title'), style: 'margin-left: 5px;'}
+                  %span{style: 'font-weight: bold;'} def
+              .toc-scans-thumbnails{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa;'}
+                - @toc.toc_page_urls.split("\n").map(&:strip).reject(&:blank?).each_with_index do |url, index|
+                  .toc-scan-thumb{style: 'display: inline-block; margin: 5px; cursor: pointer; vertical-align: top; width: 450px;', 'data-image-url' => url, 'data-page-number' => index + 1, 'data-default-width' => '450'}
+                    = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail toc-scan-image', style: 'width: 450px; height: auto;'
+                    .text-center.small
+                      = t('tocs.show.page_number', number: index + 1)
+
+    -# Modal for zoomed scan view
+    - if @toc.toc_page_urls.present?
+      .modal.fade#scanZoomModal{tabindex: '-1', role: 'dialog', 'aria-labelledby' => 'scanZoomModalLabel', 'aria-hidden' => 'true'}
+        .modal-dialog.modal-lg{role: 'document', style: 'max-width: 90%;'}
+          .modal-content
+            .modal-header
+              %h5.modal-title#scanZoomModalLabel
+                = t('tocs.form.ocr_section.scan_modal_title')
+              %button.close{type: 'button', 'data-dismiss' => 'modal', 'aria-label' => 'Close'}
+                %span{'aria-hidden' => 'true'} &times;
+            .modal-body{style: 'text-align: center;'}
+              %img#scanZoomImage{src: '', alt: '', style: 'max-width: 100%; height: auto;'}
+
+    :javascript
+      $('#paste_ocr').click(function() {
+        $('#toc_area').val($('#results').text());
+        // Switch to TOC Body tab after pasting
+        $('a[href="#toc-body"]').tab('show');
+      });
+
+      $('#ocr_form').on('ajax:before', function() {
+        $('#ocr_submit').prop('disabled', true);
+        $('#ocr_working').show();
+        $('#paste_ocr').hide();
+        $('#results').html('');
+      });
+
+      // Handle click on scan thumbnails to open zoomed modal
+      $('.toc-scan-thumb').click(function() {
+        var imageUrl = $(this).data('image-url');
+        var pageNumber = $(this).data('page-number');
+        var modalTitle = '#{I18n.t('tocs.show.page_number', number: '__PAGE__').gsub('__PAGE__', '\' + pageNumber + \'')}';
+
+        $('#scanZoomModalLabel').text(modalTitle);
+        $('#scanZoomImage').attr('src', imageUrl);
+        $('#scanZoomImage').attr('alt', modalTitle);
+        $('#scanZoomModal').modal('show');
+      });
+
+      // Zoom controls for TOC scan thumbnails
+      $('#zoomInBtn').click(function() {
+        $('.toc-scan-thumb').each(function() {
+          var $thumb = $(this);
+          var $img = $thumb.find('.toc-scan-image');
+          var currentWidth = $img.width();
+          var newWidth = Math.round(currentWidth * 1.2);
+
+          $thumb.css('width', newWidth + 'px');
+          $img.css('width', newWidth + 'px');
+        });
+      });
+
+      $('#zoomOutBtn').click(function() {
+        $('.toc-scan-thumb').each(function() {
+          var $thumb = $(this);
+          var $img = $thumb.find('.toc-scan-image');
+          var currentWidth = $img.width();
+          var newWidth = Math.round(currentWidth * 0.8);
+
+          // Don't go below 100px
+          if (newWidth < 100) newWidth = 100;
+
+          $thumb.css('width', newWidth + 'px');
+          $img.css('width', newWidth + 'px');
+        });
+      });
+
+      $('#zoomDefaultBtn').click(function() {
+        $('.toc-scan-thumb').each(function() {
+          var $thumb = $(this);
+          var $img = $thumb.find('.toc-scan-image');
+          var defaultWidth = $thumb.data('default-width');
+
+          $thumb.css('width', defaultWidth + 'px');
+          $img.css('width', defaultWidth + 'px');
+        });
+      });
+
+  - elsif @is_gutenberg && @fulltext_url
+    .panel.panel-default
+      .panel-heading
+        %h4= t('tocs.form.gutenberg_section.fulltext_available_title')
+      .panel-body
+        %p.text-muted= t('tocs.form.gutenberg_section.fulltext_help')
+        %iframe{ src: @fulltext_url, style: 'width: 100%; height: 600px; border: 1px solid #ddd;' }
+
+  - else
+    .panel.panel-info
+      .panel-heading
+        %h4= t('tocs.form.ocr_section.no_pages_marked_title')
+      .panel-body
+        %p= t('tocs.form.ocr_section.browse_scans_help')
+        = link_to t('tocs.form.ocr_section.browse_scans_button'), browse_scans_toc_path(@toc), class: 'btn btn-primary btn-lg'

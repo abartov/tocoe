@@ -1,0 +1,19 @@
+.basic-info-section
+  .form-group
+    = f.label t('tocs.form.book_uri_label'), class: 'control-label'
+    = f.text_field :book_uri, class: 'form-control', placeholder: 'https://openlibrary.org/books/...'
+    %span.help-block= t('tocs.form.book_uri_help')
+
+  .form-group
+    = f.label t('common.labels.title'), class: 'control-label'
+    = f.text_field :title, class: 'form-control', placeholder: t('tocs.form.title_placeholder')
+
+  .form-group
+    = f.label t('tocs.form.authors_label'), class: 'control-label'
+    = render partial: 'authors', locals: {:authors => @authors}
+    %span.help-block= t('tocs.form.authors_help')
+
+  .form-group
+    = f.label t('common.labels.comments'), class: 'control-label'
+    = f.text_area :comments, rows: 4, class: 'form-control', placeholder: t('tocs.form.comments_placeholder')
+    %span.help-block= t('tocs.form.comments_help')

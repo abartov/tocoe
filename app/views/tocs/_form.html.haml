@@ -1,247 +1,47 @@
 = render 'shared/workflow_stepper', toc: @toc if @toc.persisted?
 
-.row
-  #main{ class: 'col-xs-7'}
-    = form_for @toc do |f|
-      - if @toc.errors.any?
-        #error_explanation
-          %h2= t('tocs.form.error_message', count: @toc.errors.count)
-          %ul
-            - @toc.errors.full_messages.each do |msg|
-              %li= msg
-      = hidden_field_tag 'toc[book_data]', @toc.book_data.to_json if @toc.book_data.present?
-      %table{class: 'table'}
-        %tr
-          .field
-            %td= f.label t('tocs.form.book_uri_label')
-            %td= f.text_field :book_uri, style: 'width: 100%;'
-        %tr
-          .field
-            %td= f.label t('common.labels.title')
-            %td= f.text_field :title, style: 'width: 100%;'
-        %tr
-          .field
-            %td= f.label t('tocs.form.authors_label')
-            %td= render partial: 'authors', locals: {:authors => @authors}
-        %tr
-          .field
-            %td{ valign: 'top' }= t('tocs.form.subjects_section.title')
-            %td
-              .subjects-section
-                - if @toc.imported_subjects.present?
-                  %p
-                    %strong= t('tocs.form.subjects_section.imported_label')
-                  %textarea#imported_subjects{ readonly: true, rows: 5, style: 'width: 100%; font-size: 12px;' }
-                    = @toc.imported_subjects
-                  %small.text-muted= t('tocs.form.subjects_section.imported_help')
-                - else
-                  %p.text-muted= t('tocs.form.subjects_section.no_imported')
+.toc-form-container
+  = form_for @toc do |f|
+    - if @toc.errors.any?
+      #error_explanation.alert.alert-danger
+        %h2= t('tocs.form.error_message', count: @toc.errors.count)
+        %ul
+          - @toc.errors.full_messages.each do |msg|
+            %li= msg
 
-                - if @toc.manifestation
-                  - main_embodiment = @toc.manifestation.embodiments.find_by(sequence_number: nil)
-                  - if main_embodiment && main_embodiment.aboutnesses.any?
-                    %p{ style: 'margin-top: 10px;' }
-                      %strong= t('tocs.form.subjects_section.existing_label')
-                    %ul.list-unstyled
-                      - main_embodiment.aboutnesses.each do |aboutness|
-                        %li
-                          %span.label.label-info= aboutness.source_name
-                          = aboutness.subject_heading_label
-                          %small.text-muted
-                            = link_to aboutness.subject_heading_uri, aboutness.subject_heading_uri, target: '_blank'
+    = hidden_field_tag 'toc[book_data]', @toc.book_data.to_json if @toc.book_data.present?
 
-                - if @toc.imported_subjects.present? && @toc.persisted?
-                  %p{ style: 'margin-top: 10px;' }
-                    = button_tag(type: 'button', id: 'auto_match_subjects', class: 'btn btn-primary') do
-                      = t('tocs.form.subjects_section.auto_match_button')
-                    #auto_match_working.text-muted{style: 'display:none; margin-top: 10px;'}
-                      %em= t('tocs.form.subjects_section.auto_matching')
-                    #auto_match_results{style: 'margin-top: 10px;'}
-        - if @toc.persisted?
-          %tr
-            .field
-              %td{valign: 'top'}
-                = f.label t('tocs.form.toc_body_label')
-                %br
-                = button_tag(type: 'button', id: 'magic_trim', class: 'btn btn-sm btn-primary', style: 'margin-top: 5px;') do
-                  = t('tocs.form.magic_trim_button')
-                %br
-                %br
-                .markdown-help{style: 'background: #f7fafc; padding: 1rem; border-radius: 6px; border: 2px solid #e2e8f0; font-size: 0.85rem;'}
-                  %h4{style: 'margin-top: 0; margin-bottom: 0.75rem; color: #2d3748; font-size: 1rem;'}
-                    📖 Markdown Guide
-                  %div{style: 'line-height: 1.6;'}
-                    %p{style: 'margin-bottom: 0.5rem;'}
-                      %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-                        = "# Title"
-                      %span{style: 'color: #4a5568;'}= "- Top-level work"
-                    %p{style: 'margin-bottom: 0.5rem;'}
-                      %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-                        = "## Title"
-                      %span{style: 'color: #4a5568;'}= "- Nested component"
-                    %p{style: 'margin-bottom: 0.5rem;'}
-                      %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-                        = "# Title || Author"
-                      %span{style: 'color: #4a5568;'}= "- With author"
-                    %p{style: 'margin-bottom: 0.5rem;'}
-                      %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-                        = "# Title || Author1; Author2"
-                      %span{style: 'color: #4a5568;'}= "- Multiple authors"
-                    %p{style: 'margin-bottom: 0;'}
-                      %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-                        = "# Section /"
-                      %span{style: 'color: #4a5568;'}= "- Section heading"
-                    %hr{style: 'margin: 0.75rem 0; border: 0; border-top: 1px solid #e2e8f0;'}
-                    %p{style: 'margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;'} Example:
-                    %pre{style: 'background: #edf2f7; padding: 0.5rem; border-radius: 3px; font-size: 0.75rem; margin: 0;'}
-                      = "# Book Title || Author Name\n## Chapter One\n## Chapter Two\n# Part Two\n## Chapter Three"
-              %td= f.text_area :toc_body, rows:20, cols: 40, id: 'toc_area'
-        %tr
-          .field
-            %td= f.label t('common.labels.comments')
-            %td= f.text_area :comments
-        %tr
-          .actions
-            %td= f.submit t('common.actions.save')
-  - if @toc.persisted? && @toc.source == 'openlibrary' && !@toc.empty?
-    #ocr{ class: 'col-xs-5'}
-      = form_tag({action: 'do_ocr'}, {remote: true, id: 'ocr_form'}) do
-        = hidden_field_tag :toc_id, @toc.id
-        %table{class: 'table'}
-          %tr
-            .field
-              %td= label_tag t('tocs.form.ocr_section.urls_label')
-              %td
-                = text_area_tag :ocr_images, @toc.toc_page_urls
-                - if @toc.toc_page_urls.present?
-                  %small.text-muted
-                    = t('tocs.form.ocr_section.prefilled_help')
-          %tr
-            .actions
-              %td
-                = submit_tag t('tocs.form.ocr_section.attempt_button'), id: 'ocr_submit'
-                = button_tag(type: 'button', id: 'paste_ocr', style: 'margin-left: 10px; display: none;') do
-                  = t('tocs.form.ocr_section.paste_button')
-                #ocr_working.text-muted{style: 'display:none; margin-top: 10px;'}
-                  %em= t('tocs.form.ocr_section.processing')
-          %tr
-            %td
-              #results{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 5px;'}
+    %ul.nav.nav-tabs{role: 'tablist'}
+      %li.active
+        %a{href: '#basic-info', 'data-toggle': 'tab'}
+          = t('tocs.form.tabs.basic_info')
+      - if @toc.persisted?
+        %li
+          %a{href: '#toc-body', 'data-toggle': 'tab'}
+            = t('tocs.form.tabs.toc_body')
+        %li
+          %a{href: '#subjects', 'data-toggle': 'tab'}
+            = t('tocs.form.tabs.subjects')
+            - if @toc.imported_subjects.present?
+              %span.badge= @toc.imported_subjects.lines.count
+        %li
+          %a{href: '#ocr', 'data-toggle': 'tab'}
+            = t('tocs.form.tabs.ocr')
 
-      -# Collapsible TOC scans area
-      - if @toc.toc_page_urls.present?
-        .toc-scans-section{style: 'margin-top: 20px;'}
-          %a.btn.btn-sm.btn-info{'data-toggle' => 'collapse', href: '#tocScansCollapse', role: 'button', 'aria-expanded' => 'false', 'aria-controls' => 'tocScansCollapse'}
-            = t('tocs.form.ocr_section.view_scans_button')
-            %span.caret
-          .collapse#tocScansCollapse{style: 'margin-top: 10px;'}
-            .toc-scans-controls{style: 'margin-bottom: 10px; padding: 5px; background-color: #e9ecef; border: 1px solid #ddd; border-radius: 3px;'}
-              %span{style: 'margin-right: 10px; font-weight: bold;'}
-                = t('tocs.form.ocr_section.zoom_label')
-              %button.btn.btn-sm.btn-default#zoomInBtn{type: 'button', title: t('tocs.form.ocr_section.zoom_in_title')}
-                %span{style: 'font-weight: bold; font-size: 16px;'} +
-              %button.btn.btn-sm.btn-default#zoomOutBtn{type: 'button', title: t('tocs.form.ocr_section.zoom_out_title'), style: 'margin-left: 5px;'}
-                %span{style: 'font-weight: bold; font-size: 16px;'} −
-              %button.btn.btn-sm.btn-default#zoomDefaultBtn{type: 'button', title: t('tocs.form.ocr_section.zoom_default_title'), style: 'margin-left: 5px;'}
-                %span{style: 'font-weight: bold;'} def
-            .toc-scans-thumbnails{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa;'}
-              - @toc.toc_page_urls.split("\n").map(&:strip).reject(&:blank?).each_with_index do |url, index|
-                .toc-scan-thumb{style: 'display: inline-block; margin: 5px; cursor: pointer; vertical-align: top; width: 450px;', 'data-image-url' => url, 'data-page-number' => index + 1, 'data-default-width' => '450'}
-                  = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail toc-scan-image', style: 'width: 450px; height: auto;'
-                  .text-center.small
-                    = t('tocs.show.page_number', number: index + 1)
-      -# Modal for zoomed scan view
-      - if @toc.toc_page_urls.present?
-        .modal.fade#scanZoomModal{tabindex: '-1', role: 'dialog', 'aria-labelledby' => 'scanZoomModalLabel', 'aria-hidden' => 'true'}
-          .modal-dialog.modal-lg{role: 'document', style: 'max-width: 90%;'}
-            .modal-content
-              .modal-header
-                %h5.modal-title#scanZoomModalLabel
-                  = t('tocs.form.ocr_section.scan_modal_title')
-                %button.close{type: 'button', 'data-dismiss' => 'modal', 'aria-label' => 'Close'}
-                  %span{'aria-hidden' => 'true'} &times;
-              .modal-body{style: 'text-align: center;'}
-                %img#scanZoomImage{src: '', alt: '', style: 'max-width: 100%; height: auto;'}
+    .tab-content
+      .tab-pane.active{id: 'basic-info'}
+        = render 'basic_info_tab', f: f
+      - if @toc.persisted?
+        .tab-pane{id: 'toc-body'}
+          = render 'toc_body_tab', f: f
+        .tab-pane{id: 'subjects'}
+          = render 'subjects_tab', f: f
+        .tab-pane{id: 'ocr'}
+          = render 'ocr_tab', f: f
 
-      :javascript
-        $('#paste_ocr').click(function() {
-          $('#toc_area').val($('#results').text());
-        });
-
-        $('#ocr_form').on('ajax:before', function() {
-          $('#ocr_submit').prop('disabled', true);
-          $('#ocr_working').show();
-          $('#paste_ocr').hide();
-          $('#results').html('');
-        });
-
-        // Handle click on scan thumbnails to open zoomed modal
-        $('.toc-scan-thumb').click(function() {
-          var imageUrl = $(this).data('image-url');
-          var pageNumber = $(this).data('page-number');
-          var modalTitle = '#{I18n.t('tocs.show.page_number', number: '__PAGE__').gsub('__PAGE__', '\' + pageNumber + \'')}';
-
-          $('#scanZoomModalLabel').text(modalTitle);
-          $('#scanZoomImage').attr('src', imageUrl);
-          $('#scanZoomImage').attr('alt', modalTitle);
-          $('#scanZoomModal').modal('show');
-        });
-
-        // Zoom controls for TOC scan thumbnails
-        $('#zoomInBtn').click(function() {
-          $('.toc-scan-thumb').each(function() {
-            var $thumb = $(this);
-            var $img = $thumb.find('.toc-scan-image');
-            var currentWidth = $img.width();
-            var newWidth = Math.round(currentWidth * 1.2);
-
-            $thumb.css('width', newWidth + 'px');
-            $img.css('width', newWidth + 'px');
-          });
-        });
-
-        $('#zoomOutBtn').click(function() {
-          $('.toc-scan-thumb').each(function() {
-            var $thumb = $(this);
-            var $img = $thumb.find('.toc-scan-image');
-            var currentWidth = $img.width();
-            var newWidth = Math.round(currentWidth * 0.8);
-
-            // Don't go below 100px
-            if (newWidth < 100) newWidth = 100;
-
-            $thumb.css('width', newWidth + 'px');
-            $img.css('width', newWidth + 'px');
-          });
-        });
-
-        $('#zoomDefaultBtn').click(function() {
-          $('.toc-scan-thumb').each(function() {
-            var $thumb = $(this);
-            var $img = $thumb.find('.toc-scan-image');
-            var defaultWidth = $thumb.data('default-width');
-
-            $thumb.css('width', defaultWidth + 'px');
-            $img.css('width', defaultWidth + 'px');
-          });
-        });
-  - elsif @toc.persisted?
-    #browse_scans_prompt{ class: 'col-xs-5'}
-      - if @is_gutenberg && @fulltext_url
-        #gutenberg_fulltext{ style: 'height: 100%;' }
-          %p
-            %strong= t('tocs.form.gutenberg_section.fulltext_available_title')
-          %p.text-muted{ style: 'margin-bottom: 10px;' }
-            = t('tocs.form.gutenberg_section.fulltext_help')
-          %iframe{ src: @fulltext_url, style: 'width: 100%; height: 600px; border: 1px solid #ddd;' }
-      - else
-        .alert.alert-info
-          %p
-            %strong= t('tocs.form.ocr_section.no_pages_marked_title')
-          %p
-            = link_to t('tocs.form.ocr_section.browse_scans_button'), browse_scans_toc_path(@toc), class: 'btn btn-primary btn-lg'
-          %p.text-muted
-            = t('tocs.form.ocr_section.browse_scans_help')
+    .form-actions
+      = f.submit t('common.actions.save'), class: 'btn btn-primary btn-lg'
+      = link_to t('common.actions.back'), :back, class: 'btn btn-default'
 
 :javascript
   // Auto-match subjects button

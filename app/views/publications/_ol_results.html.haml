@@ -4,7 +4,7 @@
       = hidden_field_tag :source, @source
       .selection-info
         %span#selection-count.selection-count 0 selected
-      = button_tag t('publications.search.make_tocs_button'), type: 'submit', class: 'btn btn-success btn-lg', id: 'bulk-create-btn', style: 'display: none;'
+      = button_tag t('publications.search.make_tocs_button'), type: 'submit', class: 'btn btn-success btn-lg hidden-initially', id: 'bulk-create-btn'
 
   .search-results-grid
     - @results.each do |book|
@@ -64,65 +64,56 @@
       %p.alert.alert-info= t('publications.search.nothing_found')
 
 :javascript
-  $(document).ready(function() {
-    // Show multi-select controls if there are any results with fulltext available
-    var hasFulltext = #{@any_fulltext ? true : false};
-    if (hasFulltext) {
-      $('#toggle-multiselect').show();
+  // Use event delegation for dynamic elements
+  // Handle checkbox changes
+  $(document).on('change', '.book-checkbox', function() {
+    var card = $(this).closest('.book-card');
+    if ($(this).is(':checked')) {
+      card.addClass('selected');
+    } else {
+      card.removeClass('selected');
     }
 
-    // Handle checkbox clicks and update selection count
-    function updateSelectionCount() {
-      var count = $('.book-checkbox:checked').length;
-      $('#selection-count').text(count + ' selected');
-      if (count > 0) {
-        $('#bulk-create-btn').show();
-      } else {
-        $('#bulk-create-btn').hide();
-      }
+    // Update selection count
+    var count = $('.book-checkbox:checked').length;
+    $('#selection-count').text(count + ' selected');
+    var btn = $('#bulk-create-btn');
+    if (count > 0) {
+      btn.removeClass('hidden-initially').attr('style', '');
+    } else {
+      btn.addClass('hidden-initially').attr('style', 'display: none;');
+    }
+  });
+
+  // Make entire card clickable (toggle checkbox)
+  $(document).on('click', '.book-card', function(e) {
+    // Don't toggle if clicking on links or the checkbox itself
+    if ($(e.target).is('a') || $(e.target).is('input[type="checkbox"]')) {
+      return;
+    }
+    var checkbox = $(this).find('.book-checkbox');
+    if (checkbox.length > 0) {
+      checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
+    }
+  });
+
+  // Handle form submission
+  $(document).on('submit', '#bulk-toc-form', function(e) {
+    var checked = $('.book-checkbox:checked').map(function() { return this.value; }).get();
+
+    if (checked.length === 0) {
+      e.preventDefault();
+      alert('Please select at least one book to create TOCs for.');
+      return false;
     }
 
-    // Toggle card selection visual state
-    $('.book-checkbox').on('change', function() {
-      var card = $(this).closest('.book-card');
-      if ($(this).is(':checked')) {
-        card.addClass('selected');
-      } else {
-        card.removeClass('selected');
-      }
-      updateSelectionCount();
+    // Remove any previously injected inputs to avoid duplicates
+    $(this).find('input[name="book_ids[]"]').remove();
+
+    // Inject hidden inputs for each selected book id
+    checked.forEach(function(id) {
+      $('<input>').attr({ type: 'hidden', name: 'book_ids[]', value: id }).appendTo('#bulk-toc-form');
     });
 
-    // Make entire card clickable (toggle checkbox)
-    $('.book-card').on('click', function(e) {
-      // Don't toggle if clicking on links or the checkbox itself
-      if ($(e.target).is('a') || $(e.target).is('input[type="checkbox"]')) {
-        return;
-      }
-      var checkbox = $(this).find('.book-checkbox');
-      if (checkbox.length > 0) {
-        checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
-      }
-    });
-
-    // Collect checked book IDs and inject into the bulk form before submission
-    $('#bulk-toc-form').on('submit', function(e) {
-      var checked = $('.book-checkbox:checked').map(function() { return this.value; }).get();
-
-      if (checked.length === 0) {
-        e.preventDefault();
-        alert('Please select at least one book to create TOCs for.');
-        return false;
-      }
-
-      // Remove any previously injected inputs to avoid duplicates
-      $(this).find('input[name="book_ids[]"]').remove();
-
-      // Inject hidden inputs for each selected book id
-      checked.forEach(function(id) {
-        $('<input>').attr({ type: 'hidden', name: 'book_ids[]', value: id }).appendTo('#bulk-toc-form');
-      });
-
-      return true;
-    });
+    return true;
   });

@@ -1,0 +1,43 @@
+.subjects-section
+  .panel.panel-default
+    .panel-heading
+      %h4= t('tocs.form.subjects_section.title')
+    .panel-body
+      - if @toc.imported_subjects.present?
+        .imported-subjects-block{style: 'margin-bottom: 1.5rem;'}
+          %h5
+            %strong= t('tocs.form.subjects_section.imported_label')
+          %textarea#imported_subjects.form-control{ readonly: true, rows: 5, style: 'font-size: 12px;' }
+            = @toc.imported_subjects
+          %span.help-block= t('tocs.form.subjects_section.imported_help')
+      - else
+        %p.text-muted= t('tocs.form.subjects_section.no_imported')
+
+  - if @toc.manifestation
+    - main_embodiment = @toc.manifestation.embodiments.find_by(sequence_number: nil)
+    - if main_embodiment && main_embodiment.aboutnesses.any?
+      .panel.panel-default{style: 'margin-top: 1.5rem;'}
+        .panel-heading
+          %h4= t('tocs.form.subjects_section.existing_label')
+        .panel-body
+          %ul.list-group
+            - main_embodiment.aboutnesses.each do |aboutness|
+              %li.list-group-item
+                %span.label.label-info= aboutness.source_name
+                = aboutness.subject_heading_label
+                %br
+                %small.text-muted
+                  = link_to aboutness.subject_heading_uri, aboutness.subject_heading_uri, target: '_blank'
+
+  - if @toc.imported_subjects.present? && @toc.persisted?
+    .auto-match-section
+      %h4= t('tocs.form.subjects_section.auto_match_title')
+      %p.text-muted= t('tocs.form.subjects_section.auto_match_description')
+      = button_tag(type: 'button', id: 'auto_match_subjects', class: 'btn btn-primary btn-lg') do
+        %span.glyphicon.glyphicon-link
+        = t('tocs.form.subjects_section.auto_match_button')
+      #auto_match_working.text-muted{style: 'display:none; margin-top: 10px;'}
+        %em
+          %span.glyphicon.glyphicon-refresh.glyphicon-spin
+          = t('tocs.form.subjects_section.auto_matching')
+      #auto_match_results{style: 'margin-top: 10px;'}

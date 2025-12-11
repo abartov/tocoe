@@ -18,10 +18,24 @@
 
       <% if user_signed_in? %>
         <ul class="navbar-menu">
-          <li><%= link_to '🏠 ' + t('common.nav.dashboard', default: 'Dashboard'), root_path, class: 'nav-link' %></li>
-          <li><%= link_to '🔍 ' + t('common.nav.search', default: 'Search'), publications_search_path, class: 'nav-link' %></li>
-          <li><%= link_to '📚 ' + t('common.nav.tocs', default: 'TOCs'), tocs_path, class: 'nav-link' %></li>
+          <li><%= link_to '🏠 ' + t('common.nav.dashboard', default: 'Dashboard'), root_path, class: nav_link_class(root_path) %></li>
+          <li><%= link_to '🔍 ' + t('common.nav.search', default: 'Search'), publications_search_path, class: nav_link_class(publications_search_path) %></li>
+          <li><%= link_to '📚 ' + t('common.nav.tocs', default: 'TOCs'), tocs_path, class: nav_link_class(tocs_path) %></li>
+          <li><%= link_to raw('<i class="glyphicon glyphicon-question-sign"></i> ' + t('common.nav.help', default: 'Help')), help_path, class: nav_link_class(help_path), title: t('common.nav.help_tooltip', default: 'Get help using ToCoE') %></li>
         </ul>
+      <% end %>
+
+      <% if user_signed_in? %>
+        <div class="navbar-search">
+          <%= form_tag publications_search_path, method: :get, class: 'navbar-search-form' do %>
+            <%= text_field_tag :search, params[:search],
+                placeholder: t('common.nav.quick_search', default: 'Quick search...'),
+                class: 'navbar-search-input' %>
+            <%= button_tag type: 'submit', class: 'navbar-search-button' do %>
+              <i class="glyphicon glyphicon-search"></i>
+            <% end %>
+          <% end %>
+        </div>
       <% end %>
 
       <div class="navbar-user">

@@ -73,32 +73,28 @@
                   %div{style: 'line-height: 1.6;'}
                     %p{style: 'margin-bottom: 0.5rem;'}
                       %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-                        # Title
-                      %span{style: 'color: #4a5568;'} - Top-level work
+                        = "# Title"
+                      %span{style: 'color: #4a5568;'}= "- Top-level work"
                     %p{style: 'margin-bottom: 0.5rem;'}
                       %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-                        ## Title
-                      %span{style: 'color: #4a5568;'} - Nested component
+                        = "## Title"
+                      %span{style: 'color: #4a5568;'}= "- Nested component"
                     %p{style: 'margin-bottom: 0.5rem;'}
                       %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-                        # Title || Author
-                      %span{style: 'color: #4a5568;'} - With author
+                        = "# Title || Author"
+                      %span{style: 'color: #4a5568;'}= "- With author"
                     %p{style: 'margin-bottom: 0.5rem;'}
                       %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-                        # Title || Author1; Author2
-                      %span{style: 'color: #4a5568;'} - Multiple authors
+                        = "# Title || Author1; Author2"
+                      %span{style: 'color: #4a5568;'}= "- Multiple authors"
                     %p{style: 'margin-bottom: 0;'}
                       %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-                        # Section /
-                      %span{style: 'color: #4a5568;'} - Section heading
+                        = "# Section /"
+                      %span{style: 'color: #4a5568;'}= "- Section heading"
                     %hr{style: 'margin: 0.75rem 0; border: 0; border-top: 1px solid #e2e8f0;'}
                     %p{style: 'margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;'} Example:
                     %pre{style: 'background: #edf2f7; padding: 0.5rem; border-radius: 3px; font-size: 0.75rem; margin: 0;'}
-                      # Book Title || Author Name
-                      ## Chapter One
-                      ## Chapter Two
-                      # Part Two /
-                      ## Chapter Three
+                      = "# Book Title || Author Name\n## Chapter One\n## Chapter Two\n# Part Two\n## Chapter Three"
               %td= f.text_area :toc_body, rows:20, cols: 40, id: 'toc_area'
         %tr
           .field

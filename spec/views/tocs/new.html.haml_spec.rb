@@ -23,9 +23,9 @@ RSpec.describe "tocs/new.html.haml", type: :view do
       render
     end
 
-    it 'displays imported subjects' do
-      expect(rendered).to have_selector('textarea#imported_subjects')
-      expect(rendered).to have_content('Fiction')
+    it 'does not display imported subjects for new toc (shown only in edit view)' do
+      expect(rendered).not_to have_selector('textarea#imported_subjects')
+      expect(rendered).not_to have_content('Fiction')
     end
 
     it 'does not display auto-match button for new toc' do

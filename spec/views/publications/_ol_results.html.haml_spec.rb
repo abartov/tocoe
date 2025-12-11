@@ -110,7 +110,7 @@ RSpec.describe "publications/_ol_results", type: :view do
       expect(rendered).to have_selector('#multi-select-controls')
       expect(rendered).to have_selector('#bulk-toc-form')
       expect(rendered).to have_selector('#selection-count')
-      expect(rendered).to have_selector('#bulk-create-btn', visible: :hidden)
+      expect(rendered).to have_selector('#bulk-create-btn.hidden-initially')
     end
 
     it "uses card grid layout" do

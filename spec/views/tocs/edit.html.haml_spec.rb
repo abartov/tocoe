@@ -167,8 +167,8 @@ RSpec.describe "tocs/edit.html.haml", type: :view do
       end
 
       it 'displays the collapsible scans toggle button' do
-        expect(rendered).to have_selector('a.btn[data-toggle="collapse"][href="#tocScansCollapse"]')
-        expect(rendered).to have_content(I18n.t('tocs.form.ocr_section.view_scans_button'))
+        expect(rendered).to have_selector('button.btn[data-toggle="collapse"][data-target="#tocScansCollapse"]')
+        expect(rendered).to have_content(I18n.t('tocs.form.ocr_section.toggle_scans'))
       end
 
       it 'displays the collapsible scans area' do

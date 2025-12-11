@@ -146,6 +146,7 @@ en:
       book_uri_label: "Book URI"
       authors_label: "Authors"
       toc_body_label: "Table of Contents markdown"
+      magic_trim_button: "Magic trim!"
       subjects_section:
         title: "Publication Subject Headings"
         imported_label: "Imported Subjects"

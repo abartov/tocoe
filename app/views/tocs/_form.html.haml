@@ -58,7 +58,11 @@
         - if @toc.persisted?
           %tr
             .field
-              %td= f.label t('tocs.form.toc_body_label')
+              %td
+                = f.label t('tocs.form.toc_body_label')
+                %br
+                = button_tag(type: 'button', id: 'magic_trim', class: 'btn btn-sm btn-primary', style: 'margin-top: 5px;') do
+                  = t('tocs.form.magic_trim_button')
               %td= f.text_area :toc_body, rows:20, cols: 40, id: 'toc_area'
         %tr
           .field
@@ -180,4 +184,48 @@
         alert('Error adding subject heading: ' + error);
       }
     });
+  });
+
+  // Magic trim button handler
+  $('#magic_trim').click(function() {
+    var textarea = $('#toc_area');
+    var text = textarea.val();
+    var lines = text.split('\n');
+    var processedLines = [];
+
+    lines.forEach(function(line) {
+      // Skip empty lines
+      if (line.trim() === '') {
+        processedLines.push('');
+        return;
+      }
+
+      // Preserve section headings (lines ending with /)
+      if (line.trim().endsWith('/')) {
+        processedLines.push(line.trim());
+        return;
+      }
+
+      // Try to extract page number from the end of the line
+      // Look for digits potentially followed by whitespace at the end
+      var pageNumberMatch = line.match(/^(.+?)[\s\.]+(\d+)\s*$/);
+
+      if (pageNumberMatch) {
+        // Found a page number
+        var title = pageNumberMatch[1].trim();
+        var pageNumber = pageNumberMatch[2];
+
+        // Clean up the title: remove trailing periods and extra whitespace
+        title = title.replace(/\.+\s*$/, '').trim();
+
+        processedLines.push(title + ' || ' + pageNumber);
+      } else {
+        // No page number found, just clean up the line
+        var cleanTitle = line.trim().replace(/\.+\s*$/, '').trim();
+        processedLines.push(cleanTitle);
+      }
+    });
+
+    // Update the textarea with processed text
+    textarea.val(processedLines.join('\n'));
   });

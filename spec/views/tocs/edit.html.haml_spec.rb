@@ -78,6 +78,32 @@ RSpec.describe "tocs/edit.html.haml", type: :view do
     end
   end
 
+  context 'Magic trim button' do
+    let(:toc) do
+      Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Test Book'
+      )
+    end
+
+    before do
+      assign(:toc, toc)
+      assign(:authors, [])
+      render
+    end
+
+    it 'displays magic trim button for persisted toc' do
+      expect(rendered).to have_selector('button#magic_trim')
+      expect(rendered).to have_content(I18n.t('tocs.form.magic_trim_button'))
+    end
+
+    it 'includes magic trim JavaScript click handler' do
+      # Verify the JavaScript code for magic trim is present
+      expect(rendered).to include("$('#magic_trim').click(function()")
+      expect(rendered).to include("var textarea = $('#toc_area')")
+    end
+  end
+
   context 'JavaScript interpolation' do
     let(:work) { Work.create!(title: 'Test Work') }
     let(:expression) { Expression.create!(title: 'Test Expression') }

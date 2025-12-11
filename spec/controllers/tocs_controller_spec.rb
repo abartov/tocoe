@@ -469,7 +469,8 @@ RSpec.describe TocsController, type: :controller do
       Toc.create!(
         book_uri: 'http://openlibrary.org/books/OL123M',
         title: 'Test Book',
-        status: :pages_marked
+        status: :pages_marked,
+        toc_body: '## Table of Contents\n\n- Essay 1\n- Essay 2'
       )
     end
 

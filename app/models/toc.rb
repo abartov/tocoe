@@ -4,7 +4,7 @@ class Toc < ActiveRecord::Base
   belongs_to :contributor, class_name: 'User', optional: true
   belongs_to :reviewer, class_name: 'User', optional: true
   enum :status, { empty: 'empty', pages_marked: 'pages_marked', transcribed: 'transcribed', verified: 'verified', error: 'error' }
-  enum :source, { openlibrary: 'openlibrary', gutenberg: 'gutenberg', local_upload: 'local_upload' }
+  enum :source, { openlibrary: 0, gutenberg: 1, local_upload: 2 }
   validate :contributor_cannot_be_reviewer
 
   before_validation :set_source_from_book_uri

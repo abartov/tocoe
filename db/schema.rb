@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_11_074122) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_11_075540) do
   create_table "aboutnesses", force: :cascade do |t|
     t.integer "embodiment_id"
     t.string "subject_heading_uri"
@@ -135,7 +135,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_11_074122) do
     t.datetime "verified_at"
     t.text "imported_subjects"
     t.text "book_data"
-    t.string "source"
+    t.integer "source"
     t.index ["book_uri"], name: "index_tocs_on_book_uri", unique: true
     t.index ["contributor_id"], name: "index_tocs_on_contributor_id"
     t.index ["manifestation_id"], name: "index_tocs_on_manifestation_id"

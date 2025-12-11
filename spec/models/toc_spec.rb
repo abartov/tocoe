@@ -56,9 +56,9 @@ RSpec.describe Toc, type: :model do
 
     it 'defines source enum with correct values' do
       expect(Toc.sources).to eq({
-        'openlibrary' => 'openlibrary',
-        'gutenberg' => 'gutenberg',
-        'local_upload' => 'local_upload'
+        'openlibrary' => 0,
+        'gutenberg' => 1,
+        'local_upload' => 2
       })
     end
   end

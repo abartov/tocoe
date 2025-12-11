@@ -58,7 +58,7 @@ RSpec.feature 'Gutenberg fulltext in-page display', type: :feature do
     expect(page).to have_link('Browse Scans to Mark TOC Pages')
   end
 
-  scenario 'does not show iframe when TOC has pages marked' do
+  scenario 'does not show OCR controls when Gutenberg TOC has pages marked' do
     # Create a Gutenberg TOC with pages_marked status
     toc = Toc.create!(
       book_uri: 'https://www.gutenberg.org/ebooks/84',
@@ -73,10 +73,10 @@ RSpec.feature 'Gutenberg fulltext in-page display', type: :feature do
 
     visit edit_toc_path(toc)
 
-    # Should not show the iframe (OCR section shows instead)
-    expect(page).not_to have_selector("iframe[src='#{fulltext_url}']")
+    # Should show the iframe (not the OCR section)
+    expect(page).to have_selector("iframe[src='#{fulltext_url}']")
 
-    # Should show OCR section
-    expect(page).to have_content('Urls of toc page images', normalize_ws: true)
+    # Should not show OCR section for PG
+    expect(page).not_to have_content('Urls of toc page images', normalize_ws: true)
   end
 end

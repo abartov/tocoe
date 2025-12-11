@@ -470,7 +470,8 @@ RSpec.describe TocsController, type: :controller do
         book_uri: 'http://openlibrary.org/books/OL123M',
         title: 'Test Book',
         status: :pages_marked,
-        toc_body: '## Table of Contents\n\n- Essay 1\n- Essay 2'
+        toc_body: "# Essay 1\n# Essay 2",
+        toc_page_urls: "https://example.com/page1.jpg\nhttps://example.com/page2.jpg"
       )
     end
 

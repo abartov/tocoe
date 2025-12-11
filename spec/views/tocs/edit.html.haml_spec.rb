@@ -186,10 +186,19 @@ RSpec.describe "tocs/edit.html.haml", type: :view do
         expect(rendered).to have_selector('.toc-scan-thumb[data-image-url="https://archive.org/download/book1/page3.jpg"][data-page-number="3"]')
       end
 
-      it 'displays thumbnail images with correct URLs' do
-        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page1.jpg?scale=8"]')
-        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page2.jpg?scale=8"]')
-        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page3.jpg?scale=8"]')
+      it 'displays thumbnail images with correct URLs and scale' do
+        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page1.jpg?scale=4"]')
+        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page2.jpg?scale=4"]')
+        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page3.jpg?scale=4"]')
+      end
+
+      it 'displays thumbnails with fixed width for compact layout' do
+        expect(rendered).to have_selector('.toc-scan-thumb[style*="width: 150px"]')
+        expect(rendered).to have_selector('img[style*="width: 150px"]')
+      end
+
+      it 'displays thumbnails inline for side-by-side layout' do
+        expect(rendered).to have_selector('.toc-scan-thumb[style*="display: inline-block"]')
       end
 
       it 'displays the zoom modal' do

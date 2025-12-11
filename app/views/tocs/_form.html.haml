@@ -104,9 +104,9 @@
             %span.caret
           .collapse#tocScansCollapse{style: 'margin-top: 10px;'}
             .toc-scans-thumbnails{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa;'}
-              - @toc.toc_page_urls.split("\n").each_with_index do |url, index|
-                .toc-scan-thumb{style: 'margin-bottom: 10px; cursor: pointer;', 'data-image-url' => url, 'data-page-number' => index + 1}
-                  = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail', style: 'max-width: 100%; height: auto;'
+              - @toc.toc_page_urls.split("\n").map(&:strip).reject(&:blank?).each_with_index do |url, index|
+                .toc-scan-thumb{style: 'display: inline-block; margin: 5px; cursor: pointer; vertical-align: top; width: 150px;', 'data-image-url' => url, 'data-page-number' => index + 1}
+                  = image_tag "#{url}?scale=4", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail', style: 'width: 150px; height: auto;'
                   .text-center.small
                     = t('tocs.show.page_number', number: index + 1)
       -# Modal for zoomed scan view

@@ -1,5 +1,5 @@
-%h1 Add Subject Heading
-%p Search for and select a subject heading to associate with this publication
+%h1= t('aboutnesses.new.add_subject_heading')
+%p= t('aboutnesses.new.instructions', title: @embodiment.expression&.title || 'this text')
 
 .row
   .col-xs-12

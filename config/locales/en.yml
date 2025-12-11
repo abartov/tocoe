@@ -88,6 +88,7 @@ en:
       book_title_and_uri: "Book title and URI:"
       no_explicit_toc: "No explicit table of contents"
       toc_body: "Toc body:"
+      no_toc_body: "No table of contents has been transcribed yet."
       marked_toc_pages: "Marked TOC Pages:"
       page_number: "TOC Page %{number}"
       fulltext: "Full Text:"
@@ -171,7 +172,7 @@ en:
       gutenberg_section:
         fulltext_available_title: "Full text available"
         view_fulltext_button: "View Full Text on Project Gutenberg"
-        fulltext_help: "Scroll through the full text below to find and transcribe the table of contents into the form above."
+        fulltext_help: "Scroll through the full text below to find and transcribe the table of contents into the form on the left."
 
   # Home page
   home:
@@ -238,3 +239,10 @@ en:
       no_fulltext: "No full-text"
       nothing_found: "Nothing found! Try adjusting your search terms or removing the full-text filter."
       page_info: "Page %{current} of %{total}"
+  aboutnesses:
+    index:
+      subject_headings: "Subject Headings"
+      manage_subject_headings: "Manage subject headings for: %{title}"
+    new:
+      add_subject_heading: "Add Subject Heading"
+      instructions: "Search for and select a subject heading to associate with: %{title}"

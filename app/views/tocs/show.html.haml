@@ -51,6 +51,8 @@
           %b= t('tocs.show.toc_body')
         .toc-preview
           = toc_markdown_to_html_preview(@toc.toc_body)
+      - else
+        %h3.text-muted= t('tocs.show.no_toc_body')
     .col-md-6
       %p
         %b= t('tocs.show.fulltext')

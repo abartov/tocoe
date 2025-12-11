@@ -31,7 +31,7 @@ class TocsController < ApplicationController
     @manifestation = @toc.manifestation
 
     # Check if this is a Gutenberg book and fetch fulltext URL
-    if @toc.book_uri =~ %r{gutenberg\.org/ebooks/(\d+)}
+    if @toc.source == 'gutenberg' || @toc.book_uri =~ %r{gutenberg\.org/ebooks/(\d+)}
       pg_book_id = $1
       gutendex_client = Gutendex::Client.new
       @fulltext_url = gutendex_client.preferred_fulltext_url(pg_book_id)
@@ -94,7 +94,7 @@ class TocsController < ApplicationController
     end
 
     # Check if this is a Gutenberg book and fetch fulltext URL
-    if @toc.source == 'gutenberg' || @toc.book_uri =~ %r{gutenberg\.org/ebooks/(\d+)}
+    if @toc.source == 'gutenberg' && @toc.book_uri =~ %r{gutenberg\.org/ebooks/(\d+)}
       pg_book_id = $1
       gutendex_client = Gutendex::Client.new
       @fulltext_url = gutendex_client.preferred_fulltext_url(pg_book_id)
@@ -108,8 +108,6 @@ class TocsController < ApplicationController
   # POST /tocs.json
   def create
     @toc = Toc.new(toc_params)
-    @manifestation = process_toc(@toc['toc_body'])
-    @toc.manifestation = @manifestation
     @toc.status = :pages_marked if @toc.book_uri =~ %r{gutenberg\.org/ebooks/(\d+)}
     respond_to do |format|
       if @toc.save
@@ -349,6 +347,8 @@ class TocsController < ApplicationController
     end
 
     @toc.contributor_id = current_user.id
+    @manifestation = process_toc(@toc['toc_body'])
+    @toc.manifestation = @manifestation
     @toc.status = :transcribed
 
     if @toc.save
@@ -463,16 +463,16 @@ class TocsController < ApplicationController
     @toc.imported_subjects = extract_subjects_from_gutendex(book_data)
     # Store book_data for later use (e.g., in edit action)
     @toc.book_data = book_data
-
+    @toc.source = :gutenberg
     # Use generalized get_authors method with Gutendex book data
     get_authors(book_data)
   end
 
   def get_authors(uri_or_book_data)
     # Support both Open Library URI and Gutendex book data
-    if uri_or_book_data.is_a?(Hash)
+    if @toc.source == 'gutenberg'
       # Gutendex book data passed directly
-      @book = uri_or_book_data
+      @book = JSON.parse(uri_or_book_data)
       @authors = @book['authors'] || []
       # Transform Gutendex authors to ensure consistent format
       @authors = @authors.map do |author|
@@ -632,7 +632,7 @@ class TocsController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def toc_params
-    params.require(:toc).permit(:book_uri, :toc_body, :contributor_id, :reviewer_id, :comments, :title)
+    params.require(:toc).permit(:book_uri, :toc_body, :contributor_id, :reviewer_id, :comments, :title, :book_data, :no_explicit_toc)
   end
 
   def valid?(url)

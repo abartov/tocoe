@@ -7,6 +7,7 @@
           %ul
             - @toc.errors.full_messages.each do |msg|
               %li= msg
+      = hidden_field_tag 'toc[book_data]', @toc.book_data.to_json if @toc.book_data.present?
       %table{class: 'table'}
         %tr
           .field
@@ -54,10 +55,11 @@
                     #auto_match_working.text-muted{style: 'display:none; margin-top: 10px;'}
                       %em= t('tocs.form.subjects_section.auto_matching')
                     #auto_match_results{style: 'margin-top: 10px;'}
-        %tr
-          .field
-            %td= f.label t('tocs.form.toc_body_label')
-            %td= f.text_area :toc_body, rows:20, cols: 40, id: 'toc_area'
+        - if @toc.persisted?
+          %tr
+            .field
+              %td= f.label t('tocs.form.toc_body_label')
+              %td= f.text_area :toc_body, rows:20, cols: 40, id: 'toc_area'
         %tr
           .field
             %td= f.label t('common.labels.comments')
@@ -65,7 +67,7 @@
         %tr
           .actions
             %td= f.submit t('common.actions.save')
-  - if @toc.persisted? && !@toc.empty?
+  - if @toc.persisted? && @toc.source == 'openlibrary' && !@toc.empty?
     #ocr{ class: 'col-xs-5'}
       = form_tag({action: 'do_ocr'}, {remote: true, id: 'ocr_form'}) do
         = hidden_field_tag :toc_id, @toc.id
@@ -100,7 +102,7 @@
           $('#paste_ocr').hide();
           $('#results').html('');
         });
-  - elsif @toc.persisted? && @toc.empty?
+  - elsif @toc.persisted?
     #browse_scans_prompt{ class: 'col-xs-5'}
       - if @is_gutenberg && @fulltext_url
         #gutenberg_fulltext{ style: 'height: 100%;' }

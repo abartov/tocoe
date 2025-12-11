@@ -1,0 +1,64 @@
+.help-page
+  .help-header
+    %h1
+      %span.help-icon 📚
+      = t('help.index.title')
+    %p.lead= t('help.index.subtitle')
+
+  .help-navigation
+    %ul.nav.nav-pills.nav-stacked
+      %li.active
+        %a{href: '#getting-started'} #{t('help.sections.getting_started.title')}
+      %li
+        %a{href: '#creating-tocs'} #{t('help.sections.creating_tocs.title')}
+      %li
+        %a{href: '#markdown-format'} #{t('help.sections.markdown_format.title')}
+      %li
+        %a{href: '#ocr'} #{t('help.sections.ocr.title')}
+      %li
+        %a{href: '#subjects'} #{t('help.sections.subjects.title')}
+      %li
+        %a{href: '#verification'} #{t('help.sections.verification.title')}
+      %li
+        %a{href: '#faq'} #{t('help.sections.faq.title')}
+
+  .help-content
+    = render 'help/getting_started'
+    = render 'help/creating_tocs'
+    = render 'help/markdown_format'
+    = render 'help/ocr'
+    = render 'help/subjects'
+    = render 'help/verification'
+    = render 'help/faq'
+
+:javascript
+  $(document).ready(function() {
+    // Smooth scrolling for navigation links
+    $('.help-navigation a').click(function(e) {
+      e.preventDefault();
+      var target = $(this).attr('href');
+      $('html, body').animate({
+        scrollTop: $(target).offset().top - 20
+      }, 500);
+
+      // Update active state
+      $('.help-navigation li').removeClass('active');
+      $(this).parent().addClass('active');
+    });
+
+    // Update navigation on scroll
+    $(window).scroll(function() {
+      var scrollPos = $(window).scrollTop() + 100;
+
+      $('.help-section').each(function() {
+        var sectionTop = $(this).offset().top;
+        var sectionBottom = sectionTop + $(this).outerHeight();
+        var sectionId = $(this).attr('id');
+
+        if (scrollPos >= sectionTop && scrollPos < sectionBottom) {
+          $('.help-navigation li').removeClass('active');
+          $('.help-navigation a[href="#' + sectionId + '"]').parent().addClass('active');
+        }
+      });
+    });
+  });

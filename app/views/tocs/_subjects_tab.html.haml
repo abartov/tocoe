@@ -36,6 +36,7 @@
       = button_tag(type: 'button', id: 'auto_match_subjects', class: 'btn btn-primary btn-lg') do
         %span.glyphicon.glyphicon-link
         = t('tocs.form.subjects_section.auto_match_button')
+      = help_tooltip t('tocs.form.subjects_section.auto_match_tooltip'), placement: 'right'
       #auto_match_working.text-muted{style: 'display:none; margin-top: 10px;'}
         %em
           %span.glyphicon.glyphicon-refresh.glyphicon-spin

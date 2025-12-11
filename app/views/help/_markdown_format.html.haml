@@ -1,0 +1,66 @@
+.help-section#markdown-format
+  %h2= t('help.sections.markdown_format.title')
+
+  %p= t('help.sections.markdown_format.intro')
+
+  %h3= t('help.sections.markdown_format.basic_syntax_title')
+
+  .help-example
+    %h4= t('help.sections.markdown_format.top_level_work')
+    %pre
+      %code
+        = "# Title of Work"
+    %p.help-example-note= t('help.sections.markdown_format.top_level_description')
+
+  .help-example
+    %h4= t('help.sections.markdown_format.nested_component')
+    %pre
+      %code
+        = "## Chapter Title"
+    %p.help-example-note= t('help.sections.markdown_format.nested_description')
+
+  .help-example
+    %h4= t('help.sections.markdown_format.work_with_author')
+    %pre
+      %code
+        = "# Title of Work || Author Name"
+    %p.help-example-note= t('help.sections.markdown_format.author_description')
+
+  .help-example
+    %h4= t('help.sections.markdown_format.multiple_authors')
+    %pre
+      %code
+        = "# Title || Author One; Author Two; Author Three"
+    %p.help-example-note= t('help.sections.markdown_format.multiple_authors_description')
+
+  .help-example
+    %h4= t('help.sections.markdown_format.section_heading')
+    %pre
+      %code
+        = "# Part One /"
+    %p.help-example-note= t('help.sections.markdown_format.section_heading_description')
+
+  %h3= t('help.sections.markdown_format.complete_example_title')
+  .help-example.help-example-large
+    %pre
+      %code
+        :preserve
+          # The Complete Works of Shakespeare || William Shakespeare
+          # Introduction /
+          ## About the Author
+          ## Historical Context
+          # Comedies /
+          ## A Midsummer Night's Dream
+          ## The Merchant of Venice
+          ## Much Ado About Nothing
+          # Tragedies /
+          ## Romeo and Juliet
+          ## Hamlet
+          ## Macbeth
+
+  .help-callout.help-callout-warning
+    %h4= t('help.sections.markdown_format.important_title')
+    %ul
+      %li= t('help.sections.markdown_format.important_hash_space')
+      %li= t('help.sections.markdown_format.important_double_pipe')
+      %li= t('help.sections.markdown_format.important_trailing_slash')

@@ -1,6 +1,7 @@
 .basic-info-section
   .form-group
     = f.label t('tocs.form.book_uri_label'), class: 'control-label'
+    = help_tooltip t('tocs.form.book_uri_tooltip'), placement: 'right'
     = f.text_field :book_uri, class: 'form-control', placeholder: 'https://openlibrary.org/books/...'
     %span.help-block= t('tocs.form.book_uri_help')
 

@@ -11,24 +11,28 @@
         = @stats[:total]
       .stat-label
         = t('dashboard.stats.total_tocs')
+        = help_tooltip t('dashboard.stats.total_tocs_tooltip')
 
     .stat-card
       .stat-number.success
         = @stats[:verified]
       .stat-label
         = t('dashboard.stats.verified')
+        = help_tooltip t('dashboard.stats.verified_tooltip')
 
     .stat-card
       .stat-number.warning
         = @stats[:needs_work]
       .stat-label
         = t('dashboard.stats.needs_work')
+        = help_tooltip t('dashboard.stats.needs_work_tooltip')
 
     .stat-card
       .stat-number.purple
         = @stats[:contributors]
       .stat-label
         = t('dashboard.stats.contributors')
+        = help_tooltip t('dashboard.stats.contributors_tooltip')
 
   .dashboard-grid
     .dashboard-section
@@ -67,18 +71,21 @@
               = @my_contribution_stats[:total]
             .my-stat-label
               = t('dashboard.stats.my_total')
+              = help_tooltip t('dashboard.stats.my_total_tooltip')
 
           .my-stat-card
             .my-stat-number
               = @my_contribution_stats[:verified]
             .my-stat-label
               = t('dashboard.stats.my_verified')
+              = help_tooltip t('dashboard.stats.my_verified_tooltip')
 
           .my-stat-card
             .my-stat-number
               = @my_contribution_stats[:in_progress]
             .my-stat-label
               = t('dashboard.stats.my_in_progress')
+              = help_tooltip t('dashboard.stats.my_in_progress_tooltip')
 
     .dashboard-section
       %h2

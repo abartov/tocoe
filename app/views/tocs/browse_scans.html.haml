@@ -20,6 +20,7 @@
       .form-check.mb-3
         = check_box_tag 'no_explicit_toc', '1', @toc.no_explicit_toc, class: 'form-check-input', id: 'no_explicit_toc'
         = label_tag 'no_explicit_toc', t('tocs.browse_scans.no_explicit_toc_label'), class: 'form-check-label'
+        = help_tooltip t('tocs.browse_scans.no_explicit_toc_tooltip'), placement: 'right'
 
   .row.scan-grid
     - @pages.each do |page_data|

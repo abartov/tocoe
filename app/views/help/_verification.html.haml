@@ -1,0 +1,33 @@
+.help-section#verification
+  %h2= t('help.sections.verification.title')
+
+  %p= t('help.sections.verification.intro')
+
+  %h3= t('help.sections.verification.what_is_verification_title')
+  %p= t('help.sections.verification.what_is_verification_description')
+
+  %h3= t('help.sections.verification.how_to_verify_title')
+  %ol
+    %li
+      %strong= t('help.sections.verification.step1_title')
+      %p= t('help.sections.verification.step1_description')
+    %li
+      %strong= t('help.sections.verification.step2_title')
+      %p= t('help.sections.verification.step2_description')
+    %li
+      %strong= t('help.sections.verification.step3_title')
+      %p= t('help.sections.verification.step3_description')
+    %li
+      %strong= t('help.sections.verification.step4_title')
+      %p= t('help.sections.verification.step4_description')
+
+  %h3= t('help.sections.verification.what_to_check_title')
+  %ul
+    %li= t('help.sections.verification.check_completeness')
+    %li= t('help.sections.verification.check_accuracy')
+    %li= t('help.sections.verification.check_formatting')
+    %li= t('help.sections.verification.check_authors')
+
+  .help-callout.help-callout-warning
+    %h4= t('help.sections.verification.important_title')
+    %p= t('help.sections.verification.important_cannot_verify_own')

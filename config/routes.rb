@@ -40,5 +40,8 @@ Rails.application.routes.draw do
   # Aboutnesses - destroy doesn't need embodiment nesting
   resources :aboutnesses, only: [:destroy]
 
+  # Help page
+  get 'help', to: 'help#index'
+
   root 'home#index'
 end

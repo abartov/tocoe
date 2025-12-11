@@ -3,6 +3,7 @@
     = button_tag(type: 'button', id: 'magic_trim', class: 'btn btn-primary') do
       %span.glyphicon.glyphicon-scissors
       = t('tocs.form.magic_trim_button')
+    = help_tooltip t('tocs.form.magic_trim_tooltip'), placement: 'right'
     %span.help-block= t('tocs.form.magic_trim_help')
 
   .form-group

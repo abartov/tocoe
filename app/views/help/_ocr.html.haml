@@ -1,0 +1,55 @@
+.help-section#ocr
+  %h2= t('help.sections.ocr.title')
+
+  %p= t('help.sections.ocr.intro')
+
+  %h3= t('help.sections.ocr.when_to_use_title')
+  %p= t('help.sections.ocr.when_to_use_description')
+
+  %h3= t('help.sections.ocr.how_to_use_title')
+  %ol
+    %li
+      %strong= t('help.sections.ocr.step1_title')
+      %p= t('help.sections.ocr.step1_description')
+    %li
+      %strong= t('help.sections.ocr.step2_title')
+      %p= t('help.sections.ocr.step2_description')
+    %li
+      %strong= t('help.sections.ocr.step3_title')
+      %p= t('help.sections.ocr.step3_description')
+    %li
+      %strong= t('help.sections.ocr.step4_title')
+      %p= t('help.sections.ocr.step4_description')
+    %li
+      %strong= t('help.sections.ocr.step5_title')
+      %p= t('help.sections.ocr.step5_description')
+
+  %h3= t('help.sections.ocr.magic_trim_title')
+  %p= t('help.sections.ocr.magic_trim_description')
+  %ul
+    %li= t('help.sections.ocr.magic_trim_removes_dots')
+    %li= t('help.sections.ocr.magic_trim_page_numbers')
+    %li= t('help.sections.ocr.magic_trim_whitespace')
+
+  .help-example
+    %h4= t('help.sections.ocr.magic_trim_example_title')
+    %p
+      %strong= t('help.sections.ocr.magic_trim_before')
+    %pre
+      %code
+        :preserve
+          Chapter One . . . . . . 15
+          The Adventure Begins       17
+          Chapter Two................23
+    %p
+      %strong= t('help.sections.ocr.magic_trim_after')
+    %pre
+      %code
+        :preserve
+          Chapter One || 15
+          The Adventure Begins
+          Chapter Two || 23
+
+  .help-callout.help-callout-info
+    %h4= t('help.sections.ocr.tip_title')
+    %p= t('help.sections.ocr.tip_always_review')

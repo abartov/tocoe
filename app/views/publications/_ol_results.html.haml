@@ -1,53 +1,43 @@
 - unless @results.blank?
-  #multi-select-controls.mb-3
-    = form_tag create_multiple_tocs_path, method: :post, id: 'bulk-toc-form', style: 'margin-top: 10px;' do
+  #multi-select-controls
+    = form_tag create_multiple_tocs_path, method: :post, id: 'bulk-toc-form' do
       = hidden_field_tag :source, @source
+      .selection-info
+        %span#selection-count.selection-count 0 selected
       = button_tag t('publications.search.make_tocs_button'), type: 'submit', class: 'btn btn-success btn-lg', id: 'bulk-create-btn', style: 'display: none;'
-  %table{ class: 'table table-striped', id: 'search-results-table' }
-    %thead
-      %tr
-        %th.checkbox-column{style: 'display: none;'}
-        %th= t('publications.search.headers.edition_key')
-        %th= t('publications.search.headers.title_author')
-        %th= t('publications.search.headers.fulltext_status')
-        %th= t('publications.search.headers.action')
-    %tbody
-      - @results.each do |book|
-        - if book['source'] == 'gutendex'
-          - book_id = book['id']
-          - can_make_toc = true
-          %tr
-            %td.checkbox-column{style: 'display: none;'}
-              = check_box_tag "book_ids[]", book_id, false, class: 'book-checkbox', data: { title: book['title'], authors: Array(book['author_name']).join(', '), source: 'gutendex' }
-            %td
+
+  .search-results-grid
+    - @results.each do |book|
+      - if book['source'] == 'gutendex'
+        - book_id = book['id']
+        - can_make_toc = true
+        .book-card{data: {book_id: book_id, source: 'gutendex'}}
+          .card-checkbox
+            = check_box_tag "book_ids[]", book_id, false, class: 'book-checkbox', data: { title: book['title'], authors: Array(book['author_name']).join(', '), source: 'gutendex' }
+          .card-header
+            .edition-key
               %code= "PG-#{book_id}"
-            %td
-              %strong= book['title']
-              %br
-              - if book['author_name']
-                %small.text-muted
-                  = t('publications.search.by_authors', authors: Array(book['author_name']).join(', '))
-            %td
+            .fulltext-badge
               %span.label.label-success= t('publications.search.fulltext_labels.public')
-            %td
-              = link_to t('publications.search.make_toc_button'), new_toc_path(:params => {pg_book_id: book_id, from: :gutendex}), class: 'btn btn-sm btn-primary'
-        - else
-          - edition = book.dig('editions', 'docs')&.first
-          - edition_key = edition&.dig('key')&.split('/')&.last
-          - can_make_toc = book['has_fulltext'] && book['ebook_access'] == 'public' && edition_key
-          %tr
-            %td.checkbox-column{style: 'display: none;'}
-              - if can_make_toc
-                = check_box_tag "book_ids[]", edition_key, false, class: 'book-checkbox', data: { title: book['title'], authors: Array(book['author_name']).join(', '), source: 'openlibrary' }
-            %td
+          .card-body
+            %h3.book-title= book['title']
+            - if book['author_name']
+              .book-authors
+                %small= t('publications.search.by_authors', authors: Array(book['author_name']).join(', '))
+          .card-footer
+            = link_to t('publications.search.make_toc_button'), new_toc_path(params: {pg_book_id: book_id, from: :gutendex}), class: 'btn btn-primary btn-block'
+      - else
+        - edition = book.dig('editions', 'docs')&.first
+        - edition_key = edition&.dig('key')&.split('/')&.last
+        - can_make_toc = book['has_fulltext'] && book['ebook_access'] == 'public' && edition_key
+        .book-card{data: {book_id: edition_key, source: 'openlibrary'}, class: (can_make_toc ? '' : 'disabled')}
+          - if can_make_toc
+            .card-checkbox
+              = check_box_tag "book_ids[]", edition_key, false, class: 'book-checkbox', data: { title: book['title'], authors: Array(book['author_name']).join(', '), source: 'openlibrary' }
+          .card-header
+            .edition-key
               %code= edition_key || book['key']
-            %td
-              %strong= book['title']
-              %br
-              - if book['author_name']
-                %small.text-muted
-                  = t('publications.search.by_authors', authors: Array(book['author_name']).join(', '))
-            %td
+            .fulltext-badge
               - if book['has_fulltext']
                 - if book['ebook_access'] == 'public'
                   %span.label.label-success= t('publications.search.fulltext_labels.public')
@@ -55,30 +45,71 @@
                   %span.label.label-warning= t('publications.search.fulltext_labels.restricted')
               - else
                 %span.label.label-default= t('publications.search.fulltext_labels.metadata_only')
-            %td
-              - if can_make_toc
-                = link_to t('publications.search.make_toc_button'), new_toc_path(:params => {ol_book_id: edition_key, from: :openlibrary}), class: 'btn btn-sm btn-primary'
-              - elsif !edition_key
-                %span.text-muted= t('publications.search.no_edition')
-              - else
-                %span.text-muted= t('publications.search.no_fulltext')
+          .card-body
+            %h3.book-title= book['title']
+            - if book['author_name']
+              .book-authors
+                %small= t('publications.search.by_authors', authors: Array(book['author_name']).join(', '))
+          .card-footer
+            - if can_make_toc
+              = link_to t('publications.search.make_toc_button'), new_toc_path(params: {ol_book_id: edition_key, from: :openlibrary}), class: 'btn btn-primary btn-block'
+            - elsif !edition_key
+              %span.text-muted= t('publications.search.no_edition')
+            - else
+              %span.text-muted= t('publications.search.no_fulltext')
 - else
   - if params[:search].present? || params[:title].present? || params[:author].present?
-    %p.alert.alert-info= t('publications.search.nothing_found')
+    .search-results-empty
+      .empty-icon 📚
+      %p.alert.alert-info= t('publications.search.nothing_found')
+
 :javascript
   $(document).ready(function() {
-    // show the multi-select button if there are any results with fulltext available
+    // Show multi-select controls if there are any results with fulltext available
     var hasFulltext = #{@any_fulltext ? true : false};
     if (hasFulltext) {
       $('#toggle-multiselect').show();
     }
+
+    // Handle checkbox clicks and update selection count
+    function updateSelectionCount() {
+      var count = $('.book-checkbox:checked').length;
+      $('#selection-count').text(count + ' selected');
+      if (count > 0) {
+        $('#bulk-create-btn').show();
+      } else {
+        $('#bulk-create-btn').hide();
+      }
+    }
+
+    // Toggle card selection visual state
+    $('.book-checkbox').on('change', function() {
+      var card = $(this).closest('.book-card');
+      if ($(this).is(':checked')) {
+        card.addClass('selected');
+      } else {
+        card.removeClass('selected');
+      }
+      updateSelectionCount();
+    });
+
+    // Make entire card clickable (toggle checkbox)
+    $('.book-card').on('click', function(e) {
+      // Don't toggle if clicking on links or the checkbox itself
+      if ($(e.target).is('a') || $(e.target).is('input[type="checkbox"]')) {
+        return;
+      }
+      var checkbox = $(this).find('.book-checkbox');
+      if (checkbox.length > 0) {
+        checkbox.prop('checked', !checkbox.prop('checked')).trigger('change');
+      }
+    });
+
     // Collect checked book IDs and inject into the bulk form before submission
     $('#bulk-toc-form').on('submit', function(e) {
-      // Gather checked checkboxes values
       var checked = $('.book-checkbox:checked').map(function() { return this.value; }).get();
 
       if (checked.length === 0) {
-        // No books selected - prevent submit and show an inline message
         e.preventDefault();
         alert('Please select at least one book to create TOCs for.');
         return false;
@@ -87,13 +118,11 @@
       // Remove any previously injected inputs to avoid duplicates
       $(this).find('input[name="book_ids[]"]').remove();
 
-      // Inject hidden inputs for each selected book id so Rails receives `book_ids[]`
+      // Inject hidden inputs for each selected book id
       checked.forEach(function(id) {
         $('<input>').attr({ type: 'hidden', name: 'book_ids[]', value: id }).appendTo('#bulk-toc-form');
       });
 
-      // Allow the form to submit normally with the injected inputs
       return true;
     });
-
   });

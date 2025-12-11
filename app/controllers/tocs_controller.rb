@@ -470,9 +470,12 @@ class TocsController < ApplicationController
 
   def get_authors(uri_or_book_data)
     # Support both Open Library URI and Gutendex book data
-    if @toc.source == 'gutenberg'
-      # Gutendex book data passed directly
-      @book = JSON.parse(uri_or_book_data)
+    # Determine source: either from @toc.source or by checking if uri_or_book_data is a Hash (Gutendex) or String (OpenLibrary URI)
+    is_gutenberg = @toc&.source == 'gutenberg' || (uri_or_book_data.is_a?(Hash) && !uri_or_book_data.key?('key'))
+
+    if is_gutenberg
+      # Gutendex book data passed directly (already deserialized as Hash from serialize :book_data)
+      @book = uri_or_book_data.is_a?(String) ? JSON.parse(uri_or_book_data) : uri_or_book_data
       @authors = @book['authors'] || []
       # Transform Gutendex authors to ensure consistent format
       @authors = @authors.map do |author|

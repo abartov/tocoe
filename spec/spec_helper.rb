@@ -16,8 +16,20 @@
 
 require 'webmock/rspec'
 
-# Configure WebMock to allow local connections for test server
-WebMock.disable_net_connect!(allow_localhost: true)
+# Configure WebMock to allow local connections and external API services
+# Allow real HTTP requests to:
+# - localhost (for test server)
+# - Gutendex API (Project Gutenberg catalog)
+# - Wikidata API (subject headings)
+# - Library of Congress API (LCSH subject headings)
+WebMock.disable_net_connect!(
+  allow_localhost: true,
+  allow: [
+    'gutendex.toolforge.org',
+    'www.wikidata.org',
+    'id.loc.gov'
+  ]
+)
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate

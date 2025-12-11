@@ -1,7 +1,5 @@
 .row
-  #sidebar{ class: 'col-xs-2' }
-    sidebar here
-  #content{ class: 'col-xs-10' }
+  .col-xs-12
     %h1= t('publications.search.title')
     %p= t('publications.search.description')
     = form_tag publications_search_path, :method => 'get', :id => 'publications_search' do

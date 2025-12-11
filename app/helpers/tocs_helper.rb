@@ -22,6 +22,15 @@ module TocsHelper
             class: css_class
   end
 
+  def filter_tab_style(is_active)
+    base_style = 'padding: 0.5rem 1rem; border-radius: 20px; text-decoration: none; font-weight: 500; transition: all 0.2s; display: inline-block;'
+    if is_active
+      base_style + ' background: #667eea; color: white; border: 2px solid #667eea;'
+    else
+      base_style + ' background: white; color: #4a5568; border: 2px solid #e2e8f0;'
+    end
+  end
+
   def toc_markdown_to_html_preview(markdown)
     return '' if markdown.blank?
 

@@ -1,11 +1,15 @@
+= render 'shared/workflow_stepper', toc: @toc
+
 %p#notice= notice
 
-%p
-  %b= t('tocs.show.book_title_and_uri')
-  = "#{@toc.title} - #{@toc.book_uri}"
-%p
-  %b= t('common.labels.status')
-  = @toc.status
+.toc-header{style: 'margin-bottom: 1.5rem;'}
+  %h2{style: 'font-size: 1.8rem; color: #2d3748; margin-bottom: 0.5rem;'}= @toc.title
+  %p{style: 'color: #4a5568;'}
+    %strong= t('tocs.show.book_uri_label', default: 'Book URI:')
+    = @toc.book_uri
+  %p
+    %span.status-badge{class: "status-#{@toc.status}", style: 'display: inline-block; padding: 0.35rem 0.85rem; border-radius: 16px; font-size: 0.85rem; font-weight: 600;'}
+      = @toc.status.titleize
 
 .mb-3
   = link_to t('common.actions.edit'), edit_toc_path(@toc), class: 'btn btn-primary'

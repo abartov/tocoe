@@ -8,25 +8,61 @@
 </head>
 <body>
 <div id="main-container" class="container-fluid">
-  <header class="mb-4">
-    <div class="d-flex align-items-center justify-content-between">
-      <%= link_to root_path, class: 'tocoe-logo-link' do %>
-        <%= image_tag 'tocoe-logo.svg', alt: 'ToCoE', class: 'tocoe-logo' %>
+  <nav class="tocoe-navbar">
+    <div class="navbar-container">
+      <div class="navbar-brand">
+        <%= link_to root_path, class: 'tocoe-logo-link' do %>
+          <%= image_tag 'tocoe-logo.svg', alt: 'ToCoE', class: 'tocoe-logo' %>
+        <% end %>
+      </div>
+
+      <% if user_signed_in? %>
+        <ul class="navbar-menu">
+          <li><%= link_to '🏠 ' + t('common.nav.dashboard', default: 'Dashboard'), root_path, class: 'nav-link' %></li>
+          <li><%= link_to '🔍 ' + t('common.nav.search', default: 'Search'), publications_search_path, class: 'nav-link' %></li>
+          <li><%= link_to '📚 ' + t('common.nav.tocs', default: 'TOCs'), tocs_path, class: 'nav-link' %></li>
+        </ul>
       <% end %>
-      <div>
+
+      <div class="navbar-user">
         <% if user_signed_in? %>
-          <p class="mb-0">
-            Signed in as <strong><%= current_user.email %></strong> | <%= link_to 'Sign out', destroy_user_session_path, method: :delete %>
-          </p>
+          <div class="user-menu-wrapper">
+            <button class="user-menu-button" onclick="toggleUserMenu(event)">
+              <div class="user-avatar"><%= current_user.email[0].upcase %></div>
+              <span class="user-email"><%= current_user.email %></span>
+              <span class="dropdown-arrow">▾</span>
+            </button>
+            <div class="user-dropdown" id="userDropdown">
+              <%= link_to t('common.nav.my_tocs', default: 'My TOCs'), tocs_path, class: 'dropdown-item' %>
+              <%= link_to t('common.nav.sign_out', default: 'Sign Out'), destroy_user_session_path, method: :delete, class: 'dropdown-item' %>
+            </div>
+          </div>
         <% elsif Devise.omniauth_configs[:google_oauth2] %>
-          <p class="mb-0">
-            <%= link_to 'Sign in with Google', user_google_oauth2_omniauth_authorize_path, method: :post %>
-          </p>
+          <%= link_to t('home.index.sign_in_button', default: 'Sign in with Google'), user_google_oauth2_omniauth_authorize_path, method: :post, class: 'btn btn-primary' %>
         <% end %>
       </div>
     </div>
-  </header>
-<%= yield %>
+  </nav>
+
+  <div class="main-content">
+    <%= yield %>
+  </div>
 </div>
+
+<script>
+function toggleUserMenu(event) {
+  event.stopPropagation();
+  var dropdown = document.getElementById('userDropdown');
+  dropdown.classList.toggle('show');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function() {
+  var dropdown = document.getElementById('userDropdown');
+  if (dropdown && dropdown.classList.contains('show')) {
+    dropdown.classList.remove('show');
+  }
+});
+</script>
 </body>
 </html>

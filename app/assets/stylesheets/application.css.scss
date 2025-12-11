@@ -17,7 +17,27 @@
 @import "bootstrap-sprockets";
 @import "bootstrap";
 
-/* ToCoE Logo Styles */
+/* ToCoE Navigation Bar */
+.tocoe-navbar {
+  background: white;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  max-width: 100%;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
 .tocoe-logo-link {
   display: inline-block;
   text-decoration: none;
@@ -29,6 +49,381 @@
 }
 
 .tocoe-logo {
-  height: 50px;
+  height: 40px;
   width: auto;
+}
+
+.navbar-menu {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+
+  li {
+    margin: 0;
+  }
+
+  .nav-link {
+    color: #4a5568;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 0;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #667eea;
+      text-decoration: none;
+    }
+
+    &.active {
+      color: #667eea;
+      border-bottom: 2px solid #667eea;
+    }
+  }
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+}
+
+.user-menu-wrapper {
+  position: relative;
+}
+
+.user-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #f7fafc;
+  }
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.user-email {
+  font-weight: 500;
+  color: #2d3748;
+  font-size: 14px;
+}
+
+.dropdown-arrow {
+  color: #718096;
+  font-size: 12px;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  z-index: 1000;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #2d3748;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid #f7fafc;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: #f7fafc;
+    color: #667eea;
+    text-decoration: none;
+  }
+}
+
+.main-content {
+  padding: 2rem 0;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-empty {
+  background: #fee;
+  color: #c53030;
+}
+
+.status-pages_marked {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-transcribed {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-verified {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-error {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  /* Navigation */
+  .navbar-container {
+    flex-wrap: wrap;
+    padding: 1rem;
+  }
+
+  .navbar-menu {
+    gap: 1rem;
+    font-size: 14px;
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .user-email {
+    display: none;
+  }
+
+  .navbar-brand {
+    flex: 1;
+  }
+
+  /* Dashboard */
+  .dashboard-header {
+    margin: -2rem -1rem 2rem -1rem !important;
+    padding: 1.5rem 1rem !important;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .dashboard-header p {
+    font-size: 1rem !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+  }
+
+  .stat-number {
+    font-size: 2rem !important;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* TOC Index */
+  .filter-bar {
+    padding: 1rem !important;
+    margin: -2rem -1rem 2rem -1rem !important;
+  }
+
+  .filter-bar h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .filter-tabs {
+    gap: 0.35rem !important;
+  }
+
+  .filter-tab {
+    font-size: 0.85rem !important;
+    padding: 0.4rem 0.75rem !important;
+  }
+
+  .filter-tab .count {
+    display: none;
+  }
+
+  .toc-list {
+    padding: 0 1rem !important;
+  }
+
+  .toc-card {
+    padding: 1rem !important;
+  }
+
+  .toc-header {
+    flex-direction: column !important;
+    align-items: start !important;
+  }
+
+  .toc-title h3 {
+    font-size: 1.1rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .status-badge {
+    margin-top: 0.5rem !important;
+    align-self: start !important;
+  }
+
+  .toc-meta {
+    flex-wrap: wrap !important;
+    gap: 0.75rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  .toc-actions {
+    flex-wrap: wrap !important;
+  }
+
+  /* TOC Form */
+  .row {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+
+  #main {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  #ocr, #browse_scans_prompt {
+    width: 100% !important;
+    padding: 0 !important;
+    margin-top: 1rem !important;
+  }
+
+  .markdown-help {
+    margin-top: 1rem !important;
+  }
+
+  /* Workflow Stepper */
+  .workflow-stepper {
+    padding: 1rem !important;
+  }
+
+  .workflow-steps {
+    max-width: 100% !important;
+  }
+
+  .step-label {
+    font-size: 0.75rem !important;
+  }
+
+  .step-circle {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* TOC Show Page */
+  .toc-header h2 {
+    font-size: 1.5rem !important;
+  }
+
+  /* Publications Search */
+  #content, #sidebar {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  #sidebar {
+    display: none;
+  }
+
+  /* General */
+  .main-content {
+    padding: 1rem 0 !important;
+  }
+
+  table {
+    font-size: 0.85rem !important;
+  }
+
+  .btn {
+    font-size: 0.9rem !important;
+    padding: 0.5rem 1rem !important;
+  }
+
+  .btn-lg {
+    font-size: 1rem !important;
+    padding: 0.75rem 1.5rem !important;
+  }
+}
+
+/* Tablet Responsive */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .navbar-menu {
+    gap: 1.5rem;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .navbar, .tocoe-navbar {
+    display: none !important;
+  }
+
+  .workflow-stepper {
+    display: none !important;
+  }
+
+  .toc-actions, .filter-bar {
+    display: none !important;
+  }
 }

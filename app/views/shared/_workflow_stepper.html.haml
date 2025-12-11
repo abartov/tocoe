@@ -1,0 +1,43 @@
+-# Workflow stepper component
+-# Parameters:
+-#   current_step: Symbol - one of :create, :mark_pages, :transcribe, :verify
+-#   toc: Toc object (optional) - if provided, will determine step from toc.status
+
+- if local_assigns[:toc]
+  - if toc.empty?
+    - current_step = :mark_pages
+  - elsif toc.pages_marked?
+    - current_step = :transcribe
+  - elsif toc.transcribed?
+    - current_step = :verify
+  - elsif toc.verified?
+    - current_step = :verified
+  - else
+    - current_step = :create
+
+.workflow-stepper{style: 'background: #f7fafc; padding: 1.5rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 2rem;'}
+  .workflow-steps{style: 'display: flex; justify-content: space-between; max-width: 700px; margin: 0 auto; position: relative;'}
+    - steps = [
+      { key: :create, label: t('tocs.workflow.create', default: 'Create'), number: 1 },
+      { key: :mark_pages, label: t('tocs.workflow.mark_pages', default: 'Mark Pages'), number: 2 },
+      { key: :transcribe, label: t('tocs.workflow.transcribe', default: 'Transcribe'), number: 3 },
+      { key: :verify, label: t('tocs.workflow.verify', default: 'Verify'), number: 4 }
+    ]
+
+    - steps.each_with_index do |step, index|
+      - is_current = (current_step == step[:key])
+      - is_completed = steps.index { |s| s[:key] == current_step }.to_i > index if current_step
+      - step_class = is_completed ? 'completed' : (is_current ? 'active' : 'pending')
+
+      .workflow-step{class: step_class, style: 'flex: 1; text-align: center; position: relative;'}
+        - unless index == steps.length - 1
+          .step-connector{style: 'position: absolute; top: 18px; left: 50%; right: -50%; height: 2px; background: ' + (is_completed ? '#38a169' : '#e2e8f0') + '; z-index: 0;'}
+
+        .step-circle{style: 'width: 36px; height: 36px; border-radius: 50%; background: ' + (is_completed ? '#38a169' : (is_current ? '#667eea' : '#e2e8f0')) + '; color: ' + (is_completed || is_current ? 'white' : '#718096') + '; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; font-weight: 600; position: relative; z-index: 1; ' + (is_current ? 'box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);' : '')}
+          - if is_completed
+            ✓
+          - else
+            = step[:number]
+
+        .step-label{style: 'font-size: 0.9rem; color: ' + (is_current ? '#667eea' : '#4a5568') + '; font-weight: ' + (is_current ? '600' : '400') + ';'}
+          = step[:label]

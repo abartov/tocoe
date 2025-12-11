@@ -1,3 +1,5 @@
+= render 'shared/workflow_stepper', toc: @toc if @toc.persisted?
+
 .row
   #main{ class: 'col-xs-7'}
     = form_for @toc do |f|
@@ -58,11 +60,45 @@
         - if @toc.persisted?
           %tr
             .field
-              %td
+              %td{valign: 'top'}
                 = f.label t('tocs.form.toc_body_label')
                 %br
                 = button_tag(type: 'button', id: 'magic_trim', class: 'btn btn-sm btn-primary', style: 'margin-top: 5px;') do
                   = t('tocs.form.magic_trim_button')
+                %br
+                %br
+                .markdown-help{style: 'background: #f7fafc; padding: 1rem; border-radius: 6px; border: 2px solid #e2e8f0; font-size: 0.85rem;'}
+                  %h4{style: 'margin-top: 0; margin-bottom: 0.75rem; color: #2d3748; font-size: 1rem;'}
+                    📖 Markdown Guide
+                  %div{style: 'line-height: 1.6;'}
+                    %p{style: 'margin-bottom: 0.5rem;'}
+                      %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
+                        # Title
+                      %span{style: 'color: #4a5568;'} - Top-level work
+                    %p{style: 'margin-bottom: 0.5rem;'}
+                      %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
+                        ## Title
+                      %span{style: 'color: #4a5568;'} - Nested component
+                    %p{style: 'margin-bottom: 0.5rem;'}
+                      %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
+                        # Title || Author
+                      %span{style: 'color: #4a5568;'} - With author
+                    %p{style: 'margin-bottom: 0.5rem;'}
+                      %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
+                        # Title || Author1; Author2
+                      %span{style: 'color: #4a5568;'} - Multiple authors
+                    %p{style: 'margin-bottom: 0;'}
+                      %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
+                        # Section /
+                      %span{style: 'color: #4a5568;'} - Section heading
+                    %hr{style: 'margin: 0.75rem 0; border: 0; border-top: 1px solid #e2e8f0;'}
+                    %p{style: 'margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;'} Example:
+                    %pre{style: 'background: #edf2f7; padding: 0.5rem; border-radius: 3px; font-size: 0.75rem; margin: 0;'}
+                      # Book Title || Author Name
+                      ## Chapter One
+                      ## Chapter Two
+                      # Part Two /
+                      ## Chapter Three
               %td= f.text_area :toc_body, rows:20, cols: 40, id: 'toc_area'
         %tr
           .field

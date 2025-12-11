@@ -1,48 +1,88 @@
-%h1= t('tocs.index.title')
+.filter-bar{style: 'background: #f7fafc; border-bottom: 2px solid #e2e8f0; padding: 1.5rem 2rem; margin: -2rem 0 2rem 0;'}
+  %h1{style: 'font-size: 1.8rem; margin-bottom: 1rem; color: #2d3748;'}= t('tocs.index.title')
 
-- if params[:status].present?
-  %p.text-muted
-    = t('tocs.index.showing_status', status: params[:status])
-    = link_to t('tocs.index.show_all_needing_work_link'), tocs_path, class: 'btn btn-sm btn-default'
-- elsif params[:show_all] == 'true'
-  %p.text-muted
-    = t('tocs.index.showing_all')
-    = link_to t('tocs.index.show_only_needing_work_link'), tocs_path, class: 'btn btn-sm btn-default'
-- else
-  %p.text-muted
-    = t('tocs.index.showing_needs_work')
-    = link_to t('tocs.index.show_all_link'), tocs_path(show_all: true), class: 'btn btn-sm btn-default'
+  .filter-tabs{style: 'display: flex; gap: 0.5rem; flex-wrap: wrap;'}
+    - status_counts = {
+      needs_work: @tocs.count,
+      empty: Toc.where(status: :empty).count,
+      pages_marked: Toc.where(status: :pages_marked).count,
+      transcribed: Toc.where(status: :transcribed).count,
+      verified: Toc.where(status: :verified).count,
+      all: Toc.count
+    }
 
-%table.table.table-striped
-  %thead
-    %tr
-      %th= sortable_column('title', t('tocs.index.headers.title'))
-      %th= t('tocs.index.headers.uri')
-      %th= t('tocs.index.headers.toc')
-      %th= sortable_column('status', t('tocs.index.headers.status'))
-      %th= sortable_column('created_at', t('tocs.index.headers.created'))
-      - if current_user&.admin?
-        %th= sortable_column('contributor_id', t('tocs.index.headers.contributor'))
-        %th= sortable_column('reviewer_id', t('tocs.index.headers.reviewer'))
-      %th= t('tocs.index.headers.comments')
-      %th{colspan: 2}= t('tocs.index.headers.actions')
+    - current_filter = params[:status] || (params[:show_all] == 'true' ? 'all' : 'needs_work')
 
-  %tbody
+    = link_to tocs_path, class: "filter-tab #{current_filter == 'needs_work' ? 'active' : ''}", style: filter_tab_style(current_filter == 'needs_work') do
+      = t('tocs.index.filter_needs_work', default: 'Needs Work')
+      %span.count= "(#{status_counts[:needs_work]})"
+
+    = link_to tocs_path(status: 'empty'), class: "filter-tab #{current_filter == 'empty' ? 'active' : ''}", style: filter_tab_style(current_filter == 'empty') do
+      = t('tocs.index.filter_empty', default: 'Empty')
+      %span.count= "(#{status_counts[:empty]})"
+
+    = link_to tocs_path(status: 'pages_marked'), class: "filter-tab #{current_filter == 'pages_marked' ? 'active' : ''}", style: filter_tab_style(current_filter == 'pages_marked') do
+      = t('tocs.index.filter_pages_marked', default: 'Pages Marked')
+      %span.count= "(#{status_counts[:pages_marked]})"
+
+    = link_to tocs_path(status: 'transcribed'), class: "filter-tab #{current_filter == 'transcribed' ? 'active' : ''}", style: filter_tab_style(current_filter == 'transcribed') do
+      = t('tocs.index.filter_transcribed', default: 'Transcribed')
+      %span.count= "(#{status_counts[:transcribed]})"
+
+    = link_to tocs_path(status: 'verified'), class: "filter-tab #{current_filter == 'verified' ? 'active' : ''}", style: filter_tab_style(current_filter == 'verified') do
+      = t('tocs.index.filter_verified', default: 'Verified')
+      %span.count= "(#{status_counts[:verified]})"
+
+    = link_to tocs_path(show_all: true), class: "filter-tab #{current_filter == 'all' ? 'active' : ''}", style: filter_tab_style(current_filter == 'all') do
+      = t('tocs.index.filter_all', default: 'All')
+      %span.count= "(#{status_counts[:all]})"
+
+.toc-list{style: 'padding: 0 2rem;'}
+  - if @tocs.any?
     - @tocs.each do |toc|
-      %tr
-        %td= link_to toc.title, toc
-        %td= toc.book_uri
-        %td= toc.toc_body
-        %td= toc.status
-        %td= toc.created_at.strftime('%Y-%m-%d')
-        - if current_user&.admin?
-          %td= toc.contributor&.name || toc.contributor_id
-          %td= toc.reviewer&.name || toc.reviewer_id
-        %td= toc.comments
-        %td= link_to t('common.actions.edit'), edit_toc_path(toc)
-        - if current_user&.admin?
-          %td= link_to t('common.actions.destroy'), toc, :method => :delete, :data => { :confirm => t('common.actions.confirm_destroy') }
+      .toc-card{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; transition: all 0.2s;', onmouseover: 'this.style.borderColor="#667eea"; this.style.boxShadow="0 4px 12px rgba(102, 126, 234, 0.1)"', onmouseout: 'this.style.borderColor="#e2e8f0"; this.style.boxShadow="none"'}
+        .toc-header{style: 'display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;'}
+          .toc-title{style: 'flex: 1;'}
+            %h3{style: 'font-size: 1.2rem; font-weight: 600; margin-bottom: 0.25rem;'}
+              = link_to toc.title, toc, style: 'color: #667eea; text-decoration: none;'
+            %p{style: 'color: #718096; font-size: 0.9rem; margin: 0;'}= toc.book_uri
 
-%br
+          %span.status-badge{class: "status-#{toc.status}"}
+            = toc.status.titleize
 
-= link_to t('tocs.index.search_publications'), publications_search_path
+        .toc-meta{style: 'display: flex; gap: 1.5rem; flex-wrap: wrap; color: #4a5568; font-size: 0.9rem; margin-bottom: 0.75rem;'}
+          %span
+            📅
+            = toc.created_at.strftime('%b %d, %Y')
+          - if current_user&.admin? && toc.contributor
+            %span
+              👤
+              = toc.contributor.name || toc.contributor.email
+          - if toc.source
+            %span
+              📚
+              = toc.source == 'openlibrary' ? 'Open Library' : 'Gutenberg'
+
+        - if toc.toc_body.present?
+          .toc-preview{style: 'color: #718096; font-size: 0.9rem; line-height: 1.4; padding: 0.75rem; background: #f7fafc; border-radius: 4px; margin-bottom: 0.75rem; max-height: 60px; overflow: hidden;'}
+            = truncate(toc.toc_body, length: 200)
+
+        - if toc.comments.present?
+          .toc-comments{style: 'color: #4a5568; font-size: 0.9rem; margin-bottom: 0.75rem;'}
+            💬
+            = toc.comments
+
+        .toc-actions{style: 'display: flex; gap: 0.5rem;'}
+          = link_to t('common.actions.edit'), edit_toc_path(toc), class: 'btn btn-primary btn-sm'
+          = link_to t('common.actions.view', default: 'View'), toc, class: 'btn btn-secondary btn-sm'
+          - if current_user&.admin?
+            = link_to t('common.actions.destroy'), toc, method: :delete, data: { confirm: t('common.actions.confirm_destroy') }, class: 'btn btn-danger btn-sm'
+
+  - else
+    .empty-state{style: 'text-align: center; padding: 3rem 0; color: #718096;'}
+      %p{style: 'font-size: 1.2rem; margin-bottom: 1rem;'} 📚 No TOCs found
+      %p= link_to t('tocs.index.search_publications'), publications_search_path, class: 'btn btn-primary'
+
+- if @tocs.any?
+  %div{style: 'text-align: center; margin-top: 2rem; padding: 0 2rem;'}
+    = link_to t('tocs.index.search_publications'), publications_search_path, class: 'btn btn-primary'

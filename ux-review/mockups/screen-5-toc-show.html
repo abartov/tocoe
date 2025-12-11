@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen 5: TOC Show Page Redesign - ToCoE UX Review</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .mockup-section { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .mockup-section h2 { font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; }
+        .mockup-section.before h2 { border-bottom: 2px solid #e53e3e; color: #c53030; }
+        .mockup-section.after h2 { border-bottom: 2px solid #38a169; color: #2f855a; }
+        .current-mockup, .proposed-mockup { border: 1px solid #e2e8f0; padding: 1rem; background: white; border-radius: 4px; }
+
+        /* Workflow Stepper */
+        .workflow-stepper { background: #f7fafc; padding: 1.5rem; border-bottom: 2px solid #e2e8f0; margin: -1rem -1rem 1rem; }
+        .steps { display: flex; justify-content: space-between; max-width: 600px; margin: 0 auto; position: relative; }
+        .step { flex: 1; text-align: center; position: relative; }
+        .step::before { content: ''; position: absolute; top: 15px; left: 50%; right: -50%; height: 2px; background: #e2e8f0; z-index: 0; }
+        .step:last-child::before { display: none; }
+        .step-circle { width: 30px; height: 30px; border-radius: 50%; background: #e2e8f0; color: #718096; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.35rem; font-weight: 600; font-size: 0.85rem; position: relative; z-index: 1; }
+        .step.completed .step-circle { background: #38a169; color: white; }
+        .step.active .step-circle { background: #667eea; color: white; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2); }
+        .step-label { font-size: 0.75rem; color: #4a5568; }
+
+        /* Status Alert */
+        .alert { padding: 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid; }
+        .alert-info { background: #e6f2ff; border-left-color: #3182ce; }
+        .alert-success { background: #f0fff4; border-left-color: #38a169; }
+        .alert h3 { margin-bottom: 0.5rem; color: #2d3748; }
+        .btn { padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; border: none; cursor: pointer; display: inline-block; margin-right: 0.5rem; margin-top: 0.5rem; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #38a169; color: white; }
+        .btn-secondary { background: #e2e8f0; color: #4a5568; }
+
+        /* TOC Preview */
+        .toc-preview { border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; background: #fafafa; }
+        .toc-preview h1 { font-size: 1.3rem; margin: 0.75rem 0; font-weight: 600; }
+        .toc-preview h2 { font-size: 1.1rem; margin: 0.5rem 0 0.5rem 1.5rem; font-weight: 400; }
+        .toc-author { color: #718096; font-size: 0.9rem; }
+
+        .notes { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.5rem; margin-top: 2rem; border-radius: 4px; }
+        .notes h3 { color: #c53030; margin-bottom: 0.75rem; }
+        .notes ul { margin-left: 1.5rem; }
+        @media (max-width: 768px) { .comparison { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Screen 5: TOC Show Page Redesign</h1>
+        <p>Comparison of current and proposed designs</p>
+    </div>
+
+    <div class="container">
+        <div class="comparison">
+            <div class="mockup-section before">
+                <h2>❌ Current Design</h2>
+                <div class="current-mockup">
+                    <p><strong>Book Title and URI:</strong> The Great Gatsby - /books/OL12345M</p>
+                    <p><strong>Status:</strong> transcribed</p>
+                    <div style="margin: 1rem 0;">
+                        <a href="#" style="padding: 0.5rem 1rem; background: #007bff; color: white; text-decoration: none; margin-right: 0.5rem;">Edit</a>
+                        <a href="#" style="padding: 0.5rem 1rem; background: #6c757d; color: white; text-decoration: none; margin-right: 0.5rem;">Back</a>
+                        <a href="#" style="padding: 0.5rem 1rem; background: #17a2b8; color: white; text-decoration: none;">Browse Scans</a>
+                    </div>
+                    <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 1rem; margin: 1rem 0; border-radius: 4px;">
+                        <p><strong>Ready for verification!</strong> This TOC has been transcribed and is ready for review.</p>
+                        <p style="margin-top: 0.5rem;"><button style="padding: 0.5rem 1rem; background: #28a745; color: white; border: none;">Verify</button></p>
+                    </div>
+                    <h3>TOC Body</h3>
+                    <div style="border: 1px solid #dee2e6; padding: 1rem; background: white;">
+                        <h1 style="font-size: 1.2rem;">The Great Gatsby <span style="color: #6c757d; font-size: 1rem;">— F. Scott Fitzgerald</span></h1>
+                        <h2 style="font-size: 1rem; margin-left: 1rem;">Chapter I</h2>
+                        <h2 style="font-size: 1rem; margin-left: 1rem;">Chapter II</h2>
+                        <h2 style="font-size: 1rem; margin-left: 1rem;">Chapter III</h2>
+                    </div>
+                    <p style="margin-top: 1rem;"><strong>Comments:</strong> Looks good, ready for verification</p>
+                </div>
+
+                <div class="notes">
+                    <h3>Issues:</h3>
+                    <ul>
+                        <li><strong>I29:</strong> Status alerts could be more prominent</li>
+                        <li><strong>I30:</strong> No workflow context (High severity)</li>
+                        <li><strong>I31:</strong> TOC preview styling basic</li>
+                        <li>No clear guidance on what happens next</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mockup-section after">
+                <h2>✅ Proposed Design</h2>
+                <div class="proposed-mockup">
+                    <!-- Workflow Stepper -->
+                    <div class="workflow-stepper">
+                        <div class="steps">
+                            <div class="step completed">
+                                <div class="step-circle">✓</div>
+                                <div class="step-label">Create</div>
+                            </div>
+                            <div class="step completed">
+                                <div class="step-circle">✓</div>
+                                <div class="step-label">Mark Pages</div>
+                            </div>
+                            <div class="step completed">
+                                <div class="step-circle">✓</div>
+                                <div class="step-label">Transcribe</div>
+                            </div>
+                            <div class="step active">
+                                <div class="step-circle">4</div>
+                                <div class="step-label">Verify</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 style="margin-bottom: 1rem; font-size: 1.8rem; color: #2d3748;">The Great Gatsby</h2>
+
+                    <!-- Status Alert -->
+                    <div class="alert alert-success">
+                        <h3>✅ Ready for Verification</h3>
+                        <p style="margin-bottom: 1rem;">This TOC has been transcribed and is ready for review. Please check the table of contents below and verify that it's accurate.</p>
+                        <button class="btn btn-success">✓ Verify This TOC</button>
+                        <button class="btn btn-secondary">📝 Edit Instead</button>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 300px; gap: 1.5rem;">
+                        <!-- TOC Preview -->
+                        <div>
+                            <h3 style="margin-bottom: 1rem; color: #2d3748;">Table of Contents</h3>
+                            <div class="toc-preview">
+                                <h1>The Great Gatsby</h1>
+                                <p class="toc-author">by F. Scott Fitzgerald</p>
+                                <h2>Chapter I</h2>
+                                <h2>Chapter II</h2>
+                                <h2>Chapter III</h2>
+                                <h2>Chapter IV</h2>
+                            </div>
+                        </div>
+
+                        <!-- Metadata Sidebar -->
+                        <div>
+                            <div style="background: #f7fafc; padding: 1.5rem; border-radius: 8px; border: 2px solid #e2e8f0;">
+                                <h4 style="margin-bottom: 1rem; color: #2d3748;">Details</h4>
+                                <div style="margin-bottom: 0.75rem;">
+                                    <div style="font-size: 0.85rem; color: #718096;">Status</div>
+                                    <div><span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">✏️ Transcribed</span></div>
+                                </div>
+                                <div style="margin-bottom: 0.75rem;">
+                                    <div style="font-size: 0.85rem; color: #718096;">Source</div>
+                                    <div style="font-weight: 500;">Open Library</div>
+                                </div>
+                                <div style="margin-bottom: 0.75rem;">
+                                    <div style="font-size: 0.85rem; color: #718096;">Created</div>
+                                    <div style="font-weight: 500;">Jan 15, 2025</div>
+                                </div>
+                                <div style="margin-bottom: 0.75rem;">
+                                    <div style="font-size: 0.85rem; color: #718096;">Contributor</div>
+                                    <div style="font-weight: 500;">user@example.com</div>
+                                </div>
+                                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e2e8f0;">
+                                    <button class="btn btn-primary" style="width: 100%; margin: 0;">📝 Edit</button>
+                                    <button class="btn btn-secondary" style="width: 100%; margin: 0.5rem 0 0 0;">📖 View Scans</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; background: #f7fafc; padding: 1rem; border-radius: 6px;">
+                        <strong style="color: #2d3748;">💬 Comments:</strong>
+                        <p style="margin-top: 0.5rem; color: #4a5568;">Looks good, ready for verification</p>
+                    </div>
+                </div>
+
+                <div class="notes" style="background: #f0fff4; border-left-color: #38a169;">
+                    <h3 style="color: #2f855a;">Improvements:</h3>
+                    <ul>
+                        <li><strong>R29:</strong> Larger, more prominent status alert</li>
+                        <li><strong>R30:</strong> Workflow stepper shows progress (High impact)</li>
+                        <li><strong>R31:</strong> Better TOC preview styling</li>
+                        <li>Metadata sidebar keeps actions accessible</li>
+                        <li>Clear CTAs for next steps</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; background: white; padding: 2rem; border-radius: 8px;">
+            <h2 style="margin-bottom: 1rem;">Related Recommendations</h2>
+            <ul style="line-height: 2;">
+                <li><strong>R29:</strong> Better status alerts (Medium impact, Low effort)</li>
+                <li><strong>R30:</strong> Add workflow stepper (High impact, Low effort) - EASY WIN</li>
+                <li><strong>R31:</strong> Better TOC preview styling (Low impact, Low effort)</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="../index.html" style="display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none;">← Back to Master Report</a>
+        </div>
+    </div>
+</body>
+</html>

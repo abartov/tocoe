@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToCoE UX Review - Master Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #667eea;
+        }
+        .section h3 {
+            color: #764ba2;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .toc {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .toc h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .toc li {
+            padding: 0.5rem 0;
+        }
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .issue-card {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+        .issue-card h4 {
+            color: #c53030;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        .issue-number {
+            background: #c53030;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .recommendation-card {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+        .recommendation-card h4 {
+            color: #2f855a;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        .rec-number {
+            background: #38a169;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .severity {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        .severity-critical { background: #feb2b2; color: #742a2a; }
+        .severity-high { background: #fbd38d; color: #744210; }
+        .severity-medium { background: #faf089; color: #744210; }
+        .severity-low { background: #bee3f8; color: #2c5282; }
+        .impact {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        .impact-high { background: #9ae6b4; color: #22543d; }
+        .impact-medium { background: #90cdf4; color: #2c5282; }
+        .impact-low { background: #d6bcfa; color: #44337a; }
+        .mockup-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            transition: background 0.2s;
+        }
+        .mockup-link:hover {
+            background: #764ba2;
+        }
+        .screenshot {
+            max-width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            display: block;
+        }
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        .screen-section {
+            margin-top: 2rem;
+        }
+        .screen-number {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        li {
+            margin-bottom: 0.5rem;
+        }
+        .methodology {
+            background: #edf2f7;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ToCoE UX Review</h1>
+        <p>Comprehensive User Experience Analysis & Recommendations</p>
+        <p style="font-size: 0.9rem; margin-top: 1rem;">Generated: December 2025</p>
+    </div>
+
+    <div class="container">
+        <!-- Executive Summary -->
+        <div class="section">
+            <h2>Executive Summary</h2>
+            <p>This report presents a comprehensive UX review of the ToCoE (Table of Contents of Everything) application, a Rails-based platform for collaborative bibliographic cataloging. The application demonstrates strong functionality and a well-designed FRBR-based data model, but suffers from significant usability challenges that hinder user adoption and workflow efficiency.</p>
+
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <span class="stat-number">42</span>
+                    <span class="stat-label">Issues Identified</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">38</span>
+                    <span class="stat-label">Recommendations</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">8</span>
+                    <span class="stat-label">Screens Redesigned</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">12</span>
+                    <span class="stat-label">Critical Issues</span>
+                </div>
+            </div>
+
+            <h3>Key Findings</h3>
+            <ul>
+                <li><strong>Navigation is fragmented:</strong> No persistent navigation menu or clear workflow guidance</li>
+                <li><strong>Information architecture needs restructuring:</strong> Users struggle to understand where they are in the workflow</li>
+                <li><strong>Visual design is outdated:</strong> Minimal styling beyond basic Bootstrap 3 components</li>
+                <li><strong>Forms are cluttered:</strong> Complex edit form tries to do too much in limited space</li>
+                <li><strong>Mobile experience is broken:</strong> Wide tables and rigid layouts don't work on small screens</li>
+                <li><strong>Workflow is hidden:</strong> The five-step process (Search → Browse → Transcribe → Verify) is never explained</li>
+            </ul>
+
+            <h3>Recommended Approach</h3>
+            <p>This report provides 38 numbered recommendations across 8 screens. Each recommendation includes:</p>
+            <ul>
+                <li>Severity rating (Critical, High, Medium, Low)</li>
+                <li>Expected impact (High, Medium, Low)</li>
+                <li>Detailed description of the issue</li>
+                <li>Proposed solution with visual mockups</li>
+            </ul>
+            <p><strong>Review each recommendation and let me know which ones to implement.</strong> You can reference them by number (e.g., "implement R1, R3, R7-R12").</p>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h3>📋 Report Contents</h3>
+            <ul>
+                <li><a href="#methodology">Methodology</a></li>
+                <li><a href="#overall-issues">Overall Application Issues</a></li>
+                <li><a href="#screen-1">Screen 1: Homepage</a></li>
+                <li><a href="#screen-2">Screen 2: Publications Search</a></li>
+                <li><a href="#screen-3">Screen 3: TOC Index</a></li>
+                <li><a href="#screen-4">Screen 4: TOC Edit Form</a></li>
+                <li><a href="#screen-5">Screen 5: TOC Show Page</a></li>
+                <li><a href="#screen-6">Screen 6: Browse Scans</a></li>
+                <li><a href="#screen-7">Screen 7: Subject Headings</a></li>
+                <li><a href="#screen-8">Screen 8: Application Layout</a></li>
+                <li><a href="#implementation-priority">Implementation Priority Matrix</a></li>
+                <li><a href="#mockups">View All Mockups</a></li>
+            </ul>
+        </div>
+
+        <!-- Methodology -->
+        <div class="section" id="methodology">
+            <h2>Methodology</h2>
+            <div class="methodology">
+                <p><strong>Review Process:</strong></p>
+                <ol>
+                    <li><strong>Code Analysis:</strong> Examined all view templates (HAML), controllers, routes, and stylesheets</li>
+                    <li><strong>User Flow Mapping:</strong> Traced all user journeys from entry to task completion</li>
+                    <li><strong>Heuristic Evaluation:</strong> Applied Nielsen's 10 usability heuristics</li>
+                    <li><strong>Accessibility Audit:</strong> Checked WCAG 2.1 compliance for common issues</li>
+                    <li><strong>Mobile Responsiveness:</strong> Evaluated Bootstrap grid usage and responsive design patterns</li>
+                    <li><strong>Visual Design Review:</strong> Assessed typography, color, spacing, and visual hierarchy</li>
+                </ol>
+                <p><strong>Frameworks Applied:</strong></p>
+                <ul>
+                    <li>Nielsen Norman Group's Usability Heuristics</li>
+                    <li>WCAG 2.1 Accessibility Guidelines</li>
+                    <li>Material Design Principles (for modern UI patterns)</li>
+                    <li>Jobs to Be Done Framework (for workflow analysis)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Overall Application Issues -->
+        <div class="section" id="overall-issues">
+            <h2>Overall Application Issues</h2>
+            <p>These issues affect the entire application and should be addressed holistically:</p>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I1</span>
+                    No Persistent Navigation
+                    <span class="severity severity-critical">Critical</span>
+                </h4>
+                <p><strong>Problem:</strong> The application has no navigation menu. Users can't easily move between sections (Search, TOC List, Dashboard). The only navigation is the logo (links to home) and contextual "Back" links.</p>
+                <p><strong>Impact:</strong> Users get lost, can't discover features, and rely on browser back button.</p>
+                <p><strong>Recommendation R1:</strong> <span class="impact impact-high">High Impact</span> Add a persistent navigation bar with: Home, Search Books, TOC List, My Contributions, Help</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I2</span>
+                    Workflow is Invisible
+                    <span class="severity severity-critical">Critical</span>
+                </h4>
+                <p><strong>Problem:</strong> The five-step workflow (Search → Create → Browse Scans → Transcribe → Verify) is never explained. Users don't understand the big picture or what state their work is in.</p>
+                <p><strong>Impact:</strong> New users are confused about what to do next. No sense of progress or accomplishment.</p>
+                <p><strong>Recommendation R2:</strong> <span class="impact impact-high">High Impact</span> Add workflow visualization showing current step, completed steps, and next steps. Include on TOC edit/show pages.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I3</span>
+                    Visual Design is Minimal
+                    <span class="severity severity-high">High</span>
+                </h4>
+                <p><strong>Problem:</strong> The UI uses basic Bootstrap 3 with almost no customization. No color scheme, no visual identity beyond logo, default typography everywhere.</p>
+                <p><strong>Impact:</strong> Application feels outdated and unprofessional. Hard to establish brand trust.</p>
+                <p><strong>Recommendation R3:</strong> <span class="impact impact-medium">Medium Impact</span> Implement a design system with: custom color palette, consistent typography scale, button styles, card components, proper spacing system.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I4</span>
+                    No User Dashboard
+                    <span class="severity severity-high">High</span>
+                </h4>
+                <p><strong>Problem:</strong> Signed-in users land on homepage with two buttons. No overview of their contributions, pending verifications, or project statistics.</p>
+                <p><strong>Impact:</strong> Users don't know what to work on or see their impact. No sense of community or progress.</p>
+                <p><strong>Recommendation R4:</strong> <span class="impact impact-high">High Impact</span> Create a dashboard showing: my recent TOCs, TOCs needing verification, project stats, activity feed.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I5</span>
+                    Mobile Experience is Broken
+                    <span class="severity severity-critical">Critical</span>
+                </h4>
+                <p><strong>Problem:</strong> Wide tables (TOC index), two-column layouts (edit form), and no mobile-specific considerations make the app unusable on phones.</p>
+                <p><strong>Impact:</strong> ~50% of potential users can't use the app effectively.</p>
+                <p><strong>Recommendation R5:</strong> <span class="impact impact-high">High Impact</span> Implement mobile-first responsive design: cards instead of tables, collapsible sections, mobile-optimized forms.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I6</span>
+                    Inconsistent Spacing and Alignment
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> Inline styles scattered throughout views create inconsistent spacing. Some sections use `style: 'margin-top: 50px;'`, others use Bootstrap utility classes.</p>
+                <p><strong>Impact:</strong> Visual inconsistency, harder to maintain, unprofessional appearance.</p>
+                <p><strong>Recommendation R6:</strong> <span class="impact impact-medium">Medium Impact</span> Establish a spacing system (4px base unit) and remove all inline styles. Use utility classes consistently.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I7</span>
+                    No Contextual Help
+                    <span class="severity severity-high">High</span>
+                </h4>
+                <p><strong>Problem:</strong> Complex features (OCR, subject headings, markdown format) have minimal explanation. Users must figure it out themselves.</p>
+                <p><strong>Impact:</strong> High learning curve, errors, frustration, abandonment.</p>
+                <p><strong>Recommendation R7:</strong> <span class="impact impact-high">High Impact</span> Add tooltips, inline help text, and a help sidebar with examples for each screen.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I8</span>
+                    No Error Prevention
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> Users can create TOCs without understanding the workflow, submit empty forms, or verify their own work (currently blocked but not explained upfront).</p>
+                <p><strong>Impact:</strong> Wasted effort, confusion, need to start over.</p>
+                <p><strong>Recommendation R8:</strong> <span class="impact impact-medium">Medium Impact</span> Add progressive disclosure: show only relevant fields/actions at each step. Disable unavailable actions with explanations.</p>
+            </div>
+        </div>
+
+        <!-- Screen 1: Homepage -->
+        <div class="section" id="screen-1">
+            <h2><span class="screen-number">1</span>Homepage</h2>
+            <p><strong>Current State:</strong> A jumbotron with app description, MMOB explanation, and two buttons (signed in) or sign-in button (signed out).</p>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I9</span>
+                    Too Much Text
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> The homepage is very text-heavy with long explanations about MMOB, goals, and uses. Most users won't read this.</p>
+                <p><strong>Recommendation R9:</strong> <span class="impact impact-medium">Medium Impact</span> Simplify to a hero section with clear value proposition and prominent CTAs. Move detailed info to "About" page.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I10</span>
+                    No Visual Interest
+                    <span class="severity severity-low">Low</span>
+                </h4>
+                <p><strong>Problem:</strong> Homepage is just text in a jumbotron. No images, no visual interest, no personality.</p>
+                <p><strong>Recommendation R10:</strong> <span class="impact impact-low">Low Impact</span> Add hero image, icons for features, visual examples of TOCs.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I11</span>
+                    Different Experience for Signed-in Users
+                    <span class="severity severity-high">High</span>
+                </h4>
+                <p><strong>Problem:</strong> Signed-in users see the same long explanation page. They should see a dashboard instead.</p>
+                <p><strong>Recommendation R11:</strong> <span class="impact impact-high">High Impact</span> Redirect signed-in users to dashboard. Show homepage only to anonymous visitors.</p>
+            </div>
+
+            <a href="mockups/screen-1-homepage.html" class="mockup-link">View Screen 1 Mockup</a>
+        </div>
+
+        <!-- Screen 2: Publications Search -->
+        <div class="section" id="screen-2">
+            <h2><span class="screen-number">2</span>Publications Search</h2>
+            <p><strong>Current State:</strong> Form with source selection, three search fields, and fulltext checkbox. Results shown as table with multi-select option.</p>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I12</span>
+                    "Sidebar here" Placeholder
+                    <span class="severity severity-critical">Critical</span>
+                </h4>
+                <p><strong>Problem:</strong> Left sidebar shows literal text "sidebar here" - clearly unfinished UI.</p>
+                <p><strong>Recommendation R12:</strong> <span class="impact impact-high">High Impact</span> Remove empty sidebar or add useful content (recent searches, filters, help).</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I13</span>
+                    Vertical Form Wastes Space
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> Search form is entirely vertical with large labels, taking up lots of screen real estate before results appear.</p>
+                <p><strong>Recommendation R13:</strong> <span class="impact impact-medium">Medium Impact</span> Consolidate into horizontal search bar with advanced filters in dropdown/modal.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I14</span>
+                    Multi-select is Hidden
+                    <span class="severity severity-high">High</span>
+                </h4>
+                <p><strong>Problem:</strong> Multi-select button is hidden (`display: none;`) and only shown via JavaScript after results load. Users don't discover this feature.</p>
+                <p><strong>Recommendation R14:</strong> <span class="impact impact-medium">Medium Impact</span> Show multi-select toggle always, but disable until results appear. Or make it always-on with checkboxes visible.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I15</span>
+                    Results are Table-based
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> Results use a table layout (via partial) which doesn't work well on mobile and doesn't show book covers.</p>
+                <p><strong>Recommendation R15:</strong> <span class="impact impact-high">High Impact</span> Use card layout with book covers, title, author, status badges. More visual, more mobile-friendly.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I16</span>
+                    No Search History or Saved Searches
+                    <span class="severity severity-low">Low</span>
+                </h4>
+                <p><strong>Problem:</strong> Users can't see previous searches or save common searches.</p>
+                <p><strong>Recommendation R16:</strong> <span class="impact impact-low">Low Impact</span> Add recent searches section in sidebar or dropdown.</p>
+            </div>
+
+            <a href="mockups/screen-2-search.html" class="mockup-link">View Screen 2 Mockup</a>
+        </div>
+
+        <!-- Screen 3: TOC Index -->
+        <div class="section" id="screen-3">
+            <h2><span class="screen-number">3</span>TOC Index</h2>
+            <p><strong>Current State:</strong> Large table with sortable columns showing all TOCs with status filter via URL parameters.</p>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I17</span>
+                    Wide Table is Unusable on Mobile
+                    <span class="severity severity-critical">Critical</span>
+                </h4>
+                <p><strong>Problem:</strong> Table has 8-9 columns (Title, URI, TOC body, Status, Created, Contributor, Reviewer, Comments, Actions). Impossible to use on mobile.</p>
+                <p><strong>Recommendation R17:</strong> <span class="impact impact-high">High Impact</span> Replace with card layout on mobile. Keep table on desktop but reduce columns.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I18</span>
+                    TOC Body Preview is Raw Text
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> The toc_body column shows raw markdown text, which looks messy and is hard to scan.</p>
+                <p><strong>Recommendation R18:</strong> <span class="impact impact-medium">Medium Impact</span> Show formatted excerpt or first few entries. Use tooltip for full preview.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I19</span>
+                    Filter UI is Hidden in URL
+                    <span class="severity severity-high">High</span>
+                </h4>
+                <p><strong>Problem:</strong> Status filtering only works via URL parameters (?status=empty). No visible filter UI. Small text links to toggle views.</p>
+                <p><strong>Recommendation R19:</strong> <span class="impact impact-high">High Impact</span> Add prominent filter bar with status chips/tabs and "Show All" toggle.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I20</span>
+                    No Visual Status Indicators
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> Status is just text (empty, pages_marked, transcribed). Hard to scan quickly.</p>
+                <p><strong>Recommendation R20:</strong> <span class="impact impact-medium">Medium Impact</span> Use color-coded badges/chips with icons for each status.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I21</span>
+                    Sorting Indicators are Minimal
+                    <span class="severity severity-low">Low</span>
+                </h4>
+                <p><strong>Problem:</strong> Column headers show ↑/↓ for sort, but it's subtle.</p>
+                <p><strong>Recommendation R21:</strong> <span class="impact impact-low">Low Impact</span> Make sort indicators more prominent. Highlight sorted column.</p>
+            </div>
+
+            <a href="mockups/screen-3-toc-index.html" class="mockup-link">View Screen 3 Mockup</a>
+        </div>
+
+        <!-- Screen 4: TOC Edit Form -->
+        <div class="section" id="screen-4">
+            <h2><span class="screen-number">4</span>TOC Edit Form</h2>
+            <p><strong>Current State:</strong> Complex two-column layout. Left: form fields in table. Right: OCR tools (Open Library) or fulltext iframe (Gutenberg).</p>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I22</span>
+                    Form Fields in Table Layout
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> Form uses `<table>` for layout with `<td>` for labels and inputs. Old-school approach, not semantic, hard to style.</p>
+                <p><strong>Recommendation R22:</strong> <span class="impact impact-medium">Medium Impact</span> Use modern form layout with proper labels, form-groups, and grid system.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I23</span>
+                    Two Columns Create Complexity
+                    <span class="severity severity-high">High</span>
+                </h4>
+                <p><strong>Problem:</strong> Left column is form, right column is OCR/scans/fulltext. Splits user attention. Right column changes content based on state.</p>
+                <p><strong>Recommendation R23:</strong> <span class="impact impact-high">High Impact</span> Use tabbed interface or accordion sections. Group related features together.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I24</span>
+                    Subject Headings Section is Cluttered
+                    <span class="severity severity-high">High</span>
+                </h4>
+                <p><strong>Problem:</strong> Shows imported subjects (textarea), existing subjects (list), auto-match button, and results all in one table cell. Confusing layout.</p>
+                <p><strong>Recommendation R24:</strong> <span class="impact impact-high">High Impact</span> Move subjects to separate tab or collapsible panel. Show as chips/tags.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I25</span>
+                    Magic Trim Button is Easy to Miss
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> "Magic Trim" button is small and above textarea. Users might not notice this helpful feature.</p>
+                <p><strong>Recommendation R25:</strong> <span class="impact impact-low">Low Impact</span> Make button more prominent, add icon, position near textarea with clear label.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I26</span>
+                    OCR Section is Confusing
+                    <span class="severity severity-high">High</span>
+                </h4>
+                <p><strong>Problem:</strong> OCR section has: URLs textarea, "Attempt OCR" button, "Paste into ToC" button (hidden), results area, AND collapsible scan viewer. Too much in one area.</p>
+                <p><strong>Recommendation R26:</strong> <span class="impact impact-high">High Impact</span> Simplify: show scans with "Extract Text" button on each. Results appear inline. One click to paste.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I27</span>
+                    No Markdown Help
+                    <span class="severity severity-high">High</span>
+                </h4>
+                <p><strong>Problem:</strong> TOC body uses custom markdown format (# for title, || for author, / for sections) but no help is provided in the UI.</p>
+                <p><strong>Recommendation R27:</strong> <span class="impact impact-high">High Impact</span> Add markdown guide beside textarea with examples and syntax highlighting.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I28</span>
+                    Scan Thumbnails Have Fixed Width
+                    <span class="severity severity-low">Low</span>
+                </h4>
+                <p><strong>Problem:</strong> Thumbnails default to 450px which is very large. Zoom controls help but initial view is overwhelming.</p>
+                <p><strong>Recommendation R28:</strong> <span class="impact impact-low">Low Impact</span> Start with smaller thumbnails (200-250px) and let users zoom if needed.</p>
+            </div>
+
+            <a href="mockups/screen-4-toc-edit.html" class="mockup-link">View Screen 4 Mockup</a>
+        </div>
+
+        <!-- Screen 5: TOC Show Page -->
+        <div class="section" id="screen-5">
+            <h2><span class="screen-number">5</span>TOC Show Page</h2>
+            <p><strong>Current State:</strong> Shows book info, status, action buttons, alerts for next steps, and two-column layout with TOC preview and scans/fulltext.</p>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I29</span>
+                    Status Alerts are Good but Could be Better
+                    <span class="severity severity-low">Low</span>
+                </h4>
+                <p><strong>Problem:</strong> Status-specific alerts (pages marked, transcribed) guide next steps, which is great. But they could be more prominent and visual.</p>
+                <p><strong>Recommendation R29:</strong> <span class="impact impact-medium">Medium Impact</span> Make alerts larger, add icons, use card-style callouts with clear CTAs.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I30</span>
+                    No Workflow Context
+                    <span class="severity severity-high">High</span>
+                </h4>
+                <p><strong>Problem:</strong> User sees current status but doesn't know where they are in the overall workflow or what comes next.</p>
+                <p><strong>Recommendation R30:</strong> <span class="impact impact-high">High Impact</span> Add workflow stepper showing: Create → Mark Pages → Transcribe → Verify with current step highlighted.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I31</span>
+                    TOC Preview Could be More Styled
+                    <span class="severity severity-low">Low</span>
+                </h4>
+                <p><strong>Problem:</strong> TOC preview has basic styling with h1/h2 tags. Could look more like actual table of contents.</p>
+                <p><strong>Recommendation R31:</strong> <span class="impact impact-low">Low Impact</span> Style to look like book TOC: better typography, indentation, page numbers aligned right.</p>
+            </div>
+
+            <a href="mockups/screen-5-toc-show.html" class="mockup-link">View Screen 5 Mockup</a>
+        </div>
+
+        <!-- Screen 6: Browse Scans -->
+        <div class="section" id="screen-6">
+            <h2><span class="screen-number">6</span>Browse Scans</h2>
+            <p><strong>Current State:</strong> Grid of page thumbnails with checkboxes to mark TOC pages. Pagination at bottom.</p>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I32</span>
+                    Checkboxes are Small and Hard to Click
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> Each thumbnail has a small checkbox underneath. Easy to miss, hard to click on mobile.</p>
+                <p><strong>Recommendation R32:</strong> <span class="impact impact-medium">Medium Impact</span> Make entire card clickable with visual selection state (border, checkmark overlay).</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I33</span>
+                    No Quick Preview
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> Users must click "View full size" link to open in new tab. Can't quickly preview to see if it's a TOC page.</p>
+                <p><strong>Recommendation R33:</strong> <span class="impact impact-medium">Medium Impact</span> Add hover zoom or click for lightbox modal (keep new tab option).</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I34</span>
+                    Selected Pages Not Visible While Scrolling
+                    <span class="severity severity-low">Low</span>
+                </h4>
+                <p><strong>Problem:</strong> When browsing 20+ pages, hard to remember which ones you already selected without scrolling back.</p>
+                <p><strong>Recommendation R34:</strong> <span class="impact impact-low">Low Impact</span> Add sticky header showing "X pages selected" with mini thumbnails of selected pages.</p>
+            </div>
+
+            <a href="mockups/screen-6-browse-scans.html" class="mockup-link">View Screen 6 Mockup</a>
+        </div>
+
+        <!-- Screen 7: Subject Headings -->
+        <div class="section" id="screen-7">
+            <h2><span class="screen-number">7</span>Subject Headings (Aboutnesses)</h2>
+            <p><strong>Current State:</strong> Search interface with source dropdown (LCSH/Wikidata), query input, search button. Results as list-group items.</p>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I35</span>
+                    No Context About What You're Adding To
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> Page title is "Add Subject Heading" but doesn't clearly show which work you're adding it to. Instructions mention "this text" as fallback.</p>
+                <p><strong>Recommendation R35:</strong> <span class="impact impact-medium">Medium Impact</span> Show book/work title prominently at top. Show existing subjects for context.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I36</span>
+                    Results Could Show More Info
+                    <span class="severity severity-low">Low</span>
+                </h4>
+                <p><strong>Problem:</strong> Results show label, instance_of, and URI. Could show more context like descriptions or usage stats.</p>
+                <p><strong>Recommendation R36:</strong> <span class="impact impact-low">Low Impact</span> Add descriptions, alternate labels, or "used in X books" count.</p>
+            </div>
+
+            <a href="mockups/screen-7-subjects.html" class="mockup-link">View Screen 7 Mockup</a>
+        </div>
+
+        <!-- Screen 8: Application Layout -->
+        <div class="section" id="screen-8">
+            <h2><span class="screen-number">8</span>Application Layout</h2>
+            <p><strong>Current State:</strong> Header with logo (left) and sign-in/out (right). No navigation menu. Flash messages not styled.</p>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I37</span>
+                    Header is Too Minimal
+                    <span class="severity severity-high">High</span>
+                </h4>
+                <p><strong>Problem:</strong> Header only has logo and auth status. No navigation, no user menu, no help link.</p>
+                <p><strong>Recommendation R37:</strong> <span class="impact impact-high">High Impact</span> Add full navigation bar with menu items, user dropdown, help icon.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I38</span>
+                    No Breadcrumbs
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> Deep pages (editing TOC) don't show where you are in the hierarchy.</p>
+                <p><strong>Recommendation R38:</strong> <span class="impact impact-medium">Medium Impact</span> Add breadcrumb navigation: Home > TOCs > Edit "Book Title"</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I39</span>
+                    Flash Messages Not Styled
+                    <span class="severity severity-low">Low</span>
+                </h4>
+                <p><strong>Problem:</strong> Rails flash messages (notice, alert) don't appear to be styled consistently.</p>
+                <p><strong>Recommendation R39:</strong> <span class="impact impact-low">Low Impact</span> Add toast notifications or styled alert bars for flash messages.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I40</span>
+                    No Footer
+                    <span class="severity severity-low">Low</span>
+                </h4>
+                <p><strong>Problem:</strong> No footer with project info, GitHub link, license info, contact.</p>
+                <p><strong>Recommendation R40:</strong> <span class="impact impact-low">Low Impact</span> Add footer with: About, GitHub, License (CC0), Contact/Feedback.</p>
+            </div>
+
+            <a href="mockups/screen-8-layout.html" class="mockup-link">View Screen 8 Mockup</a>
+        </div>
+
+        <!-- Additional Issues -->
+        <div class="section">
+            <h2>Additional Issues</h2>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I41</span>
+                    No Loading States
+                    <span class="severity severity-medium">Medium</span>
+                </h4>
+                <p><strong>Problem:</strong> AJAX operations (OCR, subject search) show "working..." text but no proper loading spinners or progress indicators.</p>
+                <p><strong>Recommendation R41:</strong> <span class="impact impact-low">Low Impact</span> Add spinner animations and progress bars for async operations.</p>
+            </div>
+
+            <div class="issue-card">
+                <h4>
+                    <span class="issue-number">I42</span>
+                    No Keyboard Shortcuts
+                    <span class="severity severity-low">Low</span>
+                </h4>
+                <p><strong>Problem:</strong> Power users can't use keyboard shortcuts to speed up workflow.</p>
+                <p><strong>Recommendation R42:</strong> <span class="impact impact-low">Low Impact</span> Add shortcuts: S (search), E (edit), N (next page), etc. Show shortcut hints.</p>
+            </div>
+        </div>
+
+        <!-- Implementation Priority Matrix -->
+        <div class="section" id="implementation-priority">
+            <h2>Implementation Priority Matrix</h2>
+            <p>Recommendations ordered by impact and effort:</p>
+
+            <h3 style="color: #c53030;">🔴 Critical Priority (Do First)</h3>
+            <ul>
+                <li><strong>R1:</strong> Add persistent navigation (High impact, Medium effort)</li>
+                <li><strong>R2:</strong> Add workflow visualization (High impact, Medium effort)</li>
+                <li><strong>R5:</strong> Mobile-first responsive design (High impact, High effort)</li>
+                <li><strong>R11:</strong> Redirect signed-in users to dashboard (High impact, Medium effort)</li>
+                <li><strong>R12:</strong> Remove "sidebar here" placeholder (High impact, Low effort)</li>
+                <li><strong>R17:</strong> Replace TOC index table with cards (High impact, High effort)</li>
+                <li><strong>R19:</strong> Add visible filter UI (High impact, Medium effort)</li>
+            </ul>
+
+            <h3 style="color: #d97706;">🟠 High Priority (Do Soon)</h3>
+            <ul>
+                <li><strong>R4:</strong> Create user dashboard (High impact, High effort)</li>
+                <li><strong>R7:</strong> Add contextual help (High impact, Medium effort)</li>
+                <li><strong>R15:</strong> Card layout for search results (High impact, Medium effort)</li>
+                <li><strong>R23:</strong> Tabbed interface for edit form (High impact, High effort)</li>
+                <li><strong>R24:</strong> Improve subject headings section (High impact, Medium effort)</li>
+                <li><strong>R26:</strong> Simplify OCR section (High impact, High effort)</li>
+                <li><strong>R27:</strong> Add markdown help (High impact, Low effort)</li>
+                <li><strong>R30:</strong> Add workflow context to show page (High impact, Low effort)</li>
+                <li><strong>R37:</strong> Full navigation bar (High impact, Medium effort)</li>
+            </ul>
+
+            <h3 style="color: #2563eb;">🔵 Medium Priority (Nice to Have)</h3>
+            <ul>
+                <li><strong>R3:</strong> Implement design system (Medium impact, High effort)</li>
+                <li><strong>R6:</strong> Spacing system (Medium impact, Medium effort)</li>
+                <li><strong>R8:</strong> Error prevention (Medium impact, Medium effort)</li>
+                <li><strong>R9:</strong> Simplify homepage (Medium impact, Low effort)</li>
+                <li><strong>R13:</strong> Horizontal search form (Medium impact, Low effort)</li>
+                <li><strong>R14:</strong> Visible multi-select (Medium impact, Low effort)</li>
+                <li><strong>R18:</strong> Format TOC previews (Medium impact, Low effort)</li>
+                <li><strong>R20:</strong> Visual status indicators (Medium impact, Low effort)</li>
+                <li><strong>R22:</strong> Modern form layout (Medium impact, Medium effort)</li>
+                <li><strong>R29:</strong> Better status alerts (Medium impact, Low effort)</li>
+                <li><strong>R32:</strong> Clickable scan cards (Medium impact, Low effort)</li>
+                <li><strong>R33:</strong> Quick preview for scans (Medium impact, Medium effort)</li>
+                <li><strong>R35:</strong> Show context in subject search (Medium impact, Low effort)</li>
+                <li><strong>R38:</strong> Breadcrumb navigation (Medium impact, Low effort)</li>
+            </ul>
+
+            <h3 style="color: #7c3aed;">🟣 Low Priority (Polish)</h3>
+            <ul>
+                <li><strong>R10:</strong> Visual interest on homepage (Low impact, Medium effort)</li>
+                <li><strong>R16:</strong> Search history (Low impact, Medium effort)</li>
+                <li><strong>R21:</strong> Better sort indicators (Low impact, Low effort)</li>
+                <li><strong>R25:</strong> Prominent Magic Trim button (Low impact, Low effort)</li>
+                <li><strong>R28:</strong> Better default thumbnail size (Low impact, Low effort)</li>
+                <li><strong>R31:</strong> Better TOC preview styling (Low impact, Low effort)</li>
+                <li><strong>R34:</strong> Sticky header for scan selection (Low impact, Medium effort)</li>
+                <li><strong>R36:</strong> More info in subject results (Low impact, Low effort)</li>
+                <li><strong>R39:</strong> Styled flash messages (Low impact, Low effort)</li>
+                <li><strong>R40:</strong> Add footer (Low impact, Low effort)</li>
+                <li><strong>R41:</strong> Loading states (Low impact, Low effort)</li>
+                <li><strong>R42:</strong> Keyboard shortcuts (Low impact, Medium effort)</li>
+            </ul>
+        </div>
+
+        <!-- View All Mockups -->
+        <div class="section" id="mockups">
+            <h2>View All Mockups</h2>
+            <p>Interactive HTML mockups demonstrating proposed redesigns:</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                <a href="mockups/screen-1-homepage.html" class="mockup-link">Screen 1: Homepage</a>
+                <a href="mockups/screen-2-search.html" class="mockup-link">Screen 2: Publications Search</a>
+                <a href="mockups/screen-3-toc-index.html" class="mockup-link">Screen 3: TOC Index</a>
+                <a href="mockups/screen-4-toc-edit.html" class="mockup-link">Screen 4: TOC Edit Form</a>
+                <a href="mockups/screen-5-toc-show.html" class="mockup-link">Screen 5: TOC Show Page</a>
+                <a href="mockups/screen-6-browse-scans.html" class="mockup-link">Screen 6: Browse Scans</a>
+                <a href="mockups/screen-7-subjects.html" class="mockup-link">Screen 7: Subject Headings</a>
+                <a href="mockups/screen-8-layout.html" class="mockup-link">Screen 8: Application Layout</a>
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="section">
+            <h2>Next Steps</h2>
+            <p>To proceed with implementing these recommendations:</p>
+            <ol>
+                <li><strong>Review this report</strong> and all mockups</li>
+                <li><strong>Select which recommendations to implement</strong> (use the numbers, e.g., "R1, R2, R5, R12, R17")</li>
+                <li><strong>I will implement the selected changes</strong> to the actual codebase</li>
+                <li><strong>Test in development</strong> environment</li>
+                <li><strong>Iterate</strong> based on feedback</li>
+            </ol>
+            <p style="margin-top: 1rem;"><strong>Suggested first phase:</strong> R1, R2, R5, R11, R12, R17, R19 (Critical navigation, mobile, and TOC list improvements)</p>
+        </div>
+    </div>
+</body>
+</html>

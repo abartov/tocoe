@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen 7: Subject Headings Redesign - ToCoE UX Review</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .mockup-section { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .mockup-section h2 { font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; }
+        .mockup-section.before h2 { border-bottom: 2px solid #e53e3e; color: #c53030; }
+        .mockup-section.after h2 { border-bottom: 2px solid #38a169; color: #2f855a; }
+        .current-mockup, .proposed-mockup { border: 1px solid #e2e8f0; padding: 1rem; background: white; border-radius: 4px; }
+
+        /* Form Elements */
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #2d3748; }
+        .form-group select, .form-group input { width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 1rem; }
+        .search-box { display: flex; gap: 0.5rem; }
+        .search-box input { flex: 1; }
+        .search-box button { padding: 0.75rem 1.5rem; background: #667eea; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+        /* Results */
+        .result-item { background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; cursor: pointer; transition: all 0.2s; }
+        .result-item:hover { border-color: #667eea; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15); }
+        .result-item.active { border-color: #38a169; background: #f0fff4; }
+        .result-title { font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem; color: #2d3748; }
+        .result-meta { font-size: 0.9rem; color: #4a5568; margin-bottom: 0.5rem; }
+        .result-uri { font-size: 0.85rem; color: #667eea; }
+
+        /* Existing Subjects */
+        .subject-chip { display: inline-block; background: #edf2f7; border: 1px solid #cbd5e0; padding: 0.5rem 1rem; border-radius: 20px; margin-right: 0.5rem; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .subject-chip .badge { background: #bee3f8; color: #2c5282; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.75rem; margin-right: 0.5rem; }
+
+        .notes { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.5rem; margin-top: 2rem; border-radius: 4px; }
+        .notes h3 { color: #c53030; margin-bottom: 0.75rem; }
+        .notes ul { margin-left: 1.5rem; }
+        @media (max-width: 768px) { .comparison { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Screen 7: Subject Headings Redesign</h1>
+        <p>Comparison of current and proposed designs</p>
+    </div>
+
+    <div class="container">
+        <div class="comparison">
+            <div class="mockup-section before">
+                <h2>❌ Current Design</h2>
+                <div class="current-mockup">
+                    <h2 style="margin-bottom: 1rem;">Add Subject Heading</h2>
+                    <p style="font-size: 0.9rem; color: #6c757d; margin-bottom: 1rem;">Search for subject headings to add to this text</p>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label><strong>Cataloging Source:</strong></label>
+                        <select style="width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px;">
+                            <option>Library of Congress Subject Headings</option>
+                            <option>Wikidata</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <label><strong>Search:</strong></label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" placeholder="Enter search term..." style="flex: 1; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px;">
+                            <button style="padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px;">Search</button>
+                        </div>
+                    </div>
+
+                    <div style="border: 1px solid #dee2e6; padding: 1rem; border-radius: 4px; background: #f8f9fa;">
+                        <div style="background: white; border: 1px solid #dee2e6; padding: 0.75rem; margin-bottom: 0.5rem; cursor: pointer;">
+                            <h4 style="margin-bottom: 0.25rem;">American fiction</h4>
+                            <p style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.25rem;">Instance of: Literary genre, Fiction</p>
+                            <p style="font-size: 0.8rem;"><a href="#">http://id.loc.gov/authorities/subjects/sh85004319</a></p>
+                        </div>
+                        <div style="background: white; border: 1px solid #dee2e6; padding: 0.75rem; cursor: pointer;">
+                            <h4 style="margin-bottom: 0.25rem;">Jazz Age</h4>
+                            <p style="font-size: 0.85rem; color: #6c757d; margin-bottom: 0.25rem;">Instance of: Historical period</p>
+                            <p style="font-size: 0.8rem;"><a href="#">http://id.loc.gov/authorities/subjects/sh85069874</a></p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem; display: none;">
+                        <button style="padding: 0.75rem 1.5rem; background: #28a745; color: white; border: none; border-radius: 4px;">Add Subject Heading</button>
+                    </div>
+
+                    <p style="margin-top: 1rem;">
+                        <a href="#">Back</a>
+                    </p>
+                </div>
+
+                <div class="notes">
+                    <h3>Issues:</h3>
+                    <ul>
+                        <li><strong>I35:</strong> No context about what you're adding to (Medium)</li>
+                        <li><strong>I36:</strong> Results could show more info (Low)</li>
+                        <li>No indication of existing subjects</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mockup-section after">
+                <h2>✅ Proposed Design</h2>
+                <div class="proposed-mockup">
+                    <!-- Book Context -->
+                    <div style="background: #f7fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #667eea;">
+                        <h3 style="margin-bottom: 0.5rem; color: #2d3748;">Adding Subject Headings To:</h3>
+                        <div style="font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem;">The Great Gatsby</div>
+                        <div style="color: #4a5568;">by F. Scott Fitzgerald</div>
+                    </div>
+
+                    <!-- Existing Subjects -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="margin-bottom: 0.75rem; color: #2d3748;">Current Subject Headings:</h4>
+                        <div>
+                            <span class="subject-chip"><span class="badge">LCSH</span> American fiction</span>
+                            <span class="subject-chip"><span class="badge">LCSH</span> Jazz Age</span>
+                            <span class="subject-chip"><span class="badge">Wikidata</span> 1920s literature</span>
+                        </div>
+                    </div>
+
+                    <!-- Search Interface -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label>🔍 Search for Subject Headings</label>
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                                <input type="text" placeholder="e.g., American literature, Jazz Age..." style="flex: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 6px;">
+                                <button class="search-box button" style="padding: 0.75rem 1.5rem; background: #667eea; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Search</button>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button style="padding: 0.5rem 1rem; border: 2px solid #667eea; background: #667eea; color: white; border-radius: 20px; font-size: 0.9rem; font-weight: 500;">LCSH</button>
+                                <button style="padding: 0.5rem 1rem; border: 2px solid #e2e8f0; background: white; color: #4a5568; border-radius: 20px; font-size: 0.9rem;">Wikidata</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Results -->
+                    <div>
+                        <h4 style="margin-bottom: 1rem; color: #2d3748;">Search Results (12 found)</h4>
+
+                        <div class="result-item active">
+                            <div class="result-title">American fiction — 20th century</div>
+                            <div class="result-meta">
+                                <span style="background: #bee3f8; color: #2c5282; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.75rem; margin-right: 0.5rem;">LCSH</span>
+                                Instance of: Literary genre • Related: American literature, Fiction
+                            </div>
+                            <div class="result-uri">http://id.loc.gov/authorities/subjects/sh85004320</div>
+                            <div style="margin-top: 0.75rem;">
+                                <button style="padding: 0.5rem 1.5rem; background: #38a169; color: white; border: none; border-radius: 6px; font-weight: 600;">✓ Add This Subject</button>
+                            </div>
+                        </div>
+
+                        <div class="result-item">
+                            <div class="result-title">Domestic fiction, American</div>
+                            <div class="result-meta">
+                                <span style="background: #bee3f8; color: #2c5282; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.75rem; margin-right: 0.5rem;">LCSH</span>
+                                Used in 2,341 books • Related: American fiction
+                            </div>
+                            <div class="result-uri">http://id.loc.gov/authorities/subjects/sh85039085</div>
+                        </div>
+
+                        <div class="result-item">
+                            <div class="result-title">Psychological fiction, American</div>
+                            <div class="result-meta">
+                                <span style="background: #bee3f8; color: #2c5282; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.75rem; margin-right: 0.5rem;">LCSH</span>
+                                Used in 892 books
+                            </div>
+                            <div class="result-uri">http://id.loc.gov/authorities/subjects/sh85108448</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <a href="#" style="color: #667eea; font-weight: 500;">← Back to TOC</a>
+                    </div>
+                </div>
+
+                <div class="notes" style="background: #f0fff4; border-left-color: #38a169;">
+                    <h3 style="color: #2f855a;">Improvements:</h3>
+                    <ul>
+                        <li><strong>R35:</strong> Show book context prominently (Medium impact)</li>
+                        <li><strong>R36:</strong> Show usage stats and related terms (Low impact)</li>
+                        <li>Display existing subjects for context</li>
+                        <li>Source toggle buttons (LCSH/Wikidata)</li>
+                        <li>One-click "Add" button on results</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; background: white; padding: 2rem; border-radius: 8px;">
+            <h2 style="margin-bottom: 1rem;">Related Recommendations</h2>
+            <ul style="line-height: 2;">
+                <li><strong>R35:</strong> Show context about what you're adding to (Medium impact, Low effort)</li>
+                <li><strong>R36:</strong> Show more info in results (Low impact, Low effort)</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="../index.html" style="display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none;">← Back to Master Report</a>
+        </div>
+    </div>
+</body>
+</html>

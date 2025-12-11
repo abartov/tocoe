@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen 1: Homepage Redesign - ToCoE UX Review</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+        .mockup-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .mockup-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .mockup-section.before h2 { border-bottom-color: #e53e3e; color: #c53030; }
+        .mockup-section.after h2 { border-bottom-color: #38a169; color: #2f855a; }
+
+        /* Current Design */
+        .current-mockup {
+            border: 1px solid #e2e8f0;
+            padding: 2rem;
+            background: white;
+            border-radius: 4px;
+        }
+        .current-mockup .jumbotron {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .current-mockup h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .current-mockup h2 { font-size: 1.5rem; margin-bottom: 1rem; }
+        .current-mockup .lead { font-size: 1.15rem; margin-bottom: 1rem; }
+        .current-mockup hr { margin: 1.5rem 0; border: 0; border-top: 1px solid #dee2e6; }
+        .current-mockup ul { margin-left: 2rem; margin-top: 0.5rem; }
+        .current-mockup .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-right: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .current-mockup .btn-primary { background: #007bff; color: white; }
+        .current-mockup .btn-lg { padding: 1rem 2rem; font-size: 1.1rem; }
+
+        /* Proposed Design */
+        .proposed-mockup {
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .navbar .logo { font-size: 1.5rem; font-weight: bold; color: #667eea; }
+        .navbar .nav-menu {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+        .navbar .nav-menu a {
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .navbar .nav-menu a:hover { color: #667eea; }
+        .navbar .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .hero .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .hero .btn {
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .hero .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .hero .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+        .hero .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 3rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .features h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #2d3748;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        .feature-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.75rem;
+            color: #2d3748;
+        }
+        .feature-card p {
+            color: #4a5568;
+        }
+
+        /* Stats Section */
+        .stats {
+            background: #f7fafc;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .stats h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #2d3748;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .stat-item {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+        .stat-label {
+            color: #4a5568;
+            font-size: 1rem;
+        }
+
+        /* Notes Section */
+        .notes {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border-radius: 4px;
+        }
+        .notes h3 {
+            color: #c53030;
+            margin-bottom: 0.75rem;
+        }
+        .notes ul {
+            margin-left: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Screen 1: Homepage Redesign</h1>
+        <p>Comparison of current and proposed designs</p>
+    </div>
+
+    <div class="container">
+        <div class="comparison">
+            <!-- BEFORE -->
+            <div class="mockup-section before">
+                <h2>❌ Current Design</h2>
+                <div class="current-mockup">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <div style="height: 50px; background: #ddd; width: 100px; margin: 0 auto; border-radius: 4px; display: flex; align-items: center; justify-content: center;">LOGO</div>
+                    </div>
+                    <div class="jumbotron">
+                        <h1>ToCoE</h1>
+                        <h2>Table of Contents of Everything</h2>
+                        <p class="lead">A collaborative platform for creating comprehensive, CC0-licensed tables of contents for books, articles, and other written works.</p>
+                        <hr>
+                        <p>This project is part of the <strong>Massively-Multiplayer Online Bibliography (MMOB)</strong> initiative, which aims to create a comprehensive, crowdsourced bibliography of all written works through collaborative effort.</p>
+                        <p>Our goal is to produce high-quality tables of contents that can be used for:</p>
+                        <ul>
+                            <li>Academic research and citation analysis</li>
+                            <li>Library cataloging and discovery</li>
+                            <li>Full-text search and indexing</li>
+                            <li>Digital preservation and archiving</li>
+                        </ul>
+                        <p>All contributions are released to the public domain under CC0.</p>
+                        <hr>
+                        <p><strong>Welcome back, user@example.com!</strong></p>
+                        <p>
+                            <a href="#" class="btn btn-primary btn-lg">Search Books</a>
+                            <a href="#" class="btn btn-primary btn-lg" style="background: #17a2b8; margin-left: 10px;">View TOCs</a>
+                        </p>
+                        <p style="color: #6c757d; font-size: 0.9rem;">View all TOCs or filter by status to find work that needs your help</p>
+                    </div>
+                </div>
+
+                <div class="notes">
+                    <h3>Issues:</h3>
+                    <ul>
+                        <li><strong>I9:</strong> Too much text - users won't read all of this</li>
+                        <li><strong>I10:</strong> No visual interest - just text in a jumbotron</li>
+                        <li><strong>I11:</strong> Signed-in users shouldn't see this page</li>
+                        <li>No navigation menu visible</li>
+                        <li>No project statistics or social proof</li>
+                        <li>Value proposition buried in long paragraphs</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- AFTER -->
+            <div class="mockup-section after">
+                <h2>✅ Proposed Design</h2>
+                <div class="proposed-mockup">
+                    <!-- Navigation -->
+                    <div class="navbar">
+                        <div class="logo">ToCoE</div>
+                        <ul class="nav-menu">
+                            <li><a href="#">How It Works</a></li>
+                            <li><a href="#">About</a></li>
+                            <li><a href="#">GitHub</a></li>
+                        </ul>
+                        <div class="user-menu">
+                            <a href="#" class="btn btn-primary" style="background: #667eea; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none;">Sign in with Google</a>
+                        </div>
+                    </div>
+
+                    <!-- Hero Section -->
+                    <div class="hero">
+                        <h1>Build the World's Bibliography</h1>
+                        <p>Join thousands of volunteers creating CC0 tables of contents for every book ever written</p>
+                        <div class="cta-buttons">
+                            <a href="#" class="btn btn-primary">Get Started</a>
+                            <a href="#" class="btn btn-secondary">Learn More</a>
+                        </div>
+                    </div>
+
+                    <!-- Stats Section -->
+                    <div class="stats">
+                        <h2>Our Progress</h2>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-number">12,487</span>
+                                <span class="stat-label">Books Cataloged</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">2,341</span>
+                                <span class="stat-label">Contributors</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">45,629</span>
+                                <span class="stat-label">TOC Entries</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">100%</span>
+                                <span class="stat-label">Public Domain</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Features Section -->
+                    <div class="features">
+                        <h2>How It Works</h2>
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <div class="feature-icon">🔍</div>
+                                <h3>Search</h3>
+                                <p>Find books from Open Library or Project Gutenberg</p>
+                            </div>
+                            <div class="feature-card">
+                                <div class="feature-icon">📖</div>
+                                <h3>Transcribe</h3>
+                                <p>Mark TOC pages and transcribe using simple markdown</p>
+                            </div>
+                            <div class="feature-card">
+                                <div class="feature-icon">✓</div>
+                                <h3>Verify</h3>
+                                <p>Review others' work to ensure quality</p>
+                            </div>
+                            <div class="feature-card">
+                                <div class="feature-icon">🌍</div>
+                                <h3>Share</h3>
+                                <p>All data released as CC0 public domain</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notes" style="background: #f0fff4; border-left-color: #38a169;">
+                    <h3 style="color: #2f855a;">Improvements:</h3>
+                    <ul>
+                        <li><strong>R9:</strong> Simplified hero section with clear value proposition</li>
+                        <li><strong>R10:</strong> Visual features section with icons</li>
+                        <li><strong>R11:</strong> Signed-in users would be redirected to dashboard (not shown here)</li>
+                        <li>Added navigation bar for easy access</li>
+                        <li>Project statistics for social proof</li>
+                        <li>Clear CTAs above the fold</li>
+                        <li>Scannable "How It Works" section</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; background: white; padding: 2rem; border-radius: 8px;">
+            <h2 style="margin-bottom: 1rem;">Related Recommendations</h2>
+            <ul style="line-height: 2;">
+                <li><strong>R9:</strong> Simplify homepage - reduce text, clear value proposition (Medium impact, Low effort)</li>
+                <li><strong>R10:</strong> Add visual interest - hero image, icons, examples (Low impact, Medium effort)</li>
+                <li><strong>R11:</strong> Redirect signed-in users to dashboard instead of homepage (High impact, Medium effort)</li>
+                <li><strong>R1:</strong> Add persistent navigation (implemented in mockup above)</li>
+            </ul>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">For Signed-In Users</h3>
+            <p>When a user is signed in, they should be redirected to a <strong>Dashboard</strong> (see R4) showing:</p>
+            <ul>
+                <li>My recent TOCs</li>
+                <li>TOCs needing verification (not my own)</li>
+                <li>Project statistics</li>
+                <li>Recent activity feed</li>
+                <li>Quick actions: Search Books, Create TOC</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="../index.html" style="display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none;">← Back to Master Report</a>
+        </div>
+    </div>
+</body>
+</html>

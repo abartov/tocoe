@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen 8: Application Layout Redesign - ToCoE UX Review</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .mockup-section { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .mockup-section h2 { font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; }
+        .mockup-section.before h2 { border-bottom: 2px solid #e53e3e; color: #c53030; }
+        .mockup-section.after h2 { border-bottom: 2px solid #38a169; color: #2f855a; }
+        .current-mockup, .proposed-mockup { border: 1px solid #e2e8f0; background: white; border-radius: 4px; overflow: hidden; }
+
+        /* Navigation Bar */
+        .navbar { background: white; border-bottom: 1px solid #e2e8f0; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+        .navbar .logo { font-size: 1.3rem; font-weight: bold; color: #667eea; }
+        .navbar .nav-menu { display: flex; gap: 2rem; list-style: none; align-items: center; }
+        .navbar .nav-menu a { color: #4a5568; text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+        .navbar .user-menu { display: flex; align-items: center; gap: 1rem; font-size: 0.9rem; }
+
+        /* Breadcrumbs */
+        .breadcrumbs { padding: 1rem 1.5rem; background: #f7fafc; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+        .breadcrumbs a { color: #667eea; text-decoration: none; }
+
+        /* Footer */
+        .footer { background: #2d3748; color: white; padding: 2rem 1.5rem; margin-top: 2rem; }
+        .footer-content { display: flex; justify-content: space-between; max-width: 1200px; margin: 0 auto; }
+        .footer-section { flex: 1; }
+        .footer-section h4 { margin-bottom: 0.75rem; }
+        .footer-section a { color: #cbd5e0; text-decoration: none; display: block; margin-bottom: 0.5rem; font-size: 0.9rem; }
+
+        .notes { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.5rem; margin-top: 2rem; border-radius: 4px; }
+        .notes h3 { color: #c53030; margin-bottom: 0.75rem; }
+        .notes ul { margin-left: 1.5rem; }
+        @media (max-width: 768px) { .comparison { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Screen 8: Application Layout Redesign</h1>
+        <p>Comparison of current and proposed designs</p>
+    </div>
+
+    <div class="container">
+        <div class="comparison">
+            <div class="mockup-section before">
+                <h2>❌ Current Design</h2>
+                <div class="current-mockup">
+                    <!-- Current Header -->
+                    <div style="padding: 1rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="height: 40px; width: 80px; background: #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">LOGO</div>
+                        <div style="font-size: 0.85rem;">
+                            Signed in as <strong>user@example.com</strong> | <a href="#">Sign out</a>
+                        </div>
+                    </div>
+
+                    <!-- Page Content -->
+                    <div style="padding: 1.5rem;">
+                        <h2 style="margin-bottom: 1rem;">Page Title</h2>
+                        <p style="color: #6c757d; margin-bottom: 1rem;">Page content would go here...</p>
+                        <div style="background: #f8f9fa; padding: 1rem; border: 1px solid #dee2e6; border-radius: 4px; min-height: 200px;">
+                            Main content area
+                        </div>
+                    </div>
+
+                    <!-- No Footer -->
+                </div>
+
+                <div class="notes">
+                    <h3>Issues:</h3>
+                    <ul>
+                        <li><strong>I37:</strong> Header too minimal (High severity)</li>
+                        <li><strong>I38:</strong> No breadcrumbs (Medium)</li>
+                        <li><strong>I39:</strong> Flash messages not styled (Low)</li>
+                        <li><strong>I40:</strong> No footer (Low)</li>
+                        <li>No navigation menu</li>
+                        <li>No help or user menu</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mockup-section after">
+                <h2>✅ Proposed Design</h2>
+                <div class="proposed-mockup">
+                    <!-- New Navigation Bar -->
+                    <div class="navbar">
+                        <div style="display: flex; align-items: center; gap: 2rem;">
+                            <div class="logo">ToCoE</div>
+                            <ul class="nav-menu">
+                                <li><a href="#">🏠 Dashboard</a></li>
+                                <li><a href="#">🔍 Search</a></li>
+                                <li><a href="#">📚 TOCs</a></li>
+                                <li><a href="#">📊 Stats</a></li>
+                            </ul>
+                        </div>
+                        <div class="user-menu">
+                            <a href="#" style="color: #4a5568; text-decoration: none;">❓ Help</a>
+                            <div style="position: relative;">
+                                <div style="cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">U</div>
+                                    <span style="font-weight: 500;">user@example.com</span>
+                                    <span>▾</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Breadcrumbs -->
+                    <div class="breadcrumbs">
+                        <a href="#">Home</a> / <a href="#">TOCs</a> / <span style="color: #4a5568;">The Great Gatsby</span>
+                    </div>
+
+                    <!-- Flash Message (Success) -->
+                    <div style="background: #f0fff4; border-left: 4px solid #38a169; padding: 1rem 1.5rem; margin: 1rem; border-radius: 6px; display: flex; align-items: center; gap: 1rem;">
+                        <div style="font-size: 1.5rem;">✓</div>
+                        <div>
+                            <strong>Success!</strong> TOC saved successfully.
+                        </div>
+                        <button style="margin-left: auto; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #4a5568;">×</button>
+                    </div>
+
+                    <!-- Page Content -->
+                    <div style="padding: 1.5rem;">
+                        <h2 style="margin-bottom: 1rem; font-size: 1.8rem; color: #2d3748;">Page Title</h2>
+                        <p style="color: #4a5568; margin-bottom: 1.5rem;">Page content would go here...</p>
+                        <div style="background: #f7fafc; padding: 2rem; border: 2px solid #e2e8f0; border-radius: 8px; min-height: 250px;">
+                            Main content area with improved styling
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="footer">
+                        <div class="footer-content" style="flex-wrap: wrap; gap: 2rem;">
+                            <div class="footer-section" style="min-width: 200px;">
+                                <h4>ToCoE</h4>
+                                <p style="font-size: 0.85rem; color: #cbd5e0; line-height: 1.5;">Building the world's bibliography through collaborative effort.</p>
+                            </div>
+                            <div class="footer-section" style="min-width: 150px;">
+                                <h4>Project</h4>
+                                <a href="#">About</a>
+                                <a href="#">How It Works</a>
+                                <a href="#">Statistics</a>
+                            </div>
+                            <div class="footer-section" style="min-width: 150px;">
+                                <h4>Resources</h4>
+                                <a href="#">Documentation</a>
+                                <a href="#">GitHub</a>
+                                <a href="#">API</a>
+                            </div>
+                            <div class="footer-section" style="min-width: 150px;">
+                                <h4>Legal</h4>
+                                <a href="#">License (CC0)</a>
+                                <a href="#">Privacy</a>
+                                <a href="#">Contact</a>
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #4a5568; color: #cbd5e0; font-size: 0.85rem;">
+                            © 2025 ToCoE • All data released under CC0 Public Domain
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notes" style="background: #f0fff4; border-left-color: #38a169;">
+                    <h3 style="color: #2f855a;">Improvements:</h3>
+                    <ul>
+                        <li><strong>R37:</strong> Full navigation bar with menu (High impact)</li>
+                        <li><strong>R38:</strong> Breadcrumb navigation (Medium impact)</li>
+                        <li><strong>R39:</strong> Styled flash messages (Low impact)</li>
+                        <li><strong>R40:</strong> Informative footer (Low impact)</li>
+                        <li>User dropdown menu with avatar</li>
+                        <li>Help icon for quick access</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; background: white; padding: 2rem; border-radius: 8px;">
+            <h2 style="margin-bottom: 1rem;">Related Recommendations</h2>
+            <ul style="line-height: 2;">
+                <li><strong>R1:</strong> Add persistent navigation (High impact, Medium effort) - Implemented in navbar above</li>
+                <li><strong>R37:</strong> Full navigation bar (High impact, Medium effort)</li>
+                <li><strong>R38:</strong> Breadcrumb navigation (Medium impact, Low effort)</li>
+                <li><strong>R39:</strong> Styled flash messages/toasts (Low impact, Low effort)</li>
+                <li><strong>R40:</strong> Add footer (Low impact, Low effort)</li>
+            </ul>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">User Menu Dropdown</h3>
+            <p>When clicked, the user avatar/name would show a dropdown with:</p>
+            <ul>
+                <li>My TOCs</li>
+                <li>My Contributions</li>
+                <li>Settings</li>
+                <li>Sign Out</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="../index.html" style="display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none;">← Back to Master Report</a>
+        </div>
+    </div>
+</body>
+</html>

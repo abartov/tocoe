@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen 3: TOC Index Redesign - ToCoE UX Review</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+        }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .mockup-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .mockup-section h2 { font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; }
+        .mockup-section.before h2 { border-bottom: 2px solid #e53e3e; color: #c53030; }
+        .mockup-section.after h2 { border-bottom: 2px solid #38a169; color: #2f855a; }
+
+        /* Current Design */
+        .current-mockup { border: 1px solid #e2e8f0; padding: 1rem; background: white; border-radius: 4px; overflow-x: auto; }
+        .current-mockup table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .current-mockup th, .current-mockup td {
+            border: 1px solid #dee2e6;
+            padding: 0.5rem;
+            text-align: left;
+        }
+        .current-mockup th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .current-mockup td {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Proposed Design */
+        .proposed-mockup { border: 1px solid #e2e8f0; background: white; border-radius: 4px; overflow: hidden; }
+
+        .filter-bar {
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem;
+        }
+        .filter-bar h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .filter-tab:hover {
+            border-color: #667eea;
+        }
+        .filter-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .toc-list {
+            padding: 1.5rem;
+        }
+        .toc-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        .toc-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+        .toc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+        .toc-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+            flex: 1;
+        }
+        .toc-title a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .toc-title a:hover {
+            text-decoration: underline;
+        }
+        .status-badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .status-empty { background: #fee; color: #c53030; }
+        .status-pages-marked { background: #fef3c7; color: #92400e; }
+        .status-transcribed { background: #dbeafe; color: #1e40af; }
+        .status-verified { background: #d1fae5; color: #065f46; }
+
+        .toc-meta {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            color: #4a5568;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+        .toc-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .toc-preview {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            padding: 0.75rem;
+            background: #f7fafc;
+            border-radius: 4px;
+            margin-bottom: 0.75rem;
+        }
+        .toc-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .notes {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border-radius: 4px;
+        }
+        .notes h3 { color: #c53030; margin-bottom: 0.75rem; }
+        .notes ul { margin-left: 1.5rem; }
+
+        @media (max-width: 768px) {
+            .comparison { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Screen 3: TOC Index Redesign</h1>
+        <p>Comparison of current and proposed designs</p>
+    </div>
+
+    <div class="container">
+        <div class="comparison">
+            <!-- BEFORE -->
+            <div class="mockup-section before">
+                <h2>❌ Current Design</h2>
+                <div class="current-mockup">
+                    <h1>TOC List</h1>
+                    <p style="font-size: 0.9rem; color: #6c757d; margin-bottom: 1rem;">
+                        Showing TOCs needing work (excludes verified)
+                        <a href="#" style="margin-left: 10px; font-size: 0.85rem;">Show all</a>
+                    </p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title ↓</th>
+                                <th>URI</th>
+                                <th>TOC</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Comments</th>
+                                <th colspan="2">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="#">The Great Gatsby</a></td>
+                                <td>/books/OL...</td>
+                                <td># The Great Gatsby || F. Scott Fitzgerald\n# Chapter One...</td>
+                                <td>transcribed</td>
+                                <td>2025-01-15</td>
+                                <td>Looks good</td>
+                                <td><a href="#">Edit</a></td>
+                            </tr>
+                            <tr>
+                                <td><a href="#">1984</a></td>
+                                <td>/books/OL...</td>
+                                <td></td>
+                                <td>pages_marked</td>
+                                <td>2025-01-14</td>
+                                <td></td>
+                                <td><a href="#">Edit</a></td>
+                            </tr>
+                            <tr>
+                                <td><a href="#">Pride and Prejudice</a></td>
+                                <td>/books/OL...</td>
+                                <td></td>
+                                <td>empty</td>
+                                <td>2025-01-13</td>
+                                <td>Need to find TOC pages</td>
+                                <td><a href="#">Edit</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p style="margin-top: 1rem;">
+                        <a href="#">Search for more publications</a>
+                    </p>
+                </div>
+
+                <div class="notes">
+                    <h3>Issues:</h3>
+                    <ul>
+                        <li><strong>I17:</strong> Wide table unusable on mobile (Critical)</li>
+                        <li><strong>I18:</strong> TOC body shows raw markdown</li>
+                        <li><strong>I19:</strong> Filter UI hidden in URL parameters</li>
+                        <li><strong>I20:</strong> Status just plain text</li>
+                        <li><strong>I21:</strong> Sort indicators subtle</li>
+                        <li>8+ columns create horizontal scroll</li>
+                        <li>No visual hierarchy</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- AFTER -->
+            <div class="mockup-section after">
+                <h2>✅ Proposed Design</h2>
+                <div class="proposed-mockup">
+                    <!-- Filter Bar -->
+                    <div class="filter-bar">
+                        <h1>Table of Contents</h1>
+                        <div class="filter-tabs">
+                            <div class="filter-tab active">Needs Work (127)</div>
+                            <div class="filter-tab">Empty (45)</div>
+                            <div class="filter-tab">Pages Marked (32)</div>
+                            <div class="filter-tab">Transcribed (28)</div>
+                            <div class="filter-tab">Verified (892)</div>
+                            <div class="filter-tab">All (1,024)</div>
+                        </div>
+                    </div>
+
+                    <!-- TOC Cards -->
+                    <div class="toc-list">
+                        <!-- Card 1: Transcribed -->
+                        <div class="toc-card">
+                            <div class="toc-header">
+                                <div class="toc-title">
+                                    <a href="#">The Great Gatsby</a>
+                                </div>
+                                <span class="status-badge status-transcribed">✏️ Transcribed</span>
+                            </div>
+                            <div class="toc-meta">
+                                <span>📅 Jan 15, 2025</span>
+                                <span>👤 user@example.com</span>
+                                <span>📚 Open Library</span>
+                            </div>
+                            <div class="toc-preview">
+                                <strong>Preview:</strong> The Great Gatsby by F. Scott Fitzgerald • Chapter One • Chapter Two • Chapter Three • In My Younger and More Vulnerable Years...
+                            </div>
+                            <div style="color: #4a5568; font-size: 0.9rem; margin-bottom: 0.75rem;">
+                                💬 Looks good, ready for verification
+                            </div>
+                            <div class="toc-actions">
+                                <button class="btn btn-primary">Edit</button>
+                                <button class="btn btn-secondary">View</button>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Pages Marked -->
+                        <div class="toc-card">
+                            <div class="toc-header">
+                                <div class="toc-title">
+                                    <a href="#">1984</a>
+                                </div>
+                                <span class="status-badge status-pages-marked">📄 Pages Marked</span>
+                            </div>
+                            <div class="toc-meta">
+                                <span>📅 Jan 14, 2025</span>
+                                <span>👤 contributor2@example.com</span>
+                                <span>📚 Open Library</span>
+                            </div>
+                            <div style="background: #fef3c7; padding: 0.75rem; border-radius: 4px; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                <strong>Next step:</strong> Transcribe the marked TOC pages
+                            </div>
+                            <div class="toc-actions">
+                                <button class="btn btn-primary">Transcribe</button>
+                                <button class="btn btn-secondary">View Scans</button>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Empty -->
+                        <div class="toc-card">
+                            <div class="toc-header">
+                                <div class="toc-title">
+                                    <a href="#">Pride and Prejudice</a>
+                                </div>
+                                <span class="status-badge status-empty">⚠️ Empty</span>
+                            </div>
+                            <div class="toc-meta">
+                                <span>📅 Jan 13, 2025</span>
+                                <span>👤 contributor3@example.com</span>
+                                <span>📚 Gutenberg</span>
+                            </div>
+                            <div style="color: #4a5568; font-size: 0.9rem; margin-bottom: 0.75rem;">
+                                💬 Need to find TOC pages
+                            </div>
+                            <div style="background: #fee; padding: 0.75rem; border-radius: 4px; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                <strong>Next step:</strong> Browse scans to mark TOC pages
+                            </div>
+                            <div class="toc-actions">
+                                <button class="btn btn-primary">Browse Scans</button>
+                                <button class="btn btn-secondary">Edit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notes" style="background: #f0fff4; border-left-color: #38a169;">
+                    <h3 style="color: #2f855a;">Improvements:</h3>
+                    <ul>
+                        <li><strong>R17:</strong> Card layout replaces table</li>
+                        <li><strong>R18:</strong> Formatted TOC preview</li>
+                        <li><strong>R19:</strong> Visible filter tabs with counts</li>
+                        <li><strong>R20:</strong> Color-coded status badges with icons</li>
+                        <li><strong>R21:</strong> Better visual hierarchy</li>
+                        <li>Mobile-friendly responsive design</li>
+                        <li>Clear next actions for each status</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; background: white; padding: 2rem; border-radius: 8px;">
+            <h2 style="margin-bottom: 1rem;">Related Recommendations</h2>
+            <ul style="line-height: 2;">
+                <li><strong>R17:</strong> Replace table with card layout (High impact, High effort) - CRITICAL for mobile</li>
+                <li><strong>R18:</strong> Show formatted TOC excerpt (Medium impact, Low effort)</li>
+                <li><strong>R19:</strong> Add prominent filter bar (High impact, Medium effort)</li>
+                <li><strong>R20:</strong> Visual status indicators with icons and colors (Medium impact, Low effort)</li>
+                <li><strong>R21:</strong> Better sort indicators (Low impact, Low effort)</li>
+            </ul>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Status Badge Legend</h3>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <span class="status-badge status-empty">⚠️ Empty</span>
+                <span class="status-badge status-pages-marked">📄 Pages Marked</span>
+                <span class="status-badge status-transcribed">✏️ Transcribed</span>
+                <span class="status-badge status-verified">✅ Verified</span>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="../index.html" style="display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none;">← Back to Master Report</a>
+        </div>
+    </div>
+</body>
+</html>

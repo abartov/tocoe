@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen 2: Publications Search Redesign - ToCoE UX Review</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+        }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .mockup-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .mockup-section h2 { font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; }
+        .mockup-section.before h2 { border-bottom: 2px solid #e53e3e; color: #c53030; }
+        .mockup-section.after h2 { border-bottom: 2px solid #38a169; color: #2f855a; }
+
+        /* Current Design */
+        .current-mockup { border: 1px solid #e2e8f0; padding: 1rem; background: white; border-radius: 4px; }
+        .current-mockup .sidebar {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 1rem;
+            min-height: 400px;
+            color: #6c757d;
+        }
+        .current-mockup .main {
+            padding: 1rem;
+        }
+        .current-mockup .form-group {
+            margin-bottom: 1rem;
+        }
+        .current-mockup label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        .current-mockup input[type="text"],
+        .current-mockup input[type="radio"] {
+            margin-bottom: 0.5rem;
+        }
+        .current-mockup input[type="text"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        .current-mockup .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .current-mockup .btn-primary { background: #007bff; color: white; }
+        .current-mockup .btn-default { background: #f8f9fa; border: 1px solid #ced4da; }
+
+        /* Proposed Design */
+        .proposed-mockup { border: 1px solid #e2e8f0; background: white; border-radius: 4px; overflow: hidden; }
+
+        /* Search Bar */
+        .search-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+        }
+        .search-header h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .search-bar {
+            display: flex;
+            gap: 0.5rem;
+            background: white;
+            border-radius: 8px;
+            padding: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            outline: none;
+        }
+        .search-bar button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .search-filters {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .filter-chip {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+        }
+        .filter-chip.active {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Results Grid */
+        .results-section {
+            padding: 2rem;
+        }
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .results-header h2 {
+            font-size: 1.5rem;
+            color: #2d3748;
+        }
+        .multi-select-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .book-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .book-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+        .book-card.selected {
+            border-color: #38a169;
+            background: #f0fff4;
+        }
+        .book-cover {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+        .book-info {
+            padding: 1rem;
+        }
+        .book-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+        .book-author {
+            color: #4a5568;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+        .book-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success { background: #c6f6d5; color: #22543d; }
+        .badge-warning { background: #feebc8; color: #744210; }
+        .badge-info { background: #bee3f8; color: #2c5282; }
+
+        .notes {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border-radius: 4px;
+        }
+        .notes h3 { color: #c53030; margin-bottom: 0.75rem; }
+        .notes ul { margin-left: 1.5rem; }
+
+        @media (max-width: 768px) {
+            .comparison { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Screen 2: Publications Search Redesign</h1>
+        <p>Comparison of current and proposed designs</p>
+    </div>
+
+    <div class="container">
+        <div class="comparison">
+            <!-- BEFORE -->
+            <div class="mockup-section before">
+                <h2>❌ Current Design</h2>
+                <div class="current-mockup">
+                    <div style="display: grid; grid-template-columns: 2fr 10fr; gap: 1rem;">
+                        <div class="sidebar">
+                            sidebar here
+                        </div>
+                        <div class="main">
+                            <h1>Search Books</h1>
+                            <p>Search Open Library or Project Gutenberg for books to create TOCs</p>
+
+                            <div class="form-group">
+                                <label>Source</label>
+                                <div>
+                                    <label><input type="radio" checked> Open Library</label><br>
+                                    <label><input type="radio"> Gutendex (Project Gutenberg)</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>General Search</label>
+                                <input type="text" placeholder="Search for books...">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Title Search</label>
+                                <input type="text" placeholder="Enter title...">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Author Search</label>
+                                <input type="text" placeholder="Enter author name...">
+                            </div>
+
+                            <div class="form-group">
+                                <label><input type="checkbox"> Fulltext only</label>
+                            </div>
+
+                            <button class="btn btn-primary">Search</button>
+                            <button class="btn btn-default" style="margin-left: 10px; display: none;">Multi-select</button>
+
+                            <div style="margin-top: 2rem; color: #6c757d;">
+                                <p>Found 127 results</p>
+                            </div>
+
+                            <div style="margin-top: 1rem; border: 1px solid #dee2e6; padding: 0.5rem; font-size: 0.85rem;">
+                                <div style="padding: 0.5rem; border-bottom: 1px solid #dee2e6;">
+                                    <strong>The Great Gatsby</strong> | F. Scott Fitzgerald | <span style="color: #28a745;">Public</span>
+                                </div>
+                                <div style="padding: 0.5rem; border-bottom: 1px solid #dee2e6;">
+                                    <strong>1984</strong> | George Orwell | <span style="color: #ffc107;">Restricted</span>
+                                </div>
+                                <div style="padding: 0.5rem;">
+                                    <strong>Pride and Prejudice</strong> | Jane Austen | <span style="color: #28a745;">Public</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notes">
+                    <h3>Issues:</h3>
+                    <ul>
+                        <li><strong>I12:</strong> "sidebar here" placeholder (Critical)</li>
+                        <li><strong>I13:</strong> Vertical form wastes space</li>
+                        <li><strong>I14:</strong> Multi-select button hidden</li>
+                        <li><strong>I15:</strong> Results in table format, no covers</li>
+                        <li>Form takes up entire screen before results</li>
+                        <li>No visual interest or hierarchy</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- AFTER -->
+            <div class="mockup-section after">
+                <h2>✅ Proposed Design</h2>
+                <div class="proposed-mockup">
+                    <!-- Search Header -->
+                    <div class="search-header">
+                        <h1>Search Books</h1>
+                        <div class="search-bar">
+                            <input type="text" placeholder="Search by title, author, or keyword...">
+                            <button>Search</button>
+                        </div>
+                        <div class="search-filters">
+                            <div class="filter-chip active">Open Library</div>
+                            <div class="filter-chip">Gutendex</div>
+                            <div class="filter-chip">Fulltext Only</div>
+                            <div class="filter-chip">Advanced ▾</div>
+                        </div>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div class="results-section">
+                        <div class="results-header">
+                            <h2>127 Books Found</h2>
+                            <button class="multi-select-btn">Select Multiple</button>
+                        </div>
+
+                        <div class="results-grid">
+                            <!-- Book Card 1 -->
+                            <div class="book-card">
+                                <div class="book-cover">📖</div>
+                                <div class="book-info">
+                                    <div class="book-title">The Great Gatsby</div>
+                                    <div class="book-author">by F. Scott Fitzgerald</div>
+                                    <div class="book-badges">
+                                        <span class="badge badge-success">Public Fulltext</span>
+                                        <span class="badge badge-info">Open Library</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Book Card 2 -->
+                            <div class="book-card">
+                                <div class="book-cover">📚</div>
+                                <div class="book-info">
+                                    <div class="book-title">1984</div>
+                                    <div class="book-author">by George Orwell</div>
+                                    <div class="book-badges">
+                                        <span class="badge badge-warning">Restricted</span>
+                                        <span class="badge badge-info">Open Library</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Book Card 3 -->
+                            <div class="book-card selected">
+                                <div class="book-cover">📗</div>
+                                <div class="book-info">
+                                    <div class="book-title">Pride and Prejudice</div>
+                                    <div class="book-author">by Jane Austen</div>
+                                    <div class="book-badges">
+                                        <span class="badge badge-success">Public Fulltext</span>
+                                        <span class="badge badge-info">Gutenberg</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Book Card 4 -->
+                            <div class="book-card">
+                                <div class="book-cover">📕</div>
+                                <div class="book-info">
+                                    <div class="book-title">To Kill a Mockingbird</div>
+                                    <div class="book-author">by Harper Lee</div>
+                                    <div class="book-badges">
+                                        <span class="badge badge-warning">Restricted</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notes" style="background: #f0fff4; border-left-color: #38a169;">
+                    <h3 style="color: #2f855a;">Improvements:</h3>
+                    <ul>
+                        <li><strong>R12:</strong> Removed empty sidebar</li>
+                        <li><strong>R13:</strong> Horizontal search bar with filters</li>
+                        <li><strong>R14:</strong> Multi-select always visible</li>
+                        <li><strong>R15:</strong> Card layout with book covers</li>
+                        <li>Visual badges for fulltext status</li>
+                        <li>Mobile-friendly grid layout</li>
+                        <li>Hover effects for better UX</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; background: white; padding: 2rem; border-radius: 8px;">
+            <h2 style="margin-bottom: 1rem;">Related Recommendations</h2>
+            <ul style="line-height: 2;">
+                <li><strong>R12:</strong> Remove "sidebar here" placeholder (High impact, Low effort) - CRITICAL</li>
+                <li><strong>R13:</strong> Consolidate form into horizontal search bar (Medium impact, Low effort)</li>
+                <li><strong>R14:</strong> Show multi-select toggle always (Medium impact, Low effort)</li>
+                <li><strong>R15:</strong> Use card layout with book covers (High impact, Medium effort)</li>
+                <li><strong>R16:</strong> Add search history (Low impact, Medium effort)</li>
+            </ul>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Advanced Search Modal</h3>
+            <p>The "Advanced ▾" filter chip would open a modal with:</p>
+            <ul>
+                <li>Title-specific search</li>
+                <li>Author-specific search</li>
+                <li>Date range filters</li>
+                <li>Language filters</li>
+                <li>Subject filters</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="../index.html" style="display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none;">← Back to Master Report</a>
+        </div>
+    </div>
+</body>
+</html>

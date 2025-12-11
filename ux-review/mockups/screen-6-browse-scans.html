@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen 6: Browse Scans Redesign - ToCoE UX Review</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f9fa; color: #333; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .mockup-section { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .mockup-section h2 { font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; }
+        .mockup-section.before h2 { border-bottom: 2px solid #e53e3e; color: #c53030; }
+        .mockup-section.after h2 { border-bottom: 2px solid #38a169; color: #2f855a; }
+        .current-mockup, .proposed-mockup { border: 1px solid #e2e8f0; padding: 1rem; background: white; border-radius: 4px; }
+
+        /* Scan Grid */
+        .scan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; margin: 1rem 0; }
+        .scan-card { border: 2px solid #e2e8f0; border-radius: 8px; padding: 0.75rem; background: white; text-align: center; }
+        .scan-card.selected { border-color: #38a169; background: #f0fff4; }
+        .scan-thumb { width: 100%; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; margin-bottom: 0.5rem; cursor: pointer; transition: transform 0.2s; }
+        .scan-thumb:hover { transform: scale(1.05); }
+        .scan-card input[type="checkbox"] { margin-right: 0.5rem; }
+
+        /* Sticky Selection Bar */
+        .selection-bar { position: sticky; top: 0; background: #667eea; color: white; padding: 1rem 1.5rem; border-radius: 8px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10; }
+        .selection-bar button { background: white; color: #667eea; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+        .notes { background: #fff5f5; border-left: 4px solid #e53e3e; padding: 1.5rem; margin-top: 2rem; border-radius: 4px; }
+        .notes h3 { color: #c53030; margin-bottom: 0.75rem; }
+        .notes ul { margin-left: 1.5rem; }
+        @media (max-width: 768px) { .comparison { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Screen 6: Browse Scans Redesign</h1>
+        <p>Comparison of current and proposed designs</p>
+    </div>
+
+    <div class="container">
+        <div class="comparison">
+            <div class="mockup-section before">
+                <h2>❌ Current Design</h2>
+                <div class="current-mockup">
+                    <h2 style="margin-bottom: 1rem;">Browse Scans: The Great Gatsby</h2>
+                    <p style="font-size: 0.9rem; color: #6c757d; margin-bottom: 1rem;">Viewing pages 1 to 20 of 287</p>
+                    <div style="background: #d1ecf1; border: 1px solid #bee5eb; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                        <strong>Instructions:</strong> Check the boxes next to pages that contain the table of contents
+                    </div>
+                    <div>
+                        <label style="font-size: 0.9rem;">
+                            <input type="checkbox"> No explicit table of contents
+                        </label>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1.5rem 0;">
+                        <div style="border: 1px solid #dee2e6; padding: 0.5rem; text-align: center;">
+                            <div style="width: 100%; height: 150px; background: #ddd; margin-bottom: 0.5rem;"></div>
+                            <div style="font-size: 0.85rem;">
+                                <input type="checkbox" id="p1"> <label for="p1">Page 1</label>
+                            </div>
+                            <a href="#" style="font-size: 0.75rem;">View full size</a>
+                        </div>
+                        <div style="border: 1px solid #dee2e6; padding: 0.5rem; text-align: center;">
+                            <div style="width: 100%; height: 150px; background: #ddd; margin-bottom: 0.5rem;"></div>
+                            <div style="font-size: 0.85rem;">
+                                <input type="checkbox" id="p2"> <label for="p2">Page 2</label>
+                            </div>
+                            <a href="#" style="font-size: 0.75rem;">View full size</a>
+                        </div>
+                        <div style="border: 1px solid #dee2e6; padding: 0.5rem; text-align: center;">
+                            <div style="width: 100%; height: 150px; background: #ddd; margin-bottom: 0.5rem;"></div>
+                            <div style="font-size: 0.85rem;">
+                                <input type="checkbox" id="p3" checked> <label for="p3">Page 3</label>
+                            </div>
+                            <a href="#" style="font-size: 0.75rem;">View full size</a>
+                        </div>
+                        <div style="border: 1px solid #dee2e6; padding: 0.5rem; text-align: center;">
+                            <div style="width: 100%; height: 150px; background: #ddd; margin-bottom: 0.5rem;"></div>
+                            <div style="font-size: 0.85rem;">
+                                <input type="checkbox" id="p4"> <label for="p4">Page 4</label>
+                            </div>
+                            <a href="#" style="font-size: 0.75rem;">View full size</a>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin: 1rem 0;">
+                        <button style="padding: 0.5rem 1rem;">« Previous</button>
+                        <span style="margin: 0 1rem;">1 2 3 ... 15</span>
+                        <button style="padding: 0.5rem 1rem;">Next »</button>
+                    </div>
+
+                    <button style="padding: 0.75rem 1.5rem; background: #007bff; color: white; border: none; border-radius: 4px;">Save</button>
+                </div>
+
+                <div class="notes">
+                    <h3>Issues:</h3>
+                    <ul>
+                        <li><strong>I32:</strong> Small checkboxes hard to click (Medium)</li>
+                        <li><strong>I33:</strong> No quick preview (Medium)</li>
+                        <li><strong>I34:</strong> Can't see selected pages while scrolling (Low)</li>
+                        <li>Thumbnails don't clearly show if selected</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mockup-section after">
+                <h2>✅ Proposed Design</h2>
+                <div class="proposed-mockup">
+                    <h2 style="margin-bottom: 1rem; font-size: 1.8rem;">Browse Scans: The Great Gatsby</h2>
+
+                    <!-- Sticky Selection Bar -->
+                    <div class="selection-bar">
+                        <div>
+                            <strong style="font-size: 1.2rem;">3 pages selected</strong>
+                            <span style="margin-left: 1rem; opacity: 0.9;">Page 3, 7, 11</span>
+                        </div>
+                        <button>✓ Save Selection</button>
+                    </div>
+
+                    <p style="font-size: 0.9rem; color: #4a5568; margin-bottom: 1.5rem;">
+                        📄 Viewing pages 1-20 of 287 • Click cards to select TOC pages
+                    </p>
+
+                    <div style="background: #e6f2ff; padding: 1rem; border-radius: 6px; border-left: 4px solid #3182ce; margin-bottom: 1.5rem;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" style="width: 18px; height: 18px; margin-right: 0.75rem;">
+                            <span style="font-weight: 500;">This book has no explicit table of contents</span>
+                        </label>
+                    </div>
+
+                    <div class="scan-grid">
+                        <div class="scan-card">
+                            <div class="scan-thumb">📄</div>
+                            <div style="font-weight: 500; margin-top: 0.5rem;">Page 1</div>
+                        </div>
+                        <div class="scan-card">
+                            <div class="scan-thumb">📄</div>
+                            <div style="font-weight: 500; margin-top: 0.5rem;">Page 2</div>
+                        </div>
+                        <div class="scan-card selected">
+                            <div style="position: absolute; top: 0.5rem; right: 0.5rem; background: #38a169; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">✓</div>
+                            <div class="scan-thumb">📄</div>
+                            <div style="font-weight: 600; margin-top: 0.5rem; color: #38a169;">Page 3</div>
+                        </div>
+                        <div class="scan-card">
+                            <div class="scan-thumb">📄</div>
+                            <div style="font-weight: 500; margin-top: 0.5rem;">Page 4</div>
+                        </div>
+                        <div class="scan-card">
+                            <div class="scan-thumb">📄</div>
+                            <div style="font-weight: 500; margin-top: 0.5rem;">Page 5</div>
+                        </div>
+                        <div class="scan-card">
+                            <div class="scan-thumb">📄</div>
+                            <div style="font-weight: 500; margin-top: 0.5rem;">Page 6</div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin: 1.5rem 0;">
+                        <button style="padding: 0.75rem 1rem; border: 2px solid #e2e8f0; background: white; border-radius: 6px; cursor: pointer;">‹ Prev</button>
+                        <span style="padding: 0.75rem 1rem; font-weight: 500;">Page 1 of 15</span>
+                        <button style="padding: 0.75rem 1rem; border: 2px solid #e2e8f0; background: white; border-radius: 6px; cursor: pointer;">Next ›</button>
+                    </div>
+                </div>
+
+                <div class="notes" style="background: #f0fff4; border-left-color: #38a169;">
+                    <h3 style="color: #2f855a;">Improvements:</h3>
+                    <ul>
+                        <li><strong>R32:</strong> Entire card clickable with visual selection</li>
+                        <li><strong>R33:</strong> Click thumbnail for quick lightbox preview</li>
+                        <li><strong>R34:</strong> Sticky selection bar shows selected pages</li>
+                        <li>Clear checkmark overlay on selected cards</li>
+                        <li>Better mobile touch targets</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; background: white; padding: 2rem; border-radius: 8px;">
+            <h2 style="margin-bottom: 1rem;">Related Recommendations</h2>
+            <ul style="line-height: 2;">
+                <li><strong>R32:</strong> Clickable cards with visual selection (Medium impact, Low effort)</li>
+                <li><strong>R33:</strong> Quick preview in lightbox modal (Medium impact, Medium effort)</li>
+                <li><strong>R34:</strong> Sticky header with selected pages (Low impact, Low effort)</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="../index.html" style="display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none;">← Back to Master Report</a>
+        </div>
+    </div>
+</body>
+</html>

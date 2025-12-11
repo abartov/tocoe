@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen 4: TOC Edit Form Redesign - ToCoE UX Review</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+        }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+        /* Single column layout for easier comparison */
+        .mockup-section {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .mockup-section h2 { font-size: 1.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem; }
+        .mockup-section.before h2 { border-bottom: 2px solid #e53e3e; color: #c53030; }
+        .mockup-section.after h2 { border-bottom: 2px solid #38a169; color: #2f855a; }
+
+        /* Current Design Mockup */
+        .current-mockup {
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+            background: white;
+            border-radius: 4px;
+        }
+        .two-col { display: grid; grid-template-columns: 3fr 2fr; gap: 1rem; font-size: 0.85rem; }
+        .current-mockup table { width: 100%; border-collapse: collapse; }
+        .current-mockup td { padding: 0.5rem; border: 1px solid #e2e8f0; }
+        .current-mockup input[type="text"],
+        .current-mockup textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        .ocr-section {
+            background: #f8f9fa;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        /* Proposed Design */
+        .proposed-mockup {
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        /* Workflow Stepper */
+        .workflow-stepper {
+            background: #f7fafc;
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        .step::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            right: -50%;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 0;
+        }
+        .step:last-child::before {
+            display: none;
+        }
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        .step.completed .step-circle {
+            background: #38a169;
+            color: white;
+        }
+        .step.active .step-circle {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+        }
+        .step-label {
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+        .step.active .step-label {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* Tabbed Interface */
+        .edit-container {
+            padding: 2rem;
+        }
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+        }
+        .tab {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: none;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Markdown Editor */
+        .markdown-editor {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .editor-panel {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .editor-toolbar {
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .toolbar-btn {
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .editor-help {
+            background: #f7fafc;
+            padding: 1rem;
+            font-size: 0.85rem;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        .editor-help h4 {
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+        .editor-help code {
+            background: #edf2f7;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+
+        /* Scan Viewer */
+        .scan-viewer {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            background: #f7fafc;
+        }
+        .scan-thumb {
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+        .scan-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .scan-controls button {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .notes {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border-radius: 4px;
+        }
+        .notes h3 { color: #c53030; margin-bottom: 0.75rem; }
+        .notes ul { margin-left: 1.5rem; }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Screen 4: TOC Edit Form Redesign</h1>
+        <p>Comparison of current and proposed designs</p>
+    </div>
+
+    <div class="container">
+        <!-- BEFORE -->
+        <div class="mockup-section before">
+            <h2>❌ Current Design</h2>
+            <div class="current-mockup">
+                <div class="two-col">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Edit TOC</h3>
+                        <table>
+                            <tr>
+                                <td><strong>Book URI</strong></td>
+                                <td><input type="text" value="/books/OL12345M"></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Title</strong></td>
+                                <td><input type="text" value="The Great Gatsby"></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Authors</strong></td>
+                                <td>F. Scott Fitzgerald</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top;"><strong>Subjects</strong></td>
+                                <td>
+                                    <div style="background: #f8f9fa; padding: 0.5rem; margin-bottom: 0.5rem;">
+                                        <strong>Imported:</strong><br>
+                                        <textarea readonly rows="3" style="font-size: 0.75rem;">American fiction; Jazz Age; Long Island</textarea>
+                                        <small style="color: #6c757d;">From Gutenberg</small>
+                                    </div>
+                                    <button style="padding: 0.5rem; font-size: 0.85rem;">Auto-match subjects</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top;">
+                                    <strong>TOC Body</strong><br>
+                                    <button style="margin-top: 0.5rem; padding: 0.4rem; font-size: 0.8rem;">Magic Trim</button>
+                                </td>
+                                <td>
+                                    <textarea rows="8" style="font-family: monospace; font-size: 0.8rem;"># The Great Gatsby || F. Scott Fitzgerald
+## Chapter I
+## Chapter II
+## Chapter III</textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Comments</strong></td>
+                                <td><textarea rows="2"></textarea></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td><button style="padding: 0.5rem 1rem;">Save</button></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="ocr-section">
+                        <h4 style="margin-bottom: 0.75rem;">OCR</h4>
+                        <div style="margin-bottom: 0.75rem;">
+                            <strong style="font-size: 0.85rem;">URLs:</strong>
+                            <textarea rows="3" style="font-size: 0.75rem;">https://archive.org/download/...page1.jpg
+https://archive.org/download/...page2.jpg</textarea>
+                        </div>
+                        <button style="padding: 0.5rem; margin-bottom: 0.5rem; font-size: 0.85rem;">Attempt OCR</button>
+                        <button style="padding: 0.5rem; margin-left: 0.5rem; font-size: 0.85rem; display: none;">Paste into ToC</button>
+                        <div style="border: 1px solid #ddd; padding: 0.5rem; max-height: 200px; overflow-y: auto; background: white; margin-top: 0.5rem; font-size: 0.75rem;">
+                            <em>OCR results will appear here...</em>
+                        </div>
+
+                        <div style="margin-top: 1rem;">
+                            <button style="padding: 0.5rem; font-size: 0.85rem; width: 100%;">View TOC scans ▼</button>
+                            <div style="display: none; margin-top: 0.5rem; background: white; padding: 0.5rem;">
+                                <div style="margin-bottom: 0.5rem;">
+                                    <span style="font-size: 0.85rem;"><strong>Zoom:</strong></span>
+                                    <button style="padding: 0.25rem 0.5rem; margin-left: 0.5rem;">+</button>
+                                    <button style="padding: 0.25rem 0.5rem;">−</button>
+                                    <button style="padding: 0.25rem 0.5rem;">def</button>
+                                </div>
+                                <div style="max-height: 300px; overflow-y: auto;">
+                                    <div style="background: #ddd; height: 400px; margin: 0.5rem 0; display: flex; align-items: center; justify-content: center;">
+                                        Page 1 (450px wide)
+                                    </div>
+                                    <div style="background: #ddd; height: 400px; display: flex; align-items: center; justify-content: center;">
+                                        Page 2 (450px wide)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notes">
+                <h3>Issues:</h3>
+                <ul>
+                    <li><strong>I22:</strong> Form fields in table layout (outdated pattern)</li>
+                    <li><strong>I23:</strong> Two columns split attention (High severity)</li>
+                    <li><strong>I24:</strong> Subject section cluttered (High severity)</li>
+                    <li><strong>I25:</strong> Magic Trim button easy to miss</li>
+                    <li><strong>I26:</strong> OCR section confusing (High severity)</li>
+                    <li><strong>I27:</strong> No markdown help (High severity)</li>
+                    <li><strong>I28:</strong> Scan thumbnails too large (450px)</li>
+                    <li>Doesn't adapt for mobile</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- AFTER -->
+        <div class="mockup-section after">
+            <h2>✅ Proposed Design</h2>
+            <div class="proposed-mockup">
+                <!-- Workflow Stepper -->
+                <div class="workflow-stepper">
+                    <div class="steps">
+                        <div class="step completed">
+                            <div class="step-circle">✓</div>
+                            <div class="step-label">Create</div>
+                        </div>
+                        <div class="step completed">
+                            <div class="step-circle">✓</div>
+                            <div class="step-label">Mark Pages</div>
+                        </div>
+                        <div class="step active">
+                            <div class="step-circle">3</div>
+                            <div class="step-label">Transcribe</div>
+                        </div>
+                        <div class="step">
+                            <div class="step-circle">4</div>
+                            <div class="step-label">Verify</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabbed Content -->
+                <div class="edit-container">
+                    <h2 style="margin-bottom: 1rem;">Edit: The Great Gatsby</h2>
+
+                    <div class="tabs">
+                        <button class="tab active">📝 Transcribe</button>
+                        <button class="tab">📄 Book Info</button>
+                        <button class="tab">🏷️ Subjects (3)</button>
+                        <button class="tab">📖 View Scans (2)</button>
+                    </div>
+
+                    <!-- Transcribe Tab (Active) -->
+                    <div class="markdown-editor">
+                        <div class="editor-panel">
+                            <div class="editor-toolbar">
+                                <button class="toolbar-btn">✨ Magic Trim</button>
+                                <button class="toolbar-btn">📋 Paste OCR</button>
+                                <button class="toolbar-btn">👁️ Preview</button>
+                            </div>
+                            <textarea style="width: 100%; height: 400px; border: none; padding: 1rem; font-family: monospace; font-size: 0.95rem; resize: vertical;"># The Great Gatsby || F. Scott Fitzgerald
+## Chapter I
+## Chapter II
+## Chapter III
+## Chapter IV</textarea>
+                        </div>
+
+                        <div class="editor-help">
+                            <h4>📖 Markdown Guide</h4>
+                            <p style="margin-bottom: 1rem; line-height: 1.5;">
+                                <code># Title</code> - Top-level work<br>
+                                <code>## Title</code> - Nested component<br>
+                                <code># Title || Author</code> - With author<br>
+                                <code># Section /</code> - Section heading
+                            </p>
+
+                            <h4>📄 TOC Scans (2 pages)</h4>
+                            <div style="margin-top: 0.5rem;">
+                                <div class="scan-thumb">📄</div>
+                                <div class="scan-controls">
+                                    <button>Extract Text</button>
+                                    <button>View Full</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button class="btn-primary">Save Changes</button>
+                        <button style="padding: 0.75rem 2rem; border: 2px solid #e2e8f0; background: white; border-radius: 6px; font-weight: 600;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notes" style="background: #f0fff4; border-left-color: #38a169;">
+                <h3 style="color: #2f855a;">Improvements:</h3>
+                <ul>
+                    <li><strong>R2:</strong> Added workflow stepper (High impact)</li>
+                    <li><strong>R22:</strong> Modern form layout (no tables)</li>
+                    <li><strong>R23:</strong> Tabbed interface reduces complexity (High impact)</li>
+                    <li><strong>R24:</strong> Subjects in separate tab (High impact)</li>
+                    <li><strong>R25:</strong> Prominent Magic Trim button</li>
+                    <li><strong>R26:</strong> Simplified OCR: extract per-page (High impact)</li>
+                    <li><strong>R27:</strong> Markdown guide always visible (High impact)</li>
+                    <li><strong>R28:</strong> Smaller scan thumbnails in sidebar</li>
+                    <li>Single focus area at a time</li>
+                </ul>
+            </div>
+        </div>
+
+        <div style="background: white; padding: 2rem; border-radius: 8px;">
+            <h2 style="margin-bottom: 1rem;">Related Recommendations</h2>
+            <ul style="line-height: 2;">
+                <li><strong>R2:</strong> Add workflow visualization (High impact, Medium effort)</li>
+                <li><strong>R22:</strong> Modern form layout (Medium impact, Medium effort)</li>
+                <li><strong>R23:</strong> Tabbed interface (High impact, High effort) - Reduces cognitive load</li>
+                <li><strong>R24:</strong> Move subjects to tab (High impact, Medium effort)</li>
+                <li><strong>R25:</strong> Prominent Magic Trim (Low impact, Low effort)</li>
+                <li><strong>R26:</strong> Simplify OCR section (High impact, High effort)</li>
+                <li><strong>R27:</strong> Add markdown help (High impact, Low effort) - EASY WIN</li>
+                <li><strong>R28:</strong> Better thumbnail size (Low impact, Low effort)</li>
+            </ul>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Tab Contents</h3>
+            <ul>
+                <li><strong>📝 Transcribe:</strong> TOC textarea + markdown help + scan thumbnails</li>
+                <li><strong>📄 Book Info:</strong> Title, URI, Authors (editable fields)</li>
+                <li><strong>🏷️ Subjects:</strong> Imported, existing, auto-match, add new</li>
+                <li><strong>📖 View Scans:</strong> Full-size scan viewer with zoom controls</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="../index.html" style="display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none;">← Back to Master Report</a>
+        </div>
+    </div>
+</body>
+</html>

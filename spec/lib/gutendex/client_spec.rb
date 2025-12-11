@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Gutendex::Client do
   let(:client) { described_class.new }
-  let(:api_url) { 'https://gutendex.com' }
+  let(:api_url) { 'https://gutendex.toolforge.org' }
 
   before do
     allow(Rails.configuration.constants).to receive(:[]).with('gutendex_api_url').and_return(api_url)

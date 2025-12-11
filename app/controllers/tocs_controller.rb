@@ -94,7 +94,7 @@ class TocsController < ApplicationController
     end
 
     # Check if this is a Gutenberg book and fetch fulltext URL
-    if @toc.book_uri =~ %r{gutenberg\.org/ebooks/(\d+)}
+    if @toc.source == 'gutenberg' || @toc.book_uri =~ %r{gutenberg\.org/ebooks/(\d+)}
       pg_book_id = $1
       gutendex_client = Gutendex::Client.new
       @fulltext_url = gutendex_client.preferred_fulltext_url(pg_book_id)

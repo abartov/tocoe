@@ -13,7 +13,7 @@ development: &default
   google_oauth2_client_id: <replace-with-google-client-id>
   google_oauth2_client_secret: <replace-with-google-client-secret>
   # Gutendex API endpoint (Project Gutenberg catalog API)
-  gutendex_api_url: 'https://gutendex.com'
+  gutendex_api_url: 'https://gutendex.toolforge.org'
 
 production:
   <<: *default

@@ -25,6 +25,15 @@ RSpec.feature 'Browse Scans Pagination', type: :feature do
       allow(ol_client).to receive(:ia_page_images).and_return(page_images)
     end
 
+    scenario 'displays First button as disabled' do
+      visit browse_scans_toc_path(toc)
+
+      within('.pagination') do
+        expect(page).to have_css('.page-item.disabled', text: 'First')
+        expect(page).not_to have_link('First')
+      end
+    end
+
     scenario 'displays Last button as enabled' do
       visit browse_scans_toc_path(toc)
 
@@ -52,6 +61,20 @@ RSpec.feature 'Browse Scans Pagination', type: :feature do
       allow(ol_client).to receive(:ia_page_images).and_return(page_images)
     end
 
+    scenario 'displays First button as enabled' do
+      visit browse_scans_toc_path(toc, page: 3)
+
+      expect(page).to have_link('First', href: browse_scans_toc_path(toc, page: 1))
+    end
+
+    scenario 'First button navigates to first page' do
+      visit browse_scans_toc_path(toc, page: 3)
+
+      click_link 'First'
+
+      expect(page).to have_current_path(browse_scans_toc_path(toc, page: 1))
+    end
+
     scenario 'displays Last button as enabled' do
       visit browse_scans_toc_path(toc, page: 3)
 
@@ -77,6 +100,20 @@ RSpec.feature 'Browse Scans Pagination', type: :feature do
         }
       end
       allow(ol_client).to receive(:ia_page_images).and_return(page_images)
+    end
+
+    scenario 'displays First button as enabled' do
+      visit browse_scans_toc_path(toc, page: 5)
+
+      expect(page).to have_link('First', href: browse_scans_toc_path(toc, page: 1))
+    end
+
+    scenario 'First button navigates to first page' do
+      visit browse_scans_toc_path(toc, page: 5)
+
+      click_link 'First'
+
+      expect(page).to have_current_path(browse_scans_toc_path(toc, page: 1))
     end
 
     scenario 'displays Last button as disabled' do

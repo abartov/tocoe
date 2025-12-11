@@ -126,6 +126,7 @@ en:
       no_explicit_toc_label: "No explicit table of contents"
       page_label: "TOC Page %{number}"
       view_full_size: "View Full Size"
+      first: "First"
       previous: "Previous"
       next: "Next"
       last: "Last"

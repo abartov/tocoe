@@ -53,6 +53,63 @@ RSpec.describe Toc, type: :model do
         'error' => 'error'
       })
     end
+
+    it 'defines source enum with correct values' do
+      expect(Toc.sources).to eq({
+        'openlibrary' => 'openlibrary',
+        'gutenberg' => 'gutenberg',
+        'local_upload' => 'local_upload'
+      })
+    end
+  end
+
+  describe 'source field automatic population' do
+    it 'automatically sets source to openlibrary for OpenLibrary URIs' do
+      toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Test Book'
+      )
+      expect(toc.source).to eq('openlibrary')
+      expect(toc.openlibrary?).to be true
+    end
+
+    it 'automatically sets source to gutenberg for Gutenberg URIs' do
+      toc = Toc.create!(
+        book_uri: 'https://www.gutenberg.org/ebooks/1234',
+        title: 'Test Book'
+      )
+      expect(toc.source).to eq('gutenberg')
+      expect(toc.gutenberg?).to be true
+    end
+
+    it 'does not override manually set source' do
+      toc = Toc.new(
+        book_uri: 'http://openlibrary.org/books/OL456M',
+        title: 'Test Book',
+        source: :local_upload
+      )
+      toc.save!
+      expect(toc.source).to eq('local_upload')
+    end
+
+    it 'does not set source if book_uri is blank' do
+      toc = Toc.new(title: 'Test Book')
+      toc.save!
+      expect(toc.source).to be_nil
+    end
+
+    it 'updates source when book_uri is changed to gutenberg' do
+      toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL789M',
+        title: 'Test Book'
+      )
+      expect(toc.source).to eq('openlibrary')
+
+      toc.book_uri = 'https://www.gutenberg.org/ebooks/5678'
+      toc.source = nil # Clear the source to allow automatic setting
+      toc.save!
+      expect(toc.source).to eq('gutenberg')
+    end
   end
 
   describe 'database columns' do
@@ -68,6 +125,10 @@ RSpec.describe Toc, type: :model do
 
     it 'has status column' do
       expect(subject).to respond_to(:status)
+    end
+
+    it 'has source column' do
+      expect(subject).to respond_to(:source)
     end
 
     it 'has toc_page_urls column' do

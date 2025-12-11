@@ -7,12 +7,24 @@ class Toc < ActiveRecord::Base
   enum :source, { openlibrary: 'openlibrary', gutenberg: 'gutenberg', local_upload: 'local_upload' }
   validate :contributor_cannot_be_reviewer
 
+  before_validation :set_source_from_book_uri
   before_save :set_status_timestamps
 
   # Serialize book_data as JSON
   serialize :book_data, coder: JSON
 
   private
+
+  def set_source_from_book_uri
+    return if source.present? # Don't override if already set
+    return if book_uri.blank?
+
+    if book_uri.include?('gutenberg.org')
+      self.source = :gutenberg
+    elsif book_uri.include?('openlibrary.org')
+      self.source = :openlibrary
+    end
+  end
 
   def contributor_cannot_be_reviewer
     if contributor_id.present? && reviewer_id.present? && contributor_id == reviewer_id

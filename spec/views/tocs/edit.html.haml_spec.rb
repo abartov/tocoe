@@ -147,4 +147,95 @@ RSpec.describe "tocs/edit.html.haml", type: :view do
       expect(rendered).to include("button.text('#{expected_text}')")
     end
   end
+
+  context 'Collapsible TOC scans area' do
+    context 'when TOC has marked pages (OpenLibrary)' do
+      let(:toc) do
+        Toc.create!(
+          book_uri: 'http://openlibrary.org/books/OL123M',
+          title: 'Test Book with Scans',
+          status: :pages_marked,
+          toc_page_urls: "https://archive.org/download/book1/page1.jpg\nhttps://archive.org/download/book1/page2.jpg\nhttps://archive.org/download/book1/page3.jpg"
+        )
+      end
+
+      before do
+        assign(:toc, toc)
+        assign(:authors, [])
+        assign(:is_gutenberg, false)
+        render
+      end
+
+      it 'displays the collapsible scans toggle button' do
+        expect(rendered).to have_selector('a.btn[data-toggle="collapse"][href="#tocScansCollapse"]')
+        expect(rendered).to have_content(I18n.t('tocs.form.ocr_section.view_scans_button'))
+      end
+
+      it 'displays the collapsible scans area' do
+        expect(rendered).to have_selector('#tocScansCollapse.collapse')
+        expect(rendered).to have_selector('.toc-scans-thumbnails')
+      end
+
+      it 'displays the correct number of scan thumbnails' do
+        expect(rendered).to have_selector('.toc-scan-thumb', count: 3)
+      end
+
+      it 'includes correct data attributes on thumbnails' do
+        expect(rendered).to have_selector('.toc-scan-thumb[data-image-url="https://archive.org/download/book1/page1.jpg"][data-page-number="1"]')
+        expect(rendered).to have_selector('.toc-scan-thumb[data-image-url="https://archive.org/download/book1/page2.jpg"][data-page-number="2"]')
+        expect(rendered).to have_selector('.toc-scan-thumb[data-image-url="https://archive.org/download/book1/page3.jpg"][data-page-number="3"]')
+      end
+
+      it 'displays thumbnail images with correct URLs' do
+        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page1.jpg?scale=8"]')
+        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page2.jpg?scale=8"]')
+        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page3.jpg?scale=8"]')
+      end
+
+      it 'displays the zoom modal' do
+        expect(rendered).to have_selector('#scanZoomModal.modal')
+        expect(rendered).to have_selector('#scanZoomModalLabel')
+        expect(rendered).to have_selector('#scanZoomImage')
+      end
+
+      it 'includes JavaScript click handler for scan thumbnails' do
+        expect(rendered).to include("$('.toc-scan-thumb').click(function()")
+        expect(rendered).to include("var imageUrl = $(this).data('image-url')")
+        expect(rendered).to include("var pageNumber = $(this).data('page-number')")
+        expect(rendered).to include("$('#scanZoomModal').modal('show')")
+      end
+
+      it 'displays page numbers for each thumbnail' do
+        expect(rendered).to have_content(I18n.t('tocs.show.page_number', number: 1))
+        expect(rendered).to have_content(I18n.t('tocs.show.page_number', number: 2))
+        expect(rendered).to have_content(I18n.t('tocs.show.page_number', number: 3))
+      end
+    end
+
+    context 'when TOC has no marked pages' do
+      let(:toc) do
+        Toc.create!(
+          book_uri: 'http://openlibrary.org/books/OL123M',
+          title: 'Test Book without Scans',
+          status: :empty
+        )
+      end
+
+      before do
+        assign(:toc, toc)
+        assign(:authors, [])
+        assign(:is_gutenberg, false)
+        render
+      end
+
+      it 'does not display the collapsible scans area' do
+        expect(rendered).not_to have_selector('.toc-scans-section')
+        expect(rendered).not_to have_content(I18n.t('tocs.form.ocr_section.view_scans_button'))
+      end
+
+      it 'does not display the zoom modal' do
+        expect(rendered).not_to have_selector('#scanZoomModal.modal')
+      end
+    end
+  end
 end

@@ -170,6 +170,8 @@ en:
         no_pages_marked_title: "No TOC pages marked yet."
         browse_scans_button: "Browse Scans to Mark TOC Pages"
         browse_scans_help: "Once you mark the pages containing the table of contents, you can return here to use OCR."
+        view_scans_button: "View TOC Page Scans"
+        scan_modal_title: "TOC Page Scan (Zoomed)"
       gutenberg_section:
         fulltext_available_title: "Full text available"
         view_fulltext_button: "View Full Text on Project Gutenberg"

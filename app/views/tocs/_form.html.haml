@@ -95,6 +95,33 @@
           %tr
             %td
               #results{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 5px;'}
+
+      -# Collapsible TOC scans area
+      - if @toc.toc_page_urls.present?
+        .toc-scans-section{style: 'margin-top: 20px;'}
+          %a.btn.btn-sm.btn-info{'data-toggle' => 'collapse', href: '#tocScansCollapse', role: 'button', 'aria-expanded' => 'false', 'aria-controls' => 'tocScansCollapse'}
+            = t('tocs.form.ocr_section.view_scans_button')
+            %span.caret
+          .collapse#tocScansCollapse{style: 'margin-top: 10px;'}
+            .toc-scans-thumbnails{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa;'}
+              - @toc.toc_page_urls.split("\n").each_with_index do |url, index|
+                .toc-scan-thumb{style: 'margin-bottom: 10px; cursor: pointer;', 'data-image-url' => url, 'data-page-number' => index + 1}
+                  = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail', style: 'max-width: 100%; height: auto;'
+                  .text-center.small
+                    = t('tocs.show.page_number', number: index + 1)
+      -# Modal for zoomed scan view
+      - if @toc.toc_page_urls.present?
+        .modal.fade#scanZoomModal{tabindex: '-1', role: 'dialog', 'aria-labelledby' => 'scanZoomModalLabel', 'aria-hidden' => 'true'}
+          .modal-dialog.modal-lg{role: 'document', style: 'max-width: 90%;'}
+            .modal-content
+              .modal-header
+                %h5.modal-title#scanZoomModalLabel
+                  = t('tocs.form.ocr_section.scan_modal_title')
+                %button.close{type: 'button', 'data-dismiss' => 'modal', 'aria-label' => 'Close'}
+                  %span{'aria-hidden' => 'true'} &times;
+              .modal-body{style: 'text-align: center;'}
+                %img#scanZoomImage{src: '', alt: '', style: 'max-width: 100%; height: auto;'}
+
       :javascript
         $('#paste_ocr').click(function() {
           $('#toc_area').val($('#results').text());
@@ -105,6 +132,18 @@
           $('#ocr_working').show();
           $('#paste_ocr').hide();
           $('#results').html('');
+        });
+
+        // Handle click on scan thumbnails to open zoomed modal
+        $('.toc-scan-thumb').click(function() {
+          var imageUrl = $(this).data('image-url');
+          var pageNumber = $(this).data('page-number');
+          var modalTitle = '#{I18n.t('tocs.show.page_number', number: '__PAGE__').gsub('__PAGE__', '\' + pageNumber + \'')}';
+
+          $('#scanZoomModalLabel').text(modalTitle);
+          $('#scanZoomImage').attr('src', imageUrl);
+          $('#scanZoomImage').attr('alt', modalTitle);
+          $('#scanZoomModal').modal('show');
         });
   - elsif @toc.persisted?
     #browse_scans_prompt{ class: 'col-xs-5'}

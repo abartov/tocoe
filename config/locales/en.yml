@@ -38,6 +38,46 @@ en:
       status: "Status"
       contributor: "Contributor"
       reviewer: "Reviewer"
+    nav:
+      dashboard: "Dashboard"
+      search: "Search"
+      tocs: "TOCs"
+      my_tocs: "My TOCs"
+      sign_out: "Sign Out"
+      help: "Help"
+      help_tooltip: "Get help using ToCoE"
+      quick_search: "Quick search..."
+
+  # Dashboard view
+  dashboard:
+    welcome: "Welcome back, %{name}!"
+    subtitle: "Continue contributing to the world's bibliography"
+    my_recent_tocs: "My Recent TOCs"
+    my_contribution_stats: "My Contributions"
+    quick_actions: "Quick Actions"
+    needs_attention: "Needs Attention"
+    recent_community_activity: "Recent Community Activity"
+    updated: "Updated"
+    ago: "ago"
+    view_all_my_tocs: "View All My TOCs"
+    start_contributing: "Start Contributing"
+    ready_to_verify: "Ready to verify"
+    no_verification_needed: "No TOCs need verification right now"
+    stats:
+      total_tocs: "Total TOCs"
+      verified: "Verified"
+      needs_work: "Needs Work"
+      contributors: "Contributors"
+      my_total: "My TOCs"
+      my_verified: "Verified"
+      my_in_progress: "In Progress"
+    actions:
+      search_books: "Search Books"
+      search_description: "Find books to create TOCs"
+      verify_tocs: "Verify TOCs"
+      verify_description: "Review others' contributions"
+    activity:
+      verified_by: "Verified by %{reviewer}"
 
   tocs:
     # Flash messages

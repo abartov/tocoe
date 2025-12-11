@@ -1,108 +1,128 @@
 .dashboard-container
-  .dashboard-header{style: 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; margin: -2rem 0 2rem 0; border-radius: 0 0 12px 12px;'}
-    %h1{style: 'font-size: 2rem; margin-bottom: 0.5rem;'}
-      = t('dashboard.welcome', default: 'Welcome back, %{name}!', name: current_user.email.split('@').first.titleize)
-    %p{style: 'font-size: 1.1rem; opacity: 0.9;'}
-      = t('dashboard.subtitle', default: 'Continue contributing to the world\'s bibliography')
+  .dashboard-header
+    %h1
+      = t('dashboard.welcome', name: current_user.email.split('@').first.titleize)
+    %p
+      = t('dashboard.subtitle')
 
-  .stats-grid{style: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;'}
-    .stat-card{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; text-align: center;'}
-      .stat-number{style: 'font-size: 2.5rem; font-weight: bold; color: #667eea; display: block; margin-bottom: 0.5rem;'}
-        = Toc.count
-      .stat-label{style: 'color: #4a5568; font-weight: 500;'}
-        = t('dashboard.stats.total_tocs', default: 'Total TOCs')
+  .stats-grid
+    .stat-card
+      .stat-number.primary
+        = @stats[:total]
+      .stat-label
+        = t('dashboard.stats.total_tocs')
 
-    .stat-card{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; text-align: center;'}
-      .stat-number{style: 'font-size: 2.5rem; font-weight: bold; color: #38a169; display: block; margin-bottom: 0.5rem;'}
-        = Toc.where(status: :verified).count
-      .stat-label{style: 'color: #4a5568; font-weight: 500;'}
-        = t('dashboard.stats.verified', default: 'Verified')
+    .stat-card
+      .stat-number.success
+        = @stats[:verified]
+      .stat-label
+        = t('dashboard.stats.verified')
 
-    .stat-card{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; text-align: center;'}
-      .stat-number{style: 'font-size: 2.5rem; font-weight: bold; color: #f59e0b; display: block; margin-bottom: 0.5rem;'}
-        = Toc.where.not(status: :verified).count
-      .stat-label{style: 'color: #4a5568; font-weight: 500;'}
-        = t('dashboard.stats.needs_work', default: 'Needs Work')
+    .stat-card
+      .stat-number.warning
+        = @stats[:needs_work]
+      .stat-label
+        = t('dashboard.stats.needs_work')
 
-    .stat-card{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; text-align: center;'}
-      .stat-number{style: 'font-size: 2.5rem; font-weight: bold; color: #8b5cf6; display: block; margin-bottom: 0.5rem;'}
-        = User.count
-      .stat-label{style: 'color: #4a5568; font-weight: 500;'}
-        = t('dashboard.stats.contributors', default: 'Contributors')
+    .stat-card
+      .stat-number.purple
+        = @stats[:contributors]
+      .stat-label
+        = t('dashboard.stats.contributors')
 
-  .dashboard-grid{style: 'display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;'}
+  .dashboard-grid
     .dashboard-section
-      %h2{style: 'font-size: 1.5rem; margin-bottom: 1rem; color: #2d3748;'}
-        = t('dashboard.my_recent_tocs', default: 'My Recent TOCs')
+      %h2
+        = t('dashboard.my_recent_tocs')
 
-      - my_tocs = Toc.where(contributor: current_user).order(updated_at: :desc).limit(5)
-      - if my_tocs.any?
-        - my_tocs.each do |toc|
-          .toc-card{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;'}
-            .toc-header{style: 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;'}
-              %h3{style: 'font-size: 1.1rem; font-weight: 600; margin: 0;'}
-                = link_to toc.title, toc, style: 'color: #667eea; text-decoration: none;'
+      - if @my_tocs.any?
+        - @my_tocs.each do |toc|
+          .toc-card
+            .toc-header
+              %h3
+                = link_to toc.title, toc
               %span.status-badge{class: "status-#{toc.status}"}
                 = toc.status.titleize
-            %p{style: 'color: #718096; font-size: 0.9rem; margin: 0;'}
-              = t('dashboard.updated', default: 'Updated')
+            %p
+              = t('dashboard.updated')
               = time_ago_in_words(toc.updated_at)
-              = t('dashboard.ago', default: 'ago')
+              = t('dashboard.ago')
 
-        .text-center{style: 'margin-top: 1.5rem;'}
-          = link_to t('dashboard.view_all_my_tocs', default: 'View All My TOCs'), tocs_path, class: 'btn btn-primary'
+        .text-center
+          = link_to t('dashboard.view_all_my_tocs'), tocs_path, class: 'btn btn-primary'
 
       - else
-        .empty-state{style: 'text-align: center; padding: 2rem; background: #f7fafc; border-radius: 8px; color: #718096;'}
-          %p{style: 'margin-bottom: 1rem;'} 📚 You haven't created any TOCs yet
+        .empty-state
+          %p 📚 You haven't created any TOCs yet
           %p
-            = link_to t('dashboard.start_contributing', default: 'Start Contributing'), publications_search_path, class: 'btn btn-primary'
+            = link_to t('dashboard.start_contributing'), publications_search_path, class: 'btn btn-primary'
+
+      - if @my_contribution_stats[:total] > 0
+        %h3
+          = t('dashboard.my_contribution_stats')
+
+        .my-stats-grid
+          .my-stat-card
+            .my-stat-number
+              = @my_contribution_stats[:total]
+            .my-stat-label
+              = t('dashboard.stats.my_total')
+
+          .my-stat-card
+            .my-stat-number
+              = @my_contribution_stats[:verified]
+            .my-stat-label
+              = t('dashboard.stats.my_verified')
+
+          .my-stat-card
+            .my-stat-number
+              = @my_contribution_stats[:in_progress]
+            .my-stat-label
+              = t('dashboard.stats.my_in_progress')
 
     .dashboard-section
-      %h2{style: 'font-size: 1.5rem; margin-bottom: 1rem; color: #2d3748;'}
-        = t('dashboard.quick_actions', default: 'Quick Actions')
+      %h2
+        = t('dashboard.quick_actions')
 
-      .quick-actions{style: 'display: flex; flex-direction: column; gap: 1rem;'}
-        = link_to publications_search_path, class: 'action-button', style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; text-decoration: none; transition: all 0.2s; display: block;' do
-          .action-icon{style: 'font-size: 2rem; margin-bottom: 0.5rem;'} 🔍
-          .action-title{style: 'font-weight: 600; color: #2d3748; font-size: 1.1rem; margin-bottom: 0.25rem;'}
-            = t('dashboard.actions.search_books', default: 'Search Books')
-          .action-description{style: 'color: #718096; font-size: 0.9rem;'}
-            = t('dashboard.actions.search_description', default: 'Find books to create TOCs')
+      .quick-actions
+        = link_to publications_search_path, class: 'action-button' do
+          .action-icon 🔍
+          .action-title
+            = t('dashboard.actions.search_books')
+          .action-description
+            = t('dashboard.actions.search_description')
 
-        = link_to tocs_path, class: 'action-button', style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.25rem; text-decoration: none; transition: all 0.2s; display: block;' do
-          .action-icon{style: 'font-size: 2rem; margin-bottom: 0.5rem;'} ✓
-          .action-title{style: 'font-weight: 600; color: #2d3748; font-size: 1.1rem; margin-bottom: 0.25rem;'}
-            = t('dashboard.actions.verify_tocs', default: 'Verify TOCs')
-          .action-description{style: 'color: #718096; font-size: 0.9rem;'}
-            = t('dashboard.actions.verify_description', default: 'Review others\' contributions')
+        = link_to tocs_path, class: 'action-button' do
+          .action-icon ✓
+          .action-title
+            = t('dashboard.actions.verify_tocs')
+          .action-description
+            = t('dashboard.actions.verify_description')
 
-      %h3{style: 'font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; color: #2d3748;'}
-        = t('dashboard.needs_attention', default: 'Needs Attention')
+      %h3
+        = t('dashboard.needs_attention')
 
-      - needs_verification = Toc.where(status: :transcribed).where.not(contributor: current_user).order(updated_at: :desc).limit(3)
-      - if needs_verification.any?
-        - needs_verification.each do |toc|
-          .mini-toc-card{style: 'background: #fffbeb; border-left: 4px solid #f59e0b; padding: 1rem; margin-bottom: 0.75rem; border-radius: 4px;'}
-            %h4{style: 'font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem;'}
-              = link_to toc.title, toc, style: 'color: #2d3748; text-decoration: none;'
-            %p{style: 'font-size: 0.85rem; color: #718096; margin: 0;'}
-              = t('dashboard.ready_to_verify', default: 'Ready to verify')
+      - if @needs_verification.any?
+        - @needs_verification.each do |toc|
+          .mini-toc-card
+            %h4
+              = link_to toc.title, toc
+            %p
+              = t('dashboard.ready_to_verify')
       - else
-        %p{style: 'color: #718096; font-size: 0.9rem; font-style: italic;'}
-          = t('dashboard.no_verification_needed', default: 'No TOCs need verification right now')
+        %p
+          = t('dashboard.no_verification_needed')
 
-:javascript
-  // Hover effects for action buttons
-  document.querySelectorAll('.action-button').forEach(function(button) {
-    button.addEventListener('mouseenter', function() {
-      this.style.borderColor = '#667eea';
-      this.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.15)';
-      this.style.transform = 'translateY(-2px)';
-    });
-    button.addEventListener('mouseleave', function() {
-      this.style.borderColor = '#e2e8f0';
-      this.style.boxShadow = 'none';
-      this.style.transform = 'translateY(0)';
-    });
-  });
+      - if @recent_community_activity.any?
+        %h3
+          = t('dashboard.recent_community_activity')
+
+        .activity-feed
+          - @recent_community_activity.each do |toc|
+            .activity-item
+              .activity-title
+                = link_to toc.title, toc
+              .activity-meta
+                = t('dashboard.activity.verified_by', reviewer: toc.reviewer&.email || 'Unknown')
+                = time_ago_in_words(toc.verified_at)
+                = t('dashboard.ago')

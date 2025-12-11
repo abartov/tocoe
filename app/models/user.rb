@@ -3,6 +3,10 @@ class User < ApplicationRecord
   devise :database_authenticatable, :recoverable, :rememberable, :validatable,
          :registerable, :omniauthable, omniauth_providers: %i[google_oauth2]
 
+  # Associations
+  has_many :tocs, foreign_key: :contributor_id, dependent: :nullify
+  has_many :reviewed_tocs, class_name: 'Toc', foreign_key: :reviewer_id, dependent: :nullify
+
   validates :email, presence: true, uniqueness: { case_sensitive: false }
 
   def self.from_omniauth(auth)

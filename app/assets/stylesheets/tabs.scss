@@ -1,0 +1,274 @@
+// Tab navigation styles
+// Enhances Bootstrap 3 tabs for modern appearance
+
+.toc-form-container {
+  .nav-tabs {
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 2rem;
+
+    > li {
+      margin-bottom: -2px;
+
+      > a {
+        border: none;
+        border-radius: 0;
+        color: #718096;
+        padding: 1rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        position: relative;
+
+        &:hover {
+          background: transparent;
+          color: #667eea;
+          border: none;
+        }
+
+        .badge {
+          margin-left: 0.5rem;
+          background: #f59e0b;
+          color: white;
+        }
+
+        &.error-badge::after {
+          content: '';
+          position: absolute;
+          top: 0.5rem;
+          right: 0.5rem;
+          width: 8px;
+          height: 8px;
+          background: #e53e3e;
+          border-radius: 50%;
+        }
+      }
+
+      &.active > a {
+        color: #667eea;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid #667eea;
+        font-weight: 600;
+
+        &:hover,
+        &:focus {
+          background: transparent;
+          border: none;
+          border-bottom: 2px solid #667eea;
+        }
+      }
+    }
+  }
+
+  .tab-content {
+    > .tab-pane {
+      display: none;
+
+      &.active {
+        display: block;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .nav-tabs > li > a {
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Tab panels
+.tab-pane {
+  animation: fadeIn 0.3s ease-in;
+
+  .form-horizontal {
+    .form-group {
+      margin-bottom: 1.5rem;
+
+      label.control-label {
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .help-block {
+        color: #718096;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Form actions
+.form-actions {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e2e8f0;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
+  .btn-primary {
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+  }
+
+  .btn-default {
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+// Subjects tab styling
+.subjects-section {
+  .panel {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+    .panel-heading {
+      background: #f7fafc;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 2px solid #e2e8f0;
+      padding: 1rem 1.25rem;
+
+      h4 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #2d3748;
+        font-weight: 600;
+      }
+    }
+
+    .panel-body {
+      padding: 1.25rem;
+    }
+  }
+
+  .list-group-item {
+    border: 1px solid #e2e8f0;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .label {
+      margin-right: 0.5rem;
+    }
+  }
+
+  .auto-match-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f7fafc;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+
+    #auto_match_subjects {
+      font-size: 1.1rem;
+      padding: 0.75rem 2rem;
+    }
+  }
+}
+
+// OCR tab styling
+.ocr-section {
+  .panel {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+
+    .panel-heading {
+      background: #f7fafc;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 2px solid #e2e8f0;
+      padding: 1rem 1.25rem;
+
+      h4 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #2d3748;
+        font-weight: 600;
+      }
+    }
+
+    .panel-body {
+      padding: 1.5rem;
+    }
+  }
+
+  .ocr-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1rem;
+
+    .btn-primary {
+      padding: 0.75rem 2rem;
+      font-size: 1.1rem;
+    }
+  }
+
+  .scan-thumbnails-section {
+    margin-top: 1.5rem;
+  }
+}
+
+// TOC Body tab styling
+.toc-body-section {
+  .markdown-help-section {
+    margin-bottom: 1.5rem;
+
+    .help-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+
+      h4 {
+        margin: 0;
+        color: #2d3748;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      button {
+        font-size: 0.9rem;
+      }
+    }
+
+    .collapse {
+      margin-top: 0.75rem;
+    }
+  }
+
+  .toc-body-controls {
+    margin-bottom: 0.75rem;
+
+    #magic_trim {
+      font-size: 1rem;
+      padding: 0.5rem 1.5rem;
+
+      .glyphicon {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
+  .toc-textarea {
+    font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+}

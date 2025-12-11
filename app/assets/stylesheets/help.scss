@@ -1,0 +1,220 @@
+// Help system styles
+// Tooltips, popovers, help page, and help icons
+
+// Help icons
+.help-icon {
+  color: #718096;
+  cursor: pointer;
+  margin-left: 0.25rem;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #667eea;
+  }
+}
+
+// Bootstrap 3 tooltip customization
+.tooltip {
+  .tooltip-inner {
+    background-color: #2d3748;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    max-width: 250px;
+    text-align: left;
+  }
+
+  &.top .tooltip-arrow {
+    border-top-color: #2d3748;
+  }
+
+  &.bottom .tooltip-arrow {
+    border-bottom-color: #2d3748;
+  }
+
+  &.left .tooltip-arrow {
+    border-left-color: #2d3748;
+  }
+
+  &.right .tooltip-arrow {
+    border-right-color: #2d3748;
+  }
+}
+
+// Bootstrap 3 popover customization
+.popover {
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-width: 350px;
+
+  .popover-title {
+    background: #f7fafc;
+    border-bottom: 2px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+    border-radius: 6px 6px 0 0;
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  .popover-content {
+    padding: 1rem;
+    color: #4a5568;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  &.top > .arrow::after {
+    border-top-color: #f7fafc;
+  }
+
+  &.bottom > .arrow::after {
+    border-bottom-color: #f7fafc;
+  }
+}
+
+// Help page styles
+.help-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #e2e8f0;
+
+    h1 {
+      font-size: 2.5rem;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+    }
+
+    .lead {
+      font-size: 1.2rem;
+      color: #718096;
+    }
+  }
+
+  .help-sections {
+    .help-section {
+      margin-bottom: 3rem;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 2rem;
+
+      h2 {
+        color: #667eea;
+        font-size: 1.75rem;
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e2e8f0;
+      }
+
+      h3 {
+        color: #2d3748;
+        font-size: 1.3rem;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      p {
+        color: #4a5568;
+        line-height: 1.8;
+        margin-bottom: 1rem;
+      }
+
+      ul, ol {
+        color: #4a5568;
+        line-height: 1.8;
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+
+        li {
+          margin-bottom: 0.5rem;
+        }
+      }
+
+      code {
+        background: #f7fafc;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        color: #667eea;
+      }
+
+      pre {
+        background: #2d3748;
+        color: #f7fafc;
+        padding: 1rem;
+        border-radius: 6px;
+        overflow-x: auto;
+        margin: 1rem 0;
+
+        code {
+          background: transparent;
+          color: inherit;
+          padding: 0;
+        }
+      }
+
+      .alert {
+        border-radius: 6px;
+        padding: 1rem;
+        margin: 1rem 0;
+
+        &.alert-info {
+          background: #ebf8ff;
+          border: 1px solid #90cdf4;
+          color: #2c5282;
+        }
+
+        &.alert-warning {
+          background: #fffbeb;
+          border: 1px solid #fbd38d;
+          color: #7c2d12;
+        }
+
+        &.alert-success {
+          background: #f0fff4;
+          border: 1px solid #9ae6b4;
+          color: #22543d;
+        }
+      }
+    }
+  }
+}
+
+// Help link in navigation
+.nav-help {
+  .help-link {
+    position: relative;
+
+    .glyphicon-question-sign {
+      font-size: 1.1rem;
+      margin-right: 0.25rem;
+    }
+
+    &:hover {
+      color: #667eea;
+    }
+  }
+}
+
+// Inline help blocks
+.help-block {
+  &.with-icon {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+
+    .glyphicon {
+      color: #718096;
+      margin-top: 0.2rem;
+    }
+  }
+}

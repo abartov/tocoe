@@ -39,8 +39,12 @@
         %ul.pagination
           - if @current_page > 1
             %li.page-item
+              = link_to t('tocs.browse_scans.first'), browse_scans_toc_path(@toc, page: 1), class: 'page-link'
+            %li.page-item
               = link_to t('tocs.browse_scans.previous'), browse_scans_toc_path(@toc, page: @current_page - 1), class: 'page-link'
           - else
+            %li.page-item.disabled
+              %span.page-link= t('tocs.browse_scans.first')
             %li.page-item.disabled
               %span.page-link= t('tocs.browse_scans.previous')
 

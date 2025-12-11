@@ -4,7 +4,7 @@ class Toc < ActiveRecord::Base
   belongs_to :contributor, class_name: 'User', optional: true
   belongs_to :reviewer, class_name: 'User', optional: true
   enum :status, { empty: 'empty', pages_marked: 'pages_marked', transcribed: 'transcribed', verified: 'verified', error: 'error' }
-
+  enum :source, { openlibrary: 'openlibrary', gutenberg: 'gutenberg', local_upload: 'local_upload' }
   validate :contributor_cannot_be_reviewer
 
   before_save :set_status_timestamps

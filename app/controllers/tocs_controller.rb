@@ -110,6 +110,7 @@ class TocsController < ApplicationController
     @toc = Toc.new(toc_params)
     @manifestation = process_toc(@toc['toc_body'])
     @toc.manifestation = @manifestation
+    @toc.status = :pages_marked if @toc.book_uri =~ %r{gutenberg\.org/ebooks/(\d+)}
     respond_to do |format|
       if @toc.save
         format.html { redirect_to @toc, notice: 'Toc was successfully created.' }
@@ -405,11 +406,11 @@ class TocsController < ApplicationController
           book_data = gutendex_client.book(book_id)
           book_uri = "https://www.gutenberg.org/ebooks/#{book_id}"
 
-          # Create TOC with empty status
+          # Create TOC with pages_marked status (since PG has texts, not scans)
           toc = Toc.new(
             book_uri: book_uri,
             title: book_data['title'] || "Book #{book_id}",
-            status: :empty,
+            status: :pages_marked,
             imported_subjects: extract_subjects_from_gutendex(book_data)
           )
         else

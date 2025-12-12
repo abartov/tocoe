@@ -27,6 +27,7 @@ WebMock.disable_net_connect!(
   allow: [
     'gutendex.toolforge.org',
     'www.wikidata.org',
+    'query.wikidata.org',
     'id.loc.gov'
   ]
 )

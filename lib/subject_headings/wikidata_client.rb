@@ -56,8 +56,15 @@ module SubjectHeadings
 
         query_string = URI.encode_www_form(params)
         url = "#{SPARQL_ENDPOINT}?#{query_string}"
+        uri = URI.parse(url)
 
-        resp = Net::HTTP.get_response(URI.parse(url))
+        # Make HTTP request with proper User-Agent header (required by Wikimedia)
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true
+        request = Net::HTTP::Get.new(uri.request_uri)
+        request['User-Agent'] = 'ToCoE/1.0 (https://github.com/asaf/tocoe)'
+
+        resp = http.request(request)
         return nil unless resp.is_a?(Net::HTTPSuccess)
 
         data = JSON.parse(resp.body)

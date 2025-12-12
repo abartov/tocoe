@@ -136,6 +136,14 @@ class TocsController < ApplicationController
     @toc.status = :pages_marked if @toc.book_uri =~ %r{gutenberg\.org/ebooks/(\d+)}
     respond_to do |format|
       if @toc.save
+        # Fetch and store authors for the TOC
+        if @toc.book_data.present?
+          get_authors(@toc.book_data)
+        elsif @toc.book_uri.present?
+          get_authors(@toc.book_uri)
+        end
+        store_authors
+
         format.html { redirect_to @toc, notice: 'Toc was successfully created.' }
         format.json { render :show, status: :created, location: @toc }
       else
@@ -150,6 +158,14 @@ class TocsController < ApplicationController
   def update
     respond_to do |format|
       if @toc.update(toc_params)
+        # Fetch and store authors for the TOC
+        if @toc.book_data.present?
+          get_authors(@toc.book_data)
+        elsif @toc.book_uri.present?
+          get_authors(@toc.book_uri)
+        end
+        store_authors
+
         format.html { redirect_to @toc, notice: 'Toc was successfully updated.' }
         format.json { render :show, status: :ok, location: @toc }
       else
@@ -521,6 +537,21 @@ class TocsController < ApplicationController
       @authors = author_keys.map { |k| rest_get("http://openlibrary.org#{k}.json") }
     end
     map_authors
+  end
+
+  def store_authors
+    return if @authors.blank? || @toc.nil? || @toc.new_record?
+
+    # Clear existing authors to handle updates
+    @toc.people_tocs.destroy_all
+
+    # Create PeopleToc records for each author
+    @authors.each do |author|
+      person = author['person']
+      next if person.nil?
+
+      PeopleToc.create!(person: person, toc: @toc)
+    end
   end
 
   # rubocop:disable Metrics/AbcSize, Metrics/MethodLength

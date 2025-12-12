@@ -82,4 +82,40 @@ RSpec.describe "aboutnesses/index.html.haml", type: :view do
       end
     end
   end
+
+  describe 'displaying Toc-level authors' do
+    let(:toc) { Toc.create!(manifestation: manifestation, status: :empty, title: 'Test TOC', book_uri: 'http://example.com/book') }
+
+    context 'when the Toc has authors' do
+      it 'displays the Toc-level authors' do
+        toc # Ensure toc is created
+        author1 = Person.create!(name: "TOC Author One")
+        author2 = Person.create!(name: "TOC Author Two")
+        PeopleToc.create!(toc: toc, person: author1)
+        PeopleToc.create!(toc: toc, person: author2)
+
+        render
+
+        expect(rendered).to have_content('Authors:')
+        expect(rendered).to have_content('from TOC')
+        expect(rendered).to have_content('TOC Author One, TOC Author Two')
+      end
+    end
+
+    context 'when the Toc has no authors' do
+      it 'does not display the Toc authors section' do
+        toc # Ensure toc is created
+
+        render
+
+        expect(rendered).not_to have_content('from TOC')
+      end
+    end
+
+    context 'when there is no Toc associated' do
+      it 'does not raise an error' do
+        expect { render }.not_to raise_error
+      end
+    end
+  end
 end

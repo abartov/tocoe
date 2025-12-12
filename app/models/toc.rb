@@ -3,6 +3,10 @@ class Toc < ActiveRecord::Base
   belongs_to :manifestation, optional: true
   belongs_to :contributor, class_name: 'User', optional: true
   belongs_to :reviewer, class_name: 'User', optional: true
+
+  has_many :people_tocs, dependent: :destroy
+  has_many :authors, through: :people_tocs, source: :person
+
   enum :status, { empty: 'empty', pages_marked: 'pages_marked', transcribed: 'transcribed', verified: 'verified', error: 'error' }
 
   # Explicitly declare the attribute type for the source enum

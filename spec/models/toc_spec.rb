@@ -41,6 +41,40 @@ RSpec.describe Toc, type: :model do
       expect(toc.reviewer).to eq(user)
       expect(toc.reviewer.name).to eq('Jane Reviewer')
     end
+
+    it 'has many people_tocs' do
+      toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL123M', title: 'Test Book')
+      person1 = Person.create!(name: 'Author One')
+      person2 = Person.create!(name: 'Author Two')
+
+      PeopleToc.create!(person: person1, toc: toc)
+      PeopleToc.create!(person: person2, toc: toc)
+
+      expect(toc.people_tocs.count).to eq(2)
+    end
+
+    it 'has many authors through people_tocs' do
+      toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL123M', title: 'Test Book')
+      person1 = Person.create!(name: 'Author One')
+      person2 = Person.create!(name: 'Author Two')
+
+      PeopleToc.create!(person: person1, toc: toc)
+      PeopleToc.create!(person: person2, toc: toc)
+
+      expect(toc.authors.count).to eq(2)
+      expect(toc.authors).to include(person1)
+      expect(toc.authors).to include(person2)
+      expect(toc.authors.map(&:name)).to contain_exactly('Author One', 'Author Two')
+    end
+
+    it 'destroys dependent people_tocs when toc is destroyed' do
+      toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL123M', title: 'Test Book')
+      person = Person.create!(name: 'Test Author')
+      people_toc = PeopleToc.create!(person: person, toc: toc)
+
+      expect { toc.destroy }.to change { PeopleToc.count }.by(-1)
+      expect(PeopleToc.find_by(id: people_toc.id)).to be_nil
+    end
   end
 
   describe 'enums' do

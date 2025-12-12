@@ -141,6 +141,49 @@ RSpec.describe "tocs/show.html.haml", type: :view do
     end
   end
 
+  context 'Toc-level authors' do
+    let(:author1) { Person.create!(name: 'Author One') }
+    let(:author2) { Person.create!(name: 'Author Two') }
+    let(:toc_with_authors) do
+      toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL789M',
+        title: 'Book With Authors',
+        status: :empty
+      )
+      PeopleToc.create!(person: author1, toc: toc)
+      PeopleToc.create!(person: author2, toc: toc)
+      toc
+    end
+
+    before do
+      assign(:toc, toc_with_authors)
+      assign(:manifestation, nil)
+      allow(view).to receive(:current_user).and_return(regular_user)
+      render
+    end
+
+    it 'displays the authors label' do
+      expect(rendered).to have_content('Authors:')
+    end
+
+    it 'displays author names as comma-separated list' do
+      expect(rendered).to have_content('Author One, Author Two')
+    end
+  end
+
+  context 'Toc without authors' do
+    before do
+      assign(:toc, toc)
+      assign(:manifestation, nil)
+      allow(view).to receive(:current_user).and_return(regular_user)
+      render
+    end
+
+    it 'does not display authors section when there are no authors' do
+      expect(rendered).not_to match(/<strong>.*Authors:.*<\/strong>/)
+    end
+  end
+
   context 'ToC body preview' do
     let(:toc_with_body) do
       Toc.create!(

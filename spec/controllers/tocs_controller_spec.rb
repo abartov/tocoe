@@ -1152,4 +1152,137 @@ RSpec.describe TocsController, type: :controller do
       end
     end
   end
+
+  describe '#store_authors' do
+    let(:toc) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL123M', title: 'Test Book') }
+    let(:person1) { Person.create!(name: 'Author One') }
+    let(:person2) { Person.create!(name: 'Author Two') }
+
+    before do
+      controller.instance_variable_set(:@toc, toc)
+    end
+
+    it 'creates PeopleToc records for each author' do
+      authors = [
+        { 'name' => 'Author One', 'person' => person1 },
+        { 'name' => 'Author Two', 'person' => person2 }
+      ]
+      controller.instance_variable_set(:@authors, authors)
+
+      expect {
+        controller.send(:store_authors)
+      }.to change(PeopleToc, :count).by(2)
+
+      expect(toc.authors).to include(person1)
+      expect(toc.authors).to include(person2)
+    end
+
+    it 'clears existing authors before adding new ones' do
+      PeopleToc.create!(person: person1, toc: toc)
+      expect(toc.authors.count).to eq(1)
+
+      authors = [
+        { 'name' => 'Author Two', 'person' => person2 }
+      ]
+      controller.instance_variable_set(:@authors, authors)
+
+      controller.send(:store_authors)
+
+      expect(toc.authors.count).to eq(1)
+      expect(toc.authors).not_to include(person1)
+      expect(toc.authors).to include(person2)
+    end
+
+    it 'skips authors with nil person' do
+      authors = [
+        { 'name' => 'Author One', 'person' => person1 },
+        { 'name' => 'Unknown Author', 'person' => nil }
+      ]
+      controller.instance_variable_set(:@authors, authors)
+
+      expect {
+        controller.send(:store_authors)
+      }.to change(PeopleToc, :count).by(1)
+
+      expect(toc.authors).to include(person1)
+      expect(toc.authors.count).to eq(1)
+    end
+
+    it 'does nothing if @authors is blank' do
+      controller.instance_variable_set(:@authors, [])
+
+      expect {
+        controller.send(:store_authors)
+      }.not_to change(PeopleToc, :count)
+    end
+
+    it 'does nothing if @toc is nil' do
+      controller.instance_variable_set(:@toc, nil)
+      authors = [{ 'name' => 'Author One', 'person' => person1 }]
+      controller.instance_variable_set(:@authors, authors)
+
+      expect {
+        controller.send(:store_authors)
+      }.not_to change(PeopleToc, :count)
+    end
+  end
+
+  describe 'POST #create' do
+    let(:book_data) { { 'title' => 'Test Book', 'authors' => [{ 'key' => '/authors/OL123A' }] } }
+    let(:author_data) { { 'key' => '/authors/OL123A', 'name' => 'Test Author' } }
+
+    before do
+      allow(controller).to receive(:rest_get).with('http://openlibrary.org/books/OL123M.json').and_return(book_data)
+      allow(controller).to receive(:rest_get).with('http://openlibrary.org/authors/OL123A.json').and_return(author_data)
+    end
+
+    it 'stores authors when creating a TOC with book_uri' do
+      toc_params = {
+        title: 'Test Book',
+        book_uri: 'http://openlibrary.org/books/OL123M'
+      }
+
+      expect {
+        post :create, params: { toc: toc_params }
+      }.to change(PeopleToc, :count).by(1)
+
+      toc = Toc.last
+      expect(toc.authors.count).to eq(1)
+      expect(toc.authors.first.name).to eq('Test Author')
+    end
+  end
+
+  describe 'PATCH #update' do
+    let(:toc) { Toc.create!(book_uri: 'http://openlibrary.org/books/OL123M', title: 'Original Title') }
+    let(:book_data) { { 'title' => 'Test Book', 'authors' => [{ 'key' => '/authors/OL123A' }] } }
+    let(:author_data) { { 'key' => '/authors/OL123A', 'name' => 'Test Author' } }
+
+    before do
+      allow(controller).to receive(:rest_get).with('http://openlibrary.org/books/OL123M.json').and_return(book_data)
+      allow(controller).to receive(:rest_get).with('http://openlibrary.org/authors/OL123A.json').and_return(author_data)
+    end
+
+    it 'updates and stores authors when updating a TOC' do
+      expect {
+        patch :update, params: { id: toc.id, toc: { title: 'Updated Title' } }
+      }.to change(PeopleToc, :count).by(1)
+
+      toc.reload
+      expect(toc.title).to eq('Updated Title')
+      expect(toc.authors.count).to eq(1)
+      expect(toc.authors.first.name).to eq('Test Author')
+    end
+
+    it 'replaces existing authors when updating' do
+      old_person = Person.create!(name: 'Old Author')
+      PeopleToc.create!(person: old_person, toc: toc)
+
+      patch :update, params: { id: toc.id, toc: { title: 'Updated Title' } }
+
+      toc.reload
+      expect(toc.authors.count).to eq(1)
+      expect(toc.authors).not_to include(old_person)
+      expect(toc.authors.first.name).to eq('Test Author')
+    end
+  end
 end

@@ -6,6 +6,12 @@
     %strong= t('manifestations.show.authors_label', default: 'Authors:')
     = @embodiment.expression.work.creators.map(&:name).join(', ')
 
+- if @embodiment.manifestation&.toc&.authors&.any?
+  %p.text-muted
+    %strong= t('manifestations.show.authors_label', default: 'Authors:')
+    = "(#{t('aboutnesses.index.from_toc', default: 'from TOC')})"
+    = @embodiment.manifestation.toc.authors.map(&:name).join(', ')
+
 .row
   .col-xs-12
     %h2 Current Subject Headings

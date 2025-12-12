@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_12_061943) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_12_125738) do
   create_table "aboutnesses", force: :cascade do |t|
     t.integer "embodiment_id"
     t.string "subject_heading_uri"
@@ -94,6 +94,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_061943) do
     t.index ["openlibrary_id"], name: "index_people_on_openlibrary_id"
     t.index ["viaf_id"], name: "index_people_on_viaf_id"
     t.index ["wikidata_q"], name: "index_people_on_wikidata_q"
+  end
+
+  create_table "people_tocs", force: :cascade do |t|
+    t.integer "person_id", null: false
+    t.integer "toc_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["person_id", "toc_id"], name: "index_people_tocs_on_person_id_and_toc_id", unique: true
+    t.index ["person_id"], name: "index_people_tocs_on_person_id"
+    t.index ["toc_id"], name: "index_people_tocs_on_toc_id"
   end
 
   create_table "people_works", force: :cascade do |t|
@@ -195,4 +205,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_061943) do
     t.index ["title"], name: "index_works_on_title"
     t.index ["wikidata_q"], name: "index_works_on_wikidata_q"
   end
+
+  add_foreign_key "people_tocs", "people"
+  add_foreign_key "people_tocs", "tocs"
 end

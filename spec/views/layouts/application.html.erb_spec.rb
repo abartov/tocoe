@@ -30,5 +30,21 @@ RSpec.describe "layouts/application.html.erb", type: :view do
       expect(rendered).to have_content('test@example.com')
       expect(rendered).to have_selector('.user-menu-wrapper')
     end
+
+    it "displays the Subject Headings navigation link" do
+      render
+
+      expect(rendered).to have_link('🏷️ Subject Headings', href: '/dashboard/aboutness')
+    end
+
+    it "displays all navigation links" do
+      render
+
+      expect(rendered).to have_link('🏠 Dashboard', href: '/')
+      expect(rendered).to have_link('🔍 Search', href: '/publications/search')
+      expect(rendered).to have_link('📚 TOCs', href: '/tocs')
+      expect(rendered).to have_link('🏷️ Subject Headings', href: '/dashboard/aboutness')
+      expect(rendered).to have_selector('a[href="/help"]')
+    end
   end
 end

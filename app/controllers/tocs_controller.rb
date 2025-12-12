@@ -16,8 +16,10 @@ class TocsController < ApplicationController
             elsif params[:show_all] == 'true'
               Toc.all
             else
-              # By default, show TOCs that need work (exclude verified)
+              # By default, show TOCs that need work (exclude verified and current user's TOCs)
+              # Include TOCs with no contributor (nil) or TOCs contributed by others
               Toc.where.not(status: :verified)
+                 .where("contributor_id IS NULL OR contributor_id != ?", current_user.id)
             end
 
     # Apply sorting

@@ -20,6 +20,18 @@ RSpec.describe TocsController, type: :controller do
       expect(assigns(:tocs)).not_to include(verified_toc)
     end
 
+    it 'excludes current user\'s TOCs by default' do
+      # Create TOCs by different users
+      other_user = User.create!(email: 'other@example.com', password: 'password123')
+      own_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL1M', title: 'My TOC', status: :transcribed, contributor: user)
+      other_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL2M', title: 'Other TOC', status: :transcribed, contributor: other_user)
+
+      get :index
+
+      expect(assigns(:tocs)).to include(other_toc)
+      expect(assigns(:tocs)).not_to include(own_toc)
+    end
+
     it 'shows all TOCs when show_all parameter is true' do
       verified_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL1M', title: 'Verified', status: :verified)
       pending_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL2M', title: 'Pending', status: :pages_marked)

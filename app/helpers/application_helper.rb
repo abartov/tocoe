@@ -17,7 +17,7 @@ module ApplicationHelper
         crumbs << { name: t('common.actions.edit', default: 'Edit'), path: nil }
       elsif action_name == 'browse_scans' && @toc
         crumbs << { name: @toc.title, path: toc_path(@toc) }
-        crumbs << { name: t('tocs.browse_scans.title', default: 'Browse Scans'), path: nil }
+        crumbs << { name: t('tocs.browse_scans.title', book_title: @toc.title, default: 'Browse Scans'), path: nil }
       elsif action_name == 'new'
         crumbs << { name: t('tocs.new.title', book_title: @toc.title, authors: @authors.map{|a| a['name']}.join(','), default: 'New TOC'), path: nil }
       end

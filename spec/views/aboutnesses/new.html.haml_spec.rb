@@ -61,4 +61,39 @@ RSpec.describe "aboutnesses/new.html.haml", type: :view do
       expect(rendered).not_to have_content(I18n.t('aboutnesses.new.publication_label'))
     end
   end
+
+  describe 'displaying work authors' do
+    context 'when the work has authors' do
+      it 'displays the authors' do
+        work = Work.create!(title: "Test Work")
+        Reification.create!(work: work, expression: embodiment.expression)
+        author1 = Person.create!(name: "Author One")
+        author2 = Person.create!(name: "Author Two")
+        PeopleWork.create!(work: work, person: author1)
+        PeopleWork.create!(work: work, person: author2)
+
+        render
+
+        expect(rendered).to have_content('Authors:')
+        expect(rendered).to have_content('Author One, Author Two')
+      end
+    end
+
+    context 'when the work has no authors' do
+      it 'does not display the authors section' do
+        work = Work.create!(title: "Test Work")
+        Reification.create!(work: work, expression: embodiment.expression)
+
+        render
+
+        expect(rendered).not_to have_content('Authors:')
+      end
+    end
+
+    context 'when there is no work associated' do
+      it 'does not raise an error' do
+        expect { render }.not_to raise_error
+      end
+    end
+  end
 end

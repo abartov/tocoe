@@ -47,4 +47,39 @@ RSpec.describe "aboutnesses/index.html.haml", type: :view do
       expect(rendered).not_to have_link('Back to ToC')
     end
   end
+
+  describe 'displaying work authors' do
+    context 'when the work has authors' do
+      it 'displays the authors' do
+        work = Work.create!(title: "Test Work")
+        Reification.create!(work: work, expression: expression)
+        author1 = Person.create!(name: "Jane Author")
+        author2 = Person.create!(name: "John Writer")
+        PeopleWork.create!(work: work, person: author1)
+        PeopleWork.create!(work: work, person: author2)
+
+        render
+
+        expect(rendered).to have_content('Authors:')
+        expect(rendered).to have_content('Jane Author, John Writer')
+      end
+    end
+
+    context 'when the work has no authors' do
+      it 'does not display the authors section' do
+        work = Work.create!(title: "Test Work")
+        Reification.create!(work: work, expression: expression)
+
+        render
+
+        expect(rendered).not_to have_content('Authors:')
+      end
+    end
+
+    context 'when there is no work associated' do
+      it 'does not raise an error' do
+        expect { render }.not_to raise_error
+      end
+    end
+  end
 end

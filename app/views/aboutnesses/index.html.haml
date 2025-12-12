@@ -1,6 +1,11 @@
 %h1= t('aboutnesses.index.subject_headings')
 %p=  t('aboutnesses.index.manage_subject_headings', title: @embodiment.expression&.title || 'Untitled')
 
+- if @embodiment.expression&.work&.creators&.any?
+  %p.text-muted
+    %strong= t('manifestations.show.authors_label', default: 'Authors:')
+    = @embodiment.expression.work.creators.map(&:name).join(', ')
+
 .row
   .col-xs-12
     %h2 Current Subject Headings

@@ -8,6 +8,10 @@
     %p{style: 'color: #4a5568; margin-bottom: 0.5rem;'}
       %strong= t('aboutnesses.new.work_label', default: 'Work:')
       = @embodiment.expression.work.title
+    - if @embodiment.expression.work.creators.any?
+      %p{style: 'color: #4a5568; margin-bottom: 0.5rem;'}
+        %strong= t('manifestations.show.authors_label', default: 'Authors:')
+        = @embodiment.expression.work.creators.map(&:name).join(', ')
   - if @embodiment.manifestation&.toc
     %p{style: 'color: #4a5568; margin-bottom: 0.5rem;'}
       %strong= t('aboutnesses.new.publication_label', default: 'From publication:')

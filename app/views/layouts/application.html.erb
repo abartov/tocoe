@@ -67,6 +67,14 @@
     <%= yield %>
   </div>
 
+  <!-- Global loading overlay -->
+  <div id="global-loading-overlay" class="loading-overlay" style="display: none; position: fixed;">
+    <div class="loading-spinner">
+      <div class="spinner spinner-lg"></div>
+      <span class="loading-text"><%= t('common.loading', default: 'Loading...') %></span>
+    </div>
+  </div>
+
   <footer class="tocoe-footer">
     <div class="footer-content">
       <div class="footer-section">
@@ -117,6 +125,27 @@ document.addEventListener('click', function() {
   if (dropdown && dropdown.classList.contains('show')) {
     dropdown.classList.remove('show');
   }
+});
+
+// Show loading overlay for Browse Scans links
+document.addEventListener('DOMContentLoaded', function() {
+  // Find all links that go to browse_scans paths
+  var browseScansLinks = document.querySelectorAll('a[href*="/browse_scans"]');
+
+  browseScansLinks.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      // Don't show loading for links that open in new tabs
+      if (link.target === '_blank') {
+        return;
+      }
+
+      // Show the loading overlay
+      var overlay = document.getElementById('global-loading-overlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+      }
+    });
+  });
 });
 </script>
 </body>

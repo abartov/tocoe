@@ -6,8 +6,8 @@ Devise.setup do |config|
   secret_key_base = Rails.application.credentials.secret_key_base.presence
   config.secret_key = secret_key_base if secret_key_base
 
-  google_client_id = Rails.configuration.constants['google_oauth2_client_id']
-  google_client_secret = Rails.configuration.constants['google_oauth2_client_secret']
+  google_client_id = ENV['GOOGLE_OAUTH2_CLIENT_ID']
+  google_client_secret = ENV['GOOGLE_OAUTH2_CLIENT_SECRET']
 
   if google_client_id.present? && google_client_secret.present?
     config.omniauth :google_oauth2,

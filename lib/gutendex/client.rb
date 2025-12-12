@@ -3,7 +3,7 @@
 
 class Gutendex::Client
   def initialize
-    @api_url = Rails.configuration.constants['gutendex_api_url'] || 'https://gutendex.toolforge.org'
+    @api_url = ENV.fetch('GUTENDEX_API_URL', 'https://gutendex.toolforge.org')
   end
 
   def request(the_path, params = {})

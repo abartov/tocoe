@@ -158,6 +158,10 @@ GEM
       warden (~> 1.2.3)
     diff-lcs (1.6.2)
     domain_name (0.6.20240107)
+    dotenv (3.2.0)
+    dotenv-rails (3.2.0)
+      dotenv (= 3.2.0)
+      railties (>= 6.1)
     drb (2.2.3)
     erb (6.0.0)
     erubi (1.13.1)
@@ -462,6 +466,7 @@ DEPENDENCIES
   database_cleaner
   debug
   devise
+  dotenv-rails
   faker
   haml-rails
   httparty

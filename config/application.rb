@@ -23,7 +23,6 @@ module Tocoe
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-    config.constants = config_for(:constants)
 
   end
 end

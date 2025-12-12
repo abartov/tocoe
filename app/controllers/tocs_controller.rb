@@ -622,7 +622,7 @@ class TocsController < ApplicationController
   end
 
   def get_ocr_from_service(url)
-    ocr_method = Rails.configuration.constants['OCR_method'] || 'tesseract'
+    ocr_method = ENV.fetch('OCR_METHOD', 'tesseract')
 
     case ocr_method
     when 'tesseract'
@@ -642,8 +642,8 @@ class TocsController < ApplicationController
     require 'open3'
     require 'tempfile'
 
-    tesseract_path = Rails.configuration.constants['tesseract_path'] || 'tesseract'
-    language = Rails.configuration.constants['OCR_language'] || 'eng'
+    tesseract_path = ENV.fetch('TESSERACT_PATH', 'tesseract')
+    language = ENV.fetch('OCR_LANGUAGE', 'eng')
 
     # Download image to temporary file
     response = HTTParty.get(url, timeout: 30)
@@ -683,10 +683,10 @@ class TocsController < ApplicationController
   end
 
   def get_ocr_with_rest_api(url)
-    ocr_service = Rails.configuration.constants['OCR_service']
+    ocr_service = ENV['OCR_SERVICE_URL']
 
     unless ocr_service
-      raise "OCR_service not configured"
+      raise "OCR_SERVICE_URL not configured"
     end
 
     # Send POST request to OCR service with the image URL

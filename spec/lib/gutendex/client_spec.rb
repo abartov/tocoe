@@ -3,6 +3,20 @@ require 'rails_helper'
 RSpec.describe Gutendex::Client do
   let(:client) { described_class.new }
 
+  describe '#initialize' do
+    it 'uses GUTENDEX_API_URL environment variable when set' do
+      allow(ENV).to receive(:fetch).with('GUTENDEX_API_URL', anything).and_return('https://custom.gutendex.example')
+      client = described_class.new
+      expect(client.instance_variable_get(:@api_url)).to eq('https://custom.gutendex.example')
+    end
+
+    it 'falls back to default URL when GUTENDEX_API_URL is not set' do
+      allow(ENV).to receive(:fetch).with('GUTENDEX_API_URL', 'https://gutendex.toolforge.org').and_call_original
+      client = described_class.new
+      expect(client.instance_variable_get(:@api_url)).to eq('https://gutendex.toolforge.org')
+    end
+  end
+
   describe '#book' do
     it 'fetches a specific book by ID' do
       # Use a real Project Gutenberg book ID (1342 = Pride and Prejudice)

@@ -52,6 +52,27 @@ bin/rails db:schema:load         # Load schema (faster than migrations for new d
 bin/rails db:reset               # Drop, create, load schema
 ```
 
+## Environment Configuration
+
+The application uses environment variables for configuration (via the `dotenv-rails` gem).
+
+**Setup:**
+1. Copy `.env.example` to `.env`: `cp .env.example .env`
+2. Update `.env` with your local values (never commit `.env` to git)
+
+**Key environment variables:**
+- `OCR_METHOD` - OCR method: 'tesseract' (local binary) or 'rest' (web service)
+- `TESSERACT_PATH` - Path to tesseract binary (default: 'tesseract')
+- `OCR_SERVICE_URL` - REST API endpoint for OCR service (when using OCR_METHOD=rest)
+- `OCR_LANGUAGE` - OCR language code (default: 'eng')
+- `GOOGLE_OAUTH2_CLIENT_ID` - Google OAuth2 client ID for sign-in
+- `GOOGLE_OAUTH2_CLIENT_SECRET` - Google OAuth2 client secret
+- `GUTENDEX_API_URL` - Gutendex API endpoint (default: 'https://gutendex.toolforge.org')
+- `DEVISE_PEPPER` - Devise secret for password encryption (generate with `rails secret`)
+
+**Production deployment:**
+Set these environment variables in your hosting platform (Heroku, Docker, etc.).
+
 ## Core Architecture
 
 ### FRBR Data Model
@@ -121,9 +142,10 @@ When a ToC is created:
 - Custom client code in `lib/open_library/`
 
 **OpenOCR Service**
-- Configured via `Rails.configuration.constants['OCR_service']`
+- Configured via `OCR_SERVICE_URL` environment variable
 - Used to extract text from book page images
 - Accessible through `TocsController#do_ocr`
+- OCR method selection via `OCR_METHOD` environment variable (tesseract/rest)
 
 ## Testing
 

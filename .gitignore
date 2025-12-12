@@ -13,6 +13,8 @@
 
 # ignore local configuration
 /config/constants.yml
+.env
+.env.local
 
 # Ignore all logfiles and tempfiles.
 /log/*

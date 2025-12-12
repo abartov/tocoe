@@ -1399,4 +1399,60 @@ RSpec.describe TocsController, type: :controller do
       expect(toc.authors.first.name).to eq('Test Author')
     end
   end
+
+  describe 'OCR environment variable configuration' do
+    describe '#get_ocr_from_service' do
+      it 'uses OCR_METHOD environment variable to select tesseract' do
+        allow(ENV).to receive(:fetch).with('OCR_METHOD', 'tesseract').and_return('tesseract')
+        allow(controller).to receive(:get_ocr_with_tesseract).and_return('tesseract result')
+
+        result = controller.send(:get_ocr_from_service, 'http://example.com/image.jpg')
+
+        expect(controller).to have_received(:get_ocr_with_tesseract)
+        expect(result).to eq('tesseract result')
+      end
+
+      it 'uses OCR_METHOD environment variable to select rest API' do
+        allow(ENV).to receive(:fetch).with('OCR_METHOD', 'tesseract').and_return('rest')
+        allow(controller).to receive(:get_ocr_with_rest_api).and_return('rest result')
+
+        result = controller.send(:get_ocr_from_service, 'http://example.com/image.jpg')
+
+        expect(controller).to have_received(:get_ocr_with_rest_api)
+        expect(result).to eq('rest result')
+      end
+
+      it 'defaults to tesseract when OCR_METHOD is not set' do
+        allow(ENV).to receive(:fetch).with('OCR_METHOD', 'tesseract').and_call_original
+        allow(controller).to receive(:get_ocr_with_tesseract).and_return('default result')
+
+        result = controller.send(:get_ocr_from_service, 'http://example.com/image.jpg')
+
+        expect(controller).to have_received(:get_ocr_with_tesseract)
+        expect(result).to eq('default result')
+      end
+    end
+
+    describe '#get_ocr_with_rest_api' do
+      it 'uses OCR_SERVICE_URL environment variable' do
+        allow(ENV).to receive(:[]).with('OCR_SERVICE_URL').and_return('http://custom-ocr-service.example')
+        allow(HTTParty).to receive(:post).and_return(double(success?: true, body: '{"text": "OCR result"}', parsed_response: { 'text' => 'OCR result' }))
+
+        controller.send(:get_ocr_with_rest_api, 'http://example.com/image.jpg')
+
+        expect(HTTParty).to have_received(:post).with(
+          'http://custom-ocr-service.example/ocr',
+          hash_including(body: { url: 'http://example.com/image.jpg' }.to_json)
+        )
+      end
+
+      it 'raises error when OCR_SERVICE_URL is not configured' do
+        allow(ENV).to receive(:[]).with('OCR_SERVICE_URL').and_return(nil)
+
+        expect {
+          controller.send(:get_ocr_with_rest_api, 'http://example.com/image.jpg')
+        }.to raise_error('OCR_SERVICE_URL not configured')
+      end
+    end
+  end
 end

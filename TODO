@@ -1,0 +1,16 @@
+To-Do list for the Table of Contents of Everything (ToCoE)
+==========================================================
+
+# Export ToCs
+* as markdown
+* as XML (MARCXML?)
+* what else?
+
+# escalation system for difficult cases
+** any user can escalate to "commitee review"
+** admins can determine membership of committee
+** committee members can make decisions and resolve escalated items
+
+# API
+* Allow querying by Open Library ID, Project Gutenberg ID, or title substring. Return status and ToC, if available. (See Export above re formats)
+

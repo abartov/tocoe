@@ -155,8 +155,8 @@
     img.addEventListener('click', function(e) {
       e.stopPropagation();
 
-      const imageUrl = this.getAttribute('data-full_url');
-      const imageId = this.getAttribute('data-image_id');
+      const imageUrl = this.getAttribute('data-full-url');
+      const imageId = this.getAttribute('data-image-id');
       const pageNumber = imageId.replace('browse-', '');
 
       // Update modal content

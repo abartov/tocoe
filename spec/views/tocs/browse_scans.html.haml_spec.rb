@@ -69,15 +69,10 @@ RSpec.describe "tocs/browse_scans.html.haml", type: :view do
       expect(rendered).to have_selector('img.card-img-top', count: 3)
     end
 
-    it 'renders loading spinners for each image' do
-      expect(rendered).to have_selector('.image-loading-spinner', count: 3)
-      expect(rendered).to have_selector('.image-spinner', count: 3)
-    end
-
-    it 'assigns unique image IDs to each image and spinner' do
-      expect(rendered).to have_selector('[data-image-id="browse-0"]', count: 3) # container, img, spinner
-      expect(rendered).to have_selector('[data-image-id="browse-1"]', count: 3)
-      expect(rendered).to have_selector('[data-image-id="browse-2"]', count: 3)
+    it 'assigns unique image IDs to each image' do
+      expect(rendered).to have_selector('[data-image-id="browse-0"]', count: 1) # just the img tag
+      expect(rendered).to have_selector('[data-image-id="browse-1"]', count: 1)
+      expect(rendered).to have_selector('[data-image-id="browse-2"]', count: 1)
     end
 
     it 'includes thumbnail URLs with scale parameter' do

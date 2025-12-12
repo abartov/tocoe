@@ -105,15 +105,10 @@ RSpec.describe "tocs/_toc_body_tab.html.haml", type: :view do
         expect(rendered).to have_selector('img.image-loader', count: 3, visible: :all)
       end
 
-      it 'renders loading spinners for each image' do
-        expect(rendered).to have_selector('.image-loading-spinner', count: 3, visible: :all)
-        expect(rendered).to have_selector('.image-spinner', count: 3, visible: :all)
-      end
-
-      it 'assigns unique image IDs to each image and spinner' do
-        expect(rendered).to have_selector('[data-image-id="body-0"]', count: 3, visible: :all) # container, img, spinner
-        expect(rendered).to have_selector('[data-image-id="body-1"]', count: 3, visible: :all)
-        expect(rendered).to have_selector('[data-image-id="body-2"]', count: 3, visible: :all)
+      it 'assigns unique image IDs to each image' do
+        expect(rendered).to have_selector('[data-image-id="body-0"]', count: 1, visible: :all) # just the img tag
+        expect(rendered).to have_selector('[data-image-id="body-1"]', count: 1, visible: :all)
+        expect(rendered).to have_selector('[data-image-id="body-2"]', count: 1, visible: :all)
       end
     end
   end

@@ -254,14 +254,9 @@ RSpec.describe "tocs/show.html.haml", type: :view do
       expect(rendered).to have_selector('img.image-loader', count: 2)
     end
 
-    it 'renders loading spinners for each image' do
-      expect(rendered).to have_selector('.image-loading-spinner', count: 2)
-      expect(rendered).to have_selector('.image-spinner', count: 2)
-    end
-
-    it 'assigns unique image IDs to each image and spinner' do
-      expect(rendered).to have_selector('[data-image-id="show-0"]', count: 3) # container, img, spinner
-      expect(rendered).to have_selector('[data-image-id="show-1"]', count: 3)
+    it 'assigns unique image IDs to each image' do
+      expect(rendered).to have_selector('[data-image-id="show-0"]', count: 1) # just the img tag
+      expect(rendered).to have_selector('[data-image-id="show-1"]', count: 1)
     end
 
     it 'renders page numbers below thumbnails' do

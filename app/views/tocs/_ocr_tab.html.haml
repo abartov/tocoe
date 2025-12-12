@@ -52,7 +52,10 @@
               .toc-scans-thumbnails{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa;'}
                 - @toc.toc_page_urls.split("\n").map(&:strip).reject(&:blank?).each_with_index do |url, index|
                   .toc-scan-thumb{style: 'display: inline-block; margin: 5px; cursor: pointer; vertical-align: top; width: 450px;', 'data-image-url' => url, 'data-page-number' => index + 1, 'data-default-width' => '450'}
-                    = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail toc-scan-image', style: 'width: 450px; height: auto;'
+                    .image-loading-container{data: { image_id: "ocr-#{index}" }, style: "height: 500px; width: 450px;"}
+                      = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail toc-scan-image image-loader', data: { image_id: "ocr-#{index}" }, style: 'width: 450px; height: auto;'
+                      .image-loading-spinner{data: { image_id: "ocr-#{index}" }}
+                        .image-spinner
                     .text-center.small
                       = t('tocs.show.page_number', number: index + 1)
 

@@ -26,7 +26,10 @@
     - @pages.each do |page_data|
       .col-md-3.col-sm-4.col-xs-6.scan-page{ data: { page: page_data[:page_number] } }
         .card.mb-3.scan-card{ class: (@marked_pages.include?(page_data[:url]) ? 'selected' : '') }
-          = image_tag page_data[:thumb_url], class: 'card-img-top', alt: t('tocs.browse_scans.page_label', number: page_data[:page_number]), data: { full_url: page_data[:url] }
+          .image-loading-container{data: { image_id: "browse-#{page_data[:page_number]}" }, style: "height: 200px;"}
+            = image_tag page_data[:thumb_url], class: 'card-img-top image-loader', alt: t('tocs.browse_scans.page_label', number: page_data[:page_number]), data: { full_url: page_data[:url], image_id: "browse-#{page_data[:page_number]}" }
+            .image-loading-spinner{data: { image_id: "browse-#{page_data[:page_number]}" }}
+              .image-spinner
           .card-body
             .form-check
               = check_box_tag "marked_pages[]", page_data[:url], @marked_pages.include?(page_data[:url]), class: 'form-check-input page-checkbox', id: "page_#{page_data[:page_number]}"
@@ -78,7 +81,7 @@
 
 :css
   .scan-grid .card {
-    min-height: 300px;
+    min-height: 320px;
     cursor: pointer;
     transition: all 0.2s ease;
     border: 2px solid #dee2e6;
@@ -92,15 +95,16 @@
     background-color: #f7fafc;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   }
-  .scan-grid .card.selected .card-img-top {
+  .scan-grid .card.selected .image-loading-container {
     border: 3px solid #667eea;
+  }
+  .scan-grid .image-loading-container {
+    border: 3px solid transparent;
+    transition: border-color 0.2s;
   }
   .scan-grid .card-img-top {
     height: 200px;
     object-fit: contain;
-    background-color: #f8f9fa;
-    border: 3px solid transparent;
-    transition: border-color 0.2s;
   }
   .scan-page {
     margin-bottom: 1rem;

@@ -223,4 +223,61 @@ RSpec.describe "tocs/show.html.haml", type: :view do
       expect(rendered).not_to have_selector('.toc-preview')
     end
   end
+
+  context 'TOC page thumbnails with loading placeholders' do
+    let(:toc_with_pages) do
+      Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL999M',
+        title: 'Book With Pages',
+        status: :pages_marked,
+        toc_page_urls: "https://archive.org/download/book/page/n1.jpg\nhttps://archive.org/download/book/page/n2.jpg"
+      )
+    end
+
+    before do
+      assign(:toc, toc_with_pages)
+      assign(:manifestation, nil)
+      allow(view).to receive(:current_user).and_return(regular_user)
+      render
+    end
+
+    it 'displays marked TOC pages section' do
+      expect(rendered).to have_content('Marked TOC Pages')
+      expect(rendered).to have_content('(2)')
+    end
+
+    it 'renders image loading containers for each page' do
+      expect(rendered).to have_selector('.image-loading-container', count: 2)
+    end
+
+    it 'renders images with image-loader class' do
+      expect(rendered).to have_selector('img.image-loader', count: 2)
+    end
+
+    it 'renders loading spinners for each image' do
+      expect(rendered).to have_selector('.image-loading-spinner', count: 2)
+      expect(rendered).to have_selector('.image-spinner', count: 2)
+    end
+
+    it 'assigns unique image IDs to each image and spinner' do
+      expect(rendered).to have_selector('[data-image-id="show-0"]', count: 3) # container, img, spinner
+      expect(rendered).to have_selector('[data-image-id="show-1"]', count: 3)
+    end
+
+    it 'renders page numbers below thumbnails' do
+      expect(rendered).to have_content('TOC Page 1')
+      expect(rendered).to have_content('TOC Page 2')
+    end
+  end
+
+  context 'when no TOC pages are marked' do
+    before do
+      allow(view).to receive(:current_user).and_return(regular_user)
+      render
+    end
+
+    it 'does not display the marked pages section' do
+      expect(rendered).not_to have_content('Marked TOC Pages')
+    end
+  end
 end

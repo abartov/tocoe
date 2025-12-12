@@ -90,6 +90,32 @@ RSpec.describe "tocs/_toc_body_tab.html.haml", type: :view do
     it 'displays magic trim button in editing panel' do
       expect(rendered).to have_selector('.editing-panel button#magic_trim')
     end
+
+    context 'image loading placeholders' do
+      it 'renders image loading containers for each scan' do
+        expect(rendered).to have_selector('.image-loading-container', count: 3, visible: :all)
+      end
+
+      it 'sets correct dimensions for image containers (300px width, 350px height)' do
+        expect(rendered).to have_selector('.image-loading-container[style*="width: 300px"]', count: 3, visible: :all)
+        expect(rendered).to have_selector('.image-loading-container[style*="height: 350px"]', count: 3, visible: :all)
+      end
+
+      it 'renders images with image-loader class' do
+        expect(rendered).to have_selector('img.image-loader', count: 3, visible: :all)
+      end
+
+      it 'renders loading spinners for each image' do
+        expect(rendered).to have_selector('.image-loading-spinner', count: 3, visible: :all)
+        expect(rendered).to have_selector('.image-spinner', count: 3, visible: :all)
+      end
+
+      it 'assigns unique image IDs to each image and spinner' do
+        expect(rendered).to have_selector('[data-image-id="body-0"]', count: 3, visible: :all) # container, img, spinner
+        expect(rendered).to have_selector('[data-image-id="body-1"]', count: 3, visible: :all)
+        expect(rendered).to have_selector('[data-image-id="body-2"]', count: 3, visible: :all)
+      end
+    end
   end
 
   context 'with Gutenberg book with fulltext' do

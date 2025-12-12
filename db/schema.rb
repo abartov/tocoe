@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_11_075540) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_12_061943) do
   create_table "aboutnesses", force: :cascade do |t|
     t.integer "embodiment_id"
     t.string "subject_heading_uri"
@@ -18,8 +18,14 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_11_075540) do
     t.string "subject_heading_label"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "contributor_id"
+    t.integer "reviewer_id"
+    t.string "status", default: "verified"
+    t.index ["contributor_id"], name: "index_aboutnesses_on_contributor_id"
     t.index ["embodiment_id"], name: "index_aboutnesses_on_embodiment_id"
+    t.index ["reviewer_id"], name: "index_aboutnesses_on_reviewer_id"
     t.index ["source_name"], name: "index_aboutnesses_on_source_name"
+    t.index ["status"], name: "index_aboutnesses_on_status"
   end
 
   create_table "embodiments", force: :cascade do |t|

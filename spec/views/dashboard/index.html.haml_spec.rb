@@ -213,9 +213,10 @@ RSpec.describe "dashboard/index", type: :view do
 
     it "displays action buttons" do
       render
-      expect(rendered).to have_selector('.action-button', count: 2)
+      expect(rendered).to have_selector('.action-button', count: 3)
       expect(rendered).to have_link(I18n.t('dashboard.actions.search_books'), href: publications_search_path)
       expect(rendered).to have_link(I18n.t('dashboard.actions.verify_tocs'), href: tocs_path)
+      expect(rendered).to have_link(I18n.t('dashboard.actions.add_subjects'), href: dashboard_aboutness_path)
     end
   end
 end

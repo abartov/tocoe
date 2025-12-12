@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   get "dashboard/index"
+  get "dashboard/aboutness", to: "dashboard#aboutness"
   devise_for :users, controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }
 
   get 'manifestations/show'
@@ -38,8 +39,12 @@ Rails.application.routes.draw do
     end
   end
 
-  # Aboutnesses - destroy doesn't need embodiment nesting
-  resources :aboutnesses, only: [:destroy]
+  # Aboutnesses - destroy and verify don't need embodiment nesting
+  resources :aboutnesses, only: [:destroy] do
+    member do
+      patch :verify
+    end
+  end
 
   # Help page
   get 'help', to: 'help#index'

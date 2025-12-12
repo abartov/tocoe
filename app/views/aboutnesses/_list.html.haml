@@ -4,16 +4,35 @@
       %th Source
       %th Subject Heading
       %th URI
+      %th Status
       %th Actions
   %tbody
     - aboutnesses.each do |aboutness|
       %tr
         %td
           %span.label.label-info= aboutness.source_name
-        %td= aboutness.subject_heading_label
+        %td
+          = aboutness.subject_heading_label
+          - if aboutness.contributor
+            %br
+            %small.text-muted
+              Contributed by
+              = aboutness.contributor.name || aboutness.contributor.email
         %td
           %a{ href: aboutness.subject_heading_uri, target: '_blank' }
             = aboutness.subject_heading_uri
             %span.glyphicon.glyphicon-new-window{ 'aria-hidden' => 'true' }
         %td
+          - if aboutness.status == 'verified'
+            %span.label.label-success Verified
+            - if aboutness.reviewer
+              %br
+              %small.text-muted
+                by
+                = aboutness.reviewer.name || aboutness.reviewer.email
+          - else
+            %span.label.label-warning Proposed
+        %td
+          - if aboutness.verifiable_by?(current_user)
+            = link_to 'Verify', verify_aboutness_path(aboutness), method: :patch, class: 'btn btn-success btn-xs'
           = link_to 'Remove', aboutness_path(aboutness), method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger btn-xs'

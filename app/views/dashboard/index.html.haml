@@ -106,6 +106,13 @@
           .action-description
             = t('dashboard.actions.verify_description')
 
+        = link_to dashboard_aboutness_path, class: 'action-button' do
+          .action-icon 🏷️
+          .action-title
+            = t('dashboard.actions.add_subjects')
+          .action-description
+            = t('dashboard.actions.subjects_description')
+
       %h3
         = t('dashboard.needs_attention')
 

@@ -1,0 +1,45 @@
+.aboutness-container
+  .page-header
+    %h1
+      = t('dashboard.aboutness.title')
+    %p
+      = t('dashboard.aboutness.description')
+
+  - if @tocs_needing_subjects.any?
+    .tocs-list
+      - @tocs_needing_subjects.each do |toc|
+        .toc-card
+          .toc-header
+            %h3
+              = link_to toc.title, toc
+            %span.status-badge.status-verified
+              = t('dashboard.aboutness.verified')
+
+          %p.text-muted
+            = t('dashboard.aboutness.last_updated')
+            = time_ago_in_words(toc.updated_at)
+            = t('dashboard.ago')
+
+          - if toc.manifestation
+            .embodiments-list
+              %h4
+                = t('dashboard.aboutness.works_needing_subjects')
+              %ul
+                - toc.manifestation.embodiments.includes(:expression, :aboutnesses).each do |embodiment|
+                  - if embodiment.aboutnesses.empty? && embodiment.expression
+                    %li
+                      = embodiment.expression.title || t('dashboard.aboutness.untitled_work')
+                      = link_to t('dashboard.aboutness.add_subjects'), new_embodiment_aboutness_path(embodiment), class: 'btn btn-sm btn-primary'
+
+    .text-center.mt-4
+      = link_to t('dashboard.aboutness.back_to_dashboard'), dashboard_index_path, class: 'btn btn-default'
+
+  - else
+    .empty-state
+      %p 🎉
+      %h3
+        = t('dashboard.aboutness.all_works_have_subjects')
+      %p
+        = t('dashboard.aboutness.all_works_message')
+      %p
+        = link_to t('dashboard.aboutness.back_to_dashboard'), dashboard_index_path, class: 'btn btn-primary'

@@ -257,11 +257,14 @@ class TocsController < ApplicationController
 
       if exact_match
         # Create Aboutness for exact match
+        # Auto-matched subjects are imported (not user-contributed), so they get 'verified' status
         aboutness = Aboutness.new(
           embodiment: main_embodiment,
           subject_heading_uri: exact_match[:uri],
           source_name: 'LCSH',
-          subject_heading_label: exact_match[:label]
+          subject_heading_label: exact_match[:label],
+          status: 'verified',
+          contributor_id: nil
         )
 
         if aboutness.save

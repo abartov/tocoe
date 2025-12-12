@@ -84,8 +84,21 @@ en:
       search_description: "Find books to create TOCs"
       verify_tocs: "Verify TOCs"
       verify_description: "Review others' contributions"
+      add_subjects: "Add Subject Headings"
+      subjects_description: "Categorize works with subject tags"
     activity:
       verified_by: "Verified by %{reviewer}"
+    aboutness:
+      title: "Works Needing Subject Headings"
+      description: "These verified TOCs contain works without subject headings. Help categorize them by adding Library of Congress Subject Headings (LCSH) or Wikidata subjects."
+      verified: "Verified"
+      last_updated: "Last updated"
+      works_needing_subjects: "Works without subject headings:"
+      untitled_work: "Untitled work"
+      add_subjects: "Add Subject Headings"
+      back_to_dashboard: "Back to Dashboard"
+      all_works_have_subjects: "All works have subject headings!"
+      all_works_message: "Great work! All verified TOCs now have subject headings assigned to their works."
 
   tocs:
     # Flash messages

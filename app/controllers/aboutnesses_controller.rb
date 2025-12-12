@@ -38,6 +38,13 @@ class AboutnessesController < ApplicationController
   def create
     @aboutness = @embodiment.aboutnesses.new(aboutness_params)
 
+    # Set contributor and status for user-contributed aboutnesses
+    # Imported aboutnesses should be created with contributor_id: nil and status: 'verified'
+    if current_user && !params[:aboutness][:imported]
+      @aboutness.contributor_id = current_user.id
+      @aboutness.status = 'proposed'
+    end
+
     if @aboutness.save
       # If remove_subject parameter is provided, remove it from the TOC's imported_subjects
       if params[:remove_subject].present?
@@ -60,6 +67,27 @@ class AboutnessesController < ApplicationController
         format.html { render :new }
         format.json { render json: { success: false, errors: @aboutness.errors.full_messages }, status: :unprocessable_entity }
       end
+    end
+  end
+
+  # PATCH /aboutnesses/:id/verify
+  # Verify an aboutness (only for aboutnesses not contributed by current user)
+  def verify
+    @aboutness = Aboutness.find(params[:id])
+    embodiment = @aboutness.embodiment
+
+    unless @aboutness.verifiable_by?(current_user)
+      redirect_to embodiment_aboutnesses_path(embodiment), alert: 'You cannot verify this subject heading.'
+      return
+    end
+
+    @aboutness.reviewer_id = current_user.id
+    @aboutness.status = 'verified'
+
+    if @aboutness.save
+      redirect_to embodiment_aboutnesses_path(embodiment), notice: 'Subject heading was successfully verified.'
+    else
+      redirect_to embodiment_aboutnesses_path(embodiment), alert: 'Failed to verify subject heading.'
     end
   end
 

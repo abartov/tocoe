@@ -33,4 +33,15 @@ class DashboardController < ApplicationController
                                     .limit(10)
                                     .includes(:reviewer, :contributor)
   end
+
+  def aboutness
+    # Find verified TOCs with embodiments that have no aboutnesses
+    @tocs_needing_subjects = Toc.where(status: :verified)
+                                .joins(manifestation: { embodiments: :expression })
+                                .left_joins(manifestation: { embodiments: :aboutnesses })
+                                .where(aboutnesses: { id: nil })
+                                .distinct
+                                .order(updated_at: :desc)
+                                .includes(manifestation: { embodiments: [:expression, :aboutnesses] })
+  end
 end

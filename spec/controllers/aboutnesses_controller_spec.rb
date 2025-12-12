@@ -105,6 +105,20 @@ RSpec.describe AboutnessesController, type: :controller do
 
         expect(response).to redirect_to(embodiment_aboutnesses_path(embodiment))
       end
+
+      it 'sets contributor_id to current user' do
+        post :create, params: valid_params
+
+        aboutness = Aboutness.last
+        expect(aboutness.contributor_id).to eq(user.id)
+      end
+
+      it 'sets status to proposed for user-contributed aboutnesses' do
+        post :create, params: valid_params
+
+        aboutness = Aboutness.last
+        expect(aboutness.status).to eq('proposed')
+      end
     end
 
     context 'with invalid parameters' do
@@ -153,6 +167,103 @@ RSpec.describe AboutnessesController, type: :controller do
       delete :destroy, params: { id: aboutness.id }
 
       expect(response).to redirect_to(embodiment_aboutnesses_path(embodiment))
+    end
+  end
+
+  describe 'PATCH #verify' do
+    let(:contributor) { User.create!(email: 'contributor@example.com', password: 'password123', password_confirmation: 'password123') }
+    let(:reviewer) { User.create!(email: 'reviewer@example.com', password: 'password123', password_confirmation: 'password123') }
+
+    context 'when verifying a proposed aboutness contributed by another user' do
+      let!(:aboutness) do
+        Aboutness.create!(
+          embodiment: embodiment,
+          subject_heading_uri: 'http://id.loc.gov/authorities/subjects/sh85146352',
+          source_name: 'LCSH',
+          subject_heading_label: 'Whales',
+          contributor: contributor,
+          status: 'proposed'
+        )
+      end
+
+      before do
+        sign_in reviewer
+      end
+
+      it 'verifies the aboutness' do
+        patch :verify, params: { id: aboutness.id }
+
+        aboutness.reload
+        expect(aboutness.status).to eq('verified')
+      end
+
+      it 'sets the reviewer_id to current user' do
+        patch :verify, params: { id: aboutness.id }
+
+        aboutness.reload
+        expect(aboutness.reviewer_id).to eq(reviewer.id)
+      end
+
+      it 'redirects to the aboutnesses index with success notice' do
+        patch :verify, params: { id: aboutness.id }
+
+        expect(response).to redirect_to(embodiment_aboutnesses_path(embodiment))
+        expect(flash[:notice]).to eq('Subject heading was successfully verified.')
+      end
+    end
+
+    context 'when trying to verify own contribution' do
+      let!(:aboutness) do
+        Aboutness.create!(
+          embodiment: embodiment,
+          subject_heading_uri: 'http://id.loc.gov/authorities/subjects/sh85146352',
+          source_name: 'LCSH',
+          subject_heading_label: 'Whales',
+          contributor: user,
+          status: 'proposed'
+        )
+      end
+
+      it 'does not verify the aboutness' do
+        patch :verify, params: { id: aboutness.id }
+
+        aboutness.reload
+        expect(aboutness.status).to eq('proposed')
+      end
+
+      it 'redirects with alert message' do
+        patch :verify, params: { id: aboutness.id }
+
+        expect(response).to redirect_to(embodiment_aboutnesses_path(embodiment))
+        expect(flash[:alert]).to eq('You cannot verify this subject heading.')
+      end
+    end
+
+    context 'when trying to verify an already verified aboutness' do
+      let!(:aboutness) do
+        Aboutness.create!(
+          embodiment: embodiment,
+          subject_heading_uri: 'http://id.loc.gov/authorities/subjects/sh85146352',
+          source_name: 'LCSH',
+          subject_heading_label: 'Whales',
+          status: 'verified'
+        )
+      end
+
+      it 'does not change the status' do
+        original_status = aboutness.status
+        patch :verify, params: { id: aboutness.id }
+
+        aboutness.reload
+        expect(aboutness.status).to eq(original_status)
+      end
+
+      it 'redirects with alert message' do
+        patch :verify, params: { id: aboutness.id }
+
+        expect(response).to redirect_to(embodiment_aboutnesses_path(embodiment))
+        expect(flash[:alert]).to eq('You cannot verify this subject heading.')
+      end
     end
   end
 end

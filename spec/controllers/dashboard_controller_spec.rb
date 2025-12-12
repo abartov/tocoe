@@ -169,4 +169,105 @@ RSpec.describe DashboardController, type: :controller do
       expect(assigns(:recent_community_activity)).not_to include(toc_transcribed)
     end
   end
+
+  describe "GET #aboutness" do
+    it "returns http success" do
+      get :aboutness
+      expect(response).to have_http_status(:success)
+    end
+
+    it "renders the aboutness template" do
+      get :aboutness
+      expect(response).to render_template(:aboutness)
+    end
+
+    it "assigns @tocs_needing_subjects with verified TOCs containing embodiments without aboutnesses" do
+      # Create a verified TOC with manifestation and embodiment without aboutnesses
+      expression = Expression.create!(title: "Test Expression")
+      manifestation = Manifestation.create!(title: "Test Manifestation")
+      embodiment = Embodiment.create!(expression: expression, manifestation: manifestation)
+      toc_needing_subjects = Toc.create!(
+        title: 'TOC Needing Subjects',
+        contributor: user,
+        status: :verified,
+        book_uri: 'https://example.com/1',
+        manifestation: manifestation
+      )
+
+      # Create a verified TOC with aboutnesses (should not be included)
+      expression2 = Expression.create!(title: "Test Expression 2")
+      manifestation2 = Manifestation.create!(title: "Test Manifestation 2")
+      embodiment2 = Embodiment.create!(expression: expression2, manifestation: manifestation2)
+      Aboutness.create!(
+        embodiment: embodiment2,
+        subject_heading_uri: 'http://id.loc.gov/authorities/subjects/sh85146352',
+        source_name: 'LCSH',
+        subject_heading_label: 'Whales',
+        status: 'verified'
+      )
+      toc_with_subjects = Toc.create!(
+        title: 'TOC With Subjects',
+        contributor: user,
+        status: :verified,
+        book_uri: 'https://example.com/2',
+        manifestation: manifestation2
+      )
+
+      get :aboutness
+
+      expect(assigns(:tocs_needing_subjects)).to include(toc_needing_subjects)
+      expect(assigns(:tocs_needing_subjects)).not_to include(toc_with_subjects)
+    end
+
+    it "only includes verified TOCs" do
+      # Create a transcribed TOC without aboutnesses
+      expression = Expression.create!(title: "Test Expression")
+      manifestation = Manifestation.create!(title: "Test Manifestation")
+      embodiment = Embodiment.create!(expression: expression, manifestation: manifestation)
+      toc_transcribed = Toc.create!(
+        title: 'Transcribed TOC',
+        contributor: user,
+        status: :transcribed,
+        book_uri: 'https://example.com/1',
+        manifestation: manifestation
+      )
+
+      get :aboutness
+
+      expect(assigns(:tocs_needing_subjects)).not_to include(toc_transcribed)
+    end
+
+    it "orders TOCs by updated_at descending" do
+      # Create two TOCs needing subjects
+      expression1 = Expression.create!(title: "Expression 1")
+      manifestation1 = Manifestation.create!(title: "Manifestation 1")
+      embodiment1 = Embodiment.create!(expression: expression1, manifestation: manifestation1)
+      toc1 = Toc.create!(
+        title: 'Old TOC',
+        contributor: user,
+        status: :verified,
+        book_uri: 'https://example.com/1',
+        manifestation: manifestation1
+      )
+
+      expression2 = Expression.create!(title: "Expression 2")
+      manifestation2 = Manifestation.create!(title: "Manifestation 2")
+      embodiment2 = Embodiment.create!(expression: expression2, manifestation: manifestation2)
+      toc2 = Toc.create!(
+        title: 'New TOC',
+        contributor: user,
+        status: :verified,
+        book_uri: 'https://example.com/2',
+        manifestation: manifestation2
+      )
+
+      # Update toc2 to make it more recent
+      toc2.touch
+
+      get :aboutness
+
+      expect(assigns(:tocs_needing_subjects).first).to eq(toc2)
+      expect(assigns(:tocs_needing_subjects).last).to eq(toc1)
+    end
+  end
 end

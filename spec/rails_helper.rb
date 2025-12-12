@@ -79,8 +79,9 @@ end
 # Capybara and JS driver configuration for feature specs
 begin
   require 'capybara/rspec'
-  # Note: webdrivers gem is not installed. Selenium WebDriver 4.x+ uses Selenium Manager
-  # for automatic driver management, so webdrivers is no longer needed.
+  # Note: webdrivers gem is not installed, but this require is kept for compatibility.
+  # Selenium WebDriver 4.x+ uses Selenium Manager for automatic driver management.
+  require 'webdrivers'
   require 'database_cleaner'
 
   Capybara.server = :puma, { Silent: true }

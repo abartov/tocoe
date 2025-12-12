@@ -268,14 +268,19 @@
                     <span class="stat-label">Screens Redesigned</span>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-number">9</span>
-                    <span class="stat-label">Phase 1 Completed</span>
+                    <span class="stat-number">18</span>
+                    <span class="stat-label">Implemented Total</span>
                 </div>
             </div>
 
             <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 1.5rem; margin: 1.5rem 0; border-radius: 4px;">
-                <h3 style="color: #10b981; margin-top: 0;">✅ Phase 1 Implementation Complete</h3>
-                <p><strong>9 critical recommendations have been implemented</strong> (R1, R2, R5, R11, R12, R17, R19, R27, R30), addressing the most urgent usability issues: persistent navigation, workflow visualization, mobile responsiveness, and modern card layouts. All 371 tests passing.</p>
+                <h3 style="color: #10b981; margin-top: 0;">✅ Phases 1 & 2 Implementation Complete</h3>
+                <p><strong>18 recommendations have been implemented</strong> across two phases, addressing critical usability issues and quick-win improvements:</p>
+                <ul style="margin: 0.5rem 0 0 1.5rem;">
+                    <li><strong>Phase 1 (9 items):</strong> R1, R2, R5, R11, R12, R17, R19, R27, R30 - Navigation, workflow, mobile, cards</li>
+                    <li><strong>Phase 2 (9 items):</strong> R14, R18, R20, R29, R32, R35, R38, R40, R41 - Visual feedback, context, polish</li>
+                </ul>
+                <p style="margin-top: 0.75rem;"><strong>All 449 tests passing.</strong> Significant improvements to navigation, visual hierarchy, mobile experience, and user interactions.</p>
             </div>
 
             <h3>Key Findings</h3>
@@ -880,15 +885,15 @@
                 <li><strong>R8:</strong> Error prevention (Medium impact, Medium effort)</li>
                 <li><strong>R9:</strong> Simplify homepage (Medium impact, Low effort)</li>
                 <li><strong>R13:</strong> Horizontal search form (Medium impact, Low effort)</li>
-                <li><strong>R14:</strong> Visible multi-select (Medium impact, Low effort)</li>
-                <li><strong>R18:</strong> Format TOC previews (Medium impact, Low effort)</li>
-                <li><strong>R20:</strong> Visual status indicators (Medium impact, Low effort)</li>
+                <li class="implemented"><strong>R14:</strong> Visible multi-select (Medium impact, Low effort) <span class="implemented-badge">✅ Implemented</span></li>
+                <li class="implemented"><strong>R18:</strong> Format TOC previews (Medium impact, Low effort) <span class="implemented-badge">✅ Implemented</span></li>
+                <li class="implemented"><strong>R20:</strong> Visual status indicators (Medium impact, Low effort) <span class="implemented-badge">✅ Implemented</span></li>
                 <li><strong>R22:</strong> Modern form layout (Medium impact, Medium effort)</li>
-                <li><strong>R29:</strong> Better status alerts (Medium impact, Low effort)</li>
-                <li><strong>R32:</strong> Clickable scan cards (Medium impact, Low effort)</li>
+                <li class="implemented"><strong>R29:</strong> Better status alerts (Medium impact, Low effort) <span class="implemented-badge">✅ Implemented</span></li>
+                <li class="implemented"><strong>R32:</strong> Clickable scan cards (Medium impact, Low effort) <span class="implemented-badge">✅ Implemented</span></li>
                 <li><strong>R33:</strong> Quick preview for scans (Medium impact, Medium effort)</li>
-                <li><strong>R35:</strong> Show context in subject search (Medium impact, Low effort)</li>
-                <li><strong>R38:</strong> Breadcrumb navigation (Medium impact, Low effort)</li>
+                <li class="implemented"><strong>R35:</strong> Show context in subject search (Medium impact, Low effort) <span class="implemented-badge">✅ Implemented</span></li>
+                <li class="implemented"><strong>R38:</strong> Breadcrumb navigation (Medium impact, Low effort) <span class="implemented-badge">✅ Implemented</span></li>
             </ul>
 
             <h3 style="color: #7c3aed;">🟣 Low Priority (Polish)</h3>
@@ -902,8 +907,8 @@
                 <li><strong>R34:</strong> Sticky header for scan selection (Low impact, Medium effort)</li>
                 <li><strong>R36:</strong> More info in subject results (Low impact, Low effort)</li>
                 <li><strong>R39:</strong> Styled flash messages (Low impact, Low effort)</li>
-                <li><strong>R40:</strong> Add footer (Low impact, Low effort)</li>
-                <li><strong>R41:</strong> Loading states (Low impact, Low effort)</li>
+                <li class="implemented"><strong>R40:</strong> Add footer (Low impact, Low effort) <span class="implemented-badge">✅ Implemented</span></li>
+                <li class="implemented"><strong>R41:</strong> Loading states (Low impact, Low effort) <span class="implemented-badge">✅ Implemented</span></li>
                 <li><strong>R42:</strong> Keyboard shortcuts (Low impact, Medium effort)</li>
             </ul>
         </div>
@@ -943,6 +948,23 @@
                     <li><strong>R30:</strong> Added workflow context to TOC show page</li>
                 </ul>
                 <p style="margin-top: 1rem;"><strong>Result:</strong> All 371 RSpec tests passing. Significant improvements to navigation, visual hierarchy, and mobile experience.</p>
+            </div>
+
+            <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                <h3 style="color: #10b981; margin-top: 0;">✅ Phase 2 Completed (December 2025)</h3>
+                <p><strong>9 additional quick-win recommendations implemented:</strong></p>
+                <ul>
+                    <li><strong>R14:</strong> Multi-select checkboxes always visible with clickable cards (already implemented)</li>
+                    <li><strong>R18:</strong> Formatted TOC preview excerpts with improved styling (already implemented)</li>
+                    <li><strong>R20:</strong> Color-coded status badges for empty, pages_marked, transcribed, verified ✅ <em>NEW</em></li>
+                    <li><strong>R29:</strong> Enhanced status alerts with icons and CTAs (already implemented)</li>
+                    <li><strong>R32:</strong> Fully clickable scan cards with visual selection state ✅ <em>NEW</em></li>
+                    <li><strong>R35:</strong> Book/work context display in subject search with existing subjects ✅ <em>NEW</em></li>
+                    <li><strong>R38:</strong> Breadcrumb navigation system (already implemented)</li>
+                    <li><strong>R40:</strong> Footer with About, GitHub, License, Contact (already implemented)</li>
+                    <li><strong>R41:</strong> Loading spinners for OCR and subject search (already implemented)</li>
+                </ul>
+                <p style="margin-top: 1rem;"><strong>Result:</strong> All 449 RSpec tests passing. Improved visual feedback, better context awareness, and enhanced user interactions.</p>
             </div>
 
             <h3>Next Phase Recommendations</h3>

@@ -1,11 +1,15 @@
 // Image Loading State Manager
 // Handles showing/hiding loading placeholders for TOC scan images
-document.addEventListener('DOMContentLoaded', function() {
+function setupImageLoaders() {
   const imageLoaders = document.querySelectorAll('.image-loader');
 
   imageLoaders.forEach(function(img) {
     const container = img.closest('.image-loading-container');
     if (!container) return;
+
+    // Skip if already set up (check for a data attribute)
+    if (img.dataset.loaderSetup === 'true') return;
+    img.dataset.loaderSetup = 'true';
 
     // Handle successful image load
     img.addEventListener('load', function() {
@@ -26,4 +30,10 @@ document.addEventListener('DOMContentLoaded', function() {
       container.appendChild(errorMsg);
     });
   });
-});
+}
+
+// Run on initial page load
+document.addEventListener('DOMContentLoaded', setupImageLoaders);
+
+// Run on Turbolinks navigation (for AJAX page transitions)
+document.addEventListener('turbolinks:load', setupImageLoaders);

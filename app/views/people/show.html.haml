@@ -1,0 +1,99 @@
+.page-header{style: 'background: #f7fafc; border-bottom: 2px solid #e2e8f0; padding: 1.5rem 2rem; margin: -2rem 0 2rem 0;'}
+  .header-row{style: 'display: flex; justify-content: space-between; align-items: center;'}
+    %h1{style: 'font-size: 1.8rem; margin: 0; color: #2d3748;'}= @person.name
+    .actions{style: 'display: flex; gap: 0.5rem;'}
+      = link_to t('common.actions.edit'), edit_person_path(@person), class: 'btn btn-primary'
+      = link_to t('common.actions.back'), people_path, class: 'btn btn-secondary'
+
+.content{style: 'padding: 0 2rem;'}
+  .person-details{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 2rem; margin-bottom: 2rem;'}
+    %h2{style: 'font-size: 1.4rem; margin-bottom: 1.5rem; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;'}
+      = t('people.show.basic_info')
+
+    .info-grid{style: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;'}
+      - if @person.dates.present?
+        .info-item
+          %strong{style: 'color: #4a5568; display: block; margin-bottom: 0.25rem;'}= t('people.form.dates_label')
+          %span{style: 'color: #2d3748;'}= @person.dates
+
+      - if @person.title.present?
+        .info-item
+          %strong{style: 'color: #4a5568; display: block; margin-bottom: 0.25rem;'}= t('people.form.title_label')
+          %span{style: 'color: #2d3748;'}= @person.title
+
+      - if @person.affiliation.present?
+        .info-item
+          %strong{style: 'color: #4a5568; display: block; margin-bottom: 0.25rem;'}= t('people.form.affiliation_label')
+          %span{style: 'color: #2d3748;'}= @person.affiliation
+
+      - if @person.country.present?
+        .info-item
+          %strong{style: 'color: #4a5568; display: block; margin-bottom: 0.25rem;'}= t('people.form.country_label')
+          %span{style: 'color: #2d3748;'}= @person.country
+
+    - if @person.comment.present?
+      .info-item{style: 'margin-top: 1.5rem;'}
+        %strong{style: 'color: #4a5568; display: block; margin-bottom: 0.25rem;'}= t('people.form.comment_label')
+        %p{style: 'color: #2d3748; margin: 0;'}= @person.comment
+
+  .authority-ids{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 2rem; margin-bottom: 2rem;'}
+    %h2{style: 'font-size: 1.4rem; margin-bottom: 1.5rem; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;'}
+      = t('people.show.authority_ids')
+
+    .info-grid{style: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;'}
+      - if @person.viaf_id.present?
+        .info-item
+          %strong{style: 'color: #4a5568; display: block; margin-bottom: 0.25rem;'}= t('people.form.viaf_id_label')
+          %span{style: 'color: #2d3748;'}
+            = @person.viaf_id
+            = link_to '🔗', "https://viaf.org/viaf/#{@person.viaf_id}", target: '_blank', style: 'margin-left: 0.5rem;'
+
+      - if @person.wikidata_q.present?
+        .info-item
+          %strong{style: 'color: #4a5568; display: block; margin-bottom: 0.25rem;'}= t('people.form.wikidata_q_label')
+          %span{style: 'color: #2d3748;'}
+            Q#{@person.wikidata_q}
+            = link_to '🔗', "https://www.wikidata.org/wiki/Q#{@person.wikidata_q}", target: '_blank', style: 'margin-left: 0.5rem;'
+
+      - if @person.openlibrary_id.present?
+        .info-item
+          %strong{style: 'color: #4a5568; display: block; margin-bottom: 0.25rem;'}= t('people.form.openlibrary_id_label')
+          %span{style: 'color: #2d3748;'}
+            = @person.openlibrary_id
+            = link_to '🔗', "https://openlibrary.org#{@person.openlibrary_id}", target: '_blank', style: 'margin-left: 0.5rem;'
+
+      - if @person.loc_id.present?
+        .info-item
+          %strong{style: 'color: #4a5568; display: block; margin-bottom: 0.25rem;'}= t('people.form.loc_id_label')
+          %span{style: 'color: #2d3748;'}
+            = @person.loc_id
+            = link_to '🔗', "https://id.loc.gov/authorities/names/#{@person.loc_id}.html", target: '_blank', style: 'margin-left: 0.5rem;'
+
+      - if @person.gutenberg_id.present?
+        .info-item
+          %strong{style: 'color: #4a5568; display: block; margin-bottom: 0.25rem;'}= t('people.form.gutenberg_id_label')
+          %span{style: 'color: #2d3748;'}
+            = @person.gutenberg_id
+            = link_to '🔗', "https://www.gutenberg.org/ebooks/author/#{@person.gutenberg_id}", target: '_blank', style: 'margin-left: 0.5rem;'
+
+  .associations{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 2rem;'}
+    %h2{style: 'font-size: 1.4rem; margin-bottom: 1.5rem; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;'}
+      = t('people.show.associations')
+
+    - if @person.works.any?
+      %h3{style: 'font-size: 1.1rem; margin-bottom: 1rem; color: #4a5568;'} Works
+      %ul{style: 'list-style: none; padding: 0;'}
+        - @person.works.each do |work|
+          %li{style: 'padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;'}
+            = work.title
+    - else
+      %p{style: 'color: #718096; font-style: italic;'}= t('people.show.no_works')
+
+    - if @person.tocs.any?
+      %h3{style: 'font-size: 1.1rem; margin: 1.5rem 0 1rem; color: #4a5568;'} TOCs
+      %ul{style: 'list-style: none; padding: 0;'}
+        - @person.tocs.each do |toc|
+          %li{style: 'padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;'}
+            = link_to toc.title, toc, style: 'color: #667eea; text-decoration: none;'
+    - elsif @person.works.empty?
+      %p{style: 'color: #718096; font-style: italic; margin-top: 1rem;'}= t('people.show.no_tocs')

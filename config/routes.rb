@@ -49,5 +49,8 @@ Rails.application.routes.draw do
   # Help page
   get 'help', to: 'help#index'
 
+  # People (authors/creators) management
+  resources :people, only: [:index, :show, :new, :create, :edit, :update]
+
   root 'home#index'
 end

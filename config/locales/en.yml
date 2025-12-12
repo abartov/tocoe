@@ -534,3 +534,50 @@ en:
         still_need_help: "Still have questions?"
         contact_us: "If you need additional help or found a bug, please report it on our GitHub issue tracker:"
         github_issues: "Report an Issue"
+
+  # People (authors/creators) management
+  people:
+    flash:
+      created_successfully: "Person created successfully."
+      updated_successfully: "Person updated successfully."
+    index:
+      title: "Authors & Creators"
+      new_person: "New Person"
+      search_placeholder: "Search by name..."
+      no_people: "No people found."
+    show:
+      title: "Person Details"
+      basic_info: "Basic Information"
+      authority_ids: "Authority Identifiers"
+      associations: "Associated Works"
+      no_works: "No associated works."
+      no_tocs: "No associated TOCs."
+    form:
+      basic_info_section: "Basic Information"
+      name_label: "Name"
+      name_placeholder: "Full name"
+      dates_label: "Dates"
+      dates_placeholder: "e.g., 1564-1616"
+      title_label: "Title"
+      title_placeholder: "e.g., Dr., Prof."
+      affiliation_label: "Affiliation"
+      affiliation_placeholder: "Institution or organization"
+      country_label: "Country"
+      country_placeholder: "Country of residence or origin"
+      comment_label: "Comments"
+      comment_placeholder: "Additional notes"
+      authority_ids_section: "Authority Identifiers"
+      viaf_id_label: "VIAF ID"
+      viaf_id_placeholder: "e.g., 96994048"
+      wikidata_q_label: "Wikidata Q"
+      wikidata_q_placeholder: "e.g., 692"
+      openlibrary_id_label: "Open Library ID"
+      openlibrary_id_placeholder: "e.g., /authors/OL9388A"
+      loc_id_label: "Library of Congress ID"
+      loc_id_placeholder: "e.g., n79021164"
+      gutenberg_id_label: "Project Gutenberg Author ID"
+      gutenberg_id_placeholder: "e.g., 4527"
+    new:
+      title: "New Person"
+    edit:
+      title: "Edit Person"

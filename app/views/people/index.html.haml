@@ -1,0 +1,56 @@
+.filter-bar{style: 'background: #f7fafc; border-bottom: 2px solid #e2e8f0; padding: 1.5rem 2rem; margin: -2rem 0 2rem 0;'}
+  .header-row{style: 'display: flex; justify-content: space-between; align-items: center;'}
+    %h1{style: 'font-size: 1.8rem; margin: 0; color: #2d3748;'}= t('people.index.title')
+    = link_to t('people.index.new_person'), new_person_path, class: 'btn btn-primary'
+
+.people-list{style: 'padding: 0 2rem;'}
+  - if @people.any?
+    - @people.each do |person|
+      .person-card{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; transition: all 0.2s;', onmouseover: 'this.style.borderColor="#667eea"; this.style.boxShadow="0 4px 12px rgba(102, 126, 234, 0.1)"', onmouseout: 'this.style.borderColor="#e2e8f0"; this.style.boxShadow="none"'}
+        .person-header{style: 'display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;'}
+          .person-title{style: 'flex: 1;'}
+            %h3{style: 'font-size: 1.2rem; font-weight: 600; margin-bottom: 0.25rem;'}
+              = link_to person.name, person, style: 'color: #667eea; text-decoration: none;'
+            - if person.dates.present?
+              %p{style: 'color: #718096; font-size: 1rem; margin: 0;'}= person.dates
+
+        - if person.title.present? || person.affiliation.present? || person.country.present?
+          .person-meta{style: 'display: flex; gap: 1.5rem; flex-wrap: wrap; color: #4a5568; font-size: 1rem; margin-bottom: 0.75rem;'}
+            - if person.title.present?
+              %span
+                👤
+                = person.title
+            - if person.affiliation.present?
+              %span
+                🏛️
+                = person.affiliation
+            - if person.country.present?
+              %span
+                🌍
+                = person.country
+
+        - authority_ids = []
+        - authority_ids << "VIAF: #{person.viaf_id}" if person.viaf_id.present?
+        - authority_ids << "Wikidata: Q#{person.wikidata_q}" if person.wikidata_q.present?
+        - authority_ids << "OpenLibrary: #{person.openlibrary_id}" if person.openlibrary_id.present?
+        - authority_ids << "LoC: #{person.loc_id}" if person.loc_id.present?
+        - authority_ids << "Gutenberg: #{person.gutenberg_id}" if person.gutenberg_id.present?
+
+        - if authority_ids.any?
+          .person-ids{style: 'color: #718096; font-size: 0.9rem; padding: 0.5rem; background: #f7fafc; border-radius: 4px; margin-bottom: 0.75rem;'}
+            🔗
+            = authority_ids.join(' • ')
+
+        - if person.comment.present?
+          .person-comment{style: 'color: #4a5568; font-size: 1rem; margin-bottom: 0.75rem;'}
+            💬
+            = person.comment
+
+        .person-actions{style: 'display: flex; gap: 0.5rem;'}
+          = link_to t('common.actions.show'), person, class: 'btn btn-secondary btn-sm'
+          = link_to t('common.actions.edit'), edit_person_path(person), class: 'btn btn-primary btn-sm'
+
+  - else
+    .empty-state{style: 'text-align: center; padding: 3rem 0; color: #718096;'}
+      %p{style: 'font-size: 1.2rem; margin-bottom: 1rem;'} 👥 #{t('people.index.no_people')}
+      %p= link_to t('people.index.new_person'), new_person_path, class: 'btn btn-primary'

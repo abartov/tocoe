@@ -1,0 +1,67 @@
+= form_for @person, html: { style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 2rem;' } do |f|
+  - if @person.errors.any?
+    .error-messages{style: 'background: #fed7d7; border: 2px solid #fc8181; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;'}
+      %h3{style: 'color: #c53030; margin-bottom: 0.5rem;'}
+        = pluralize(@person.errors.count, "error")
+        prohibited this person from being saved:
+      %ul{style: 'margin: 0; padding-left: 1.5rem;'}
+        - @person.errors.full_messages.each do |message|
+          %li{style: 'color: #c53030;'}= message
+
+  %h2{style: 'font-size: 1.3rem; margin-bottom: 1.5rem; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;'}
+    = t('people.form.basic_info_section')
+
+  .form-group{style: 'margin-bottom: 1.5rem;'}
+    = f.label :name, t('people.form.name_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
+    = f.text_field :name, placeholder: t('people.form.name_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;', required: true
+
+  .form-row{style: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;'}
+    .form-group
+      = f.label :dates, t('people.form.dates_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
+      = f.text_field :dates, placeholder: t('people.form.dates_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;'
+
+    .form-group
+      = f.label :title, t('people.form.title_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
+      = f.text_field :title, placeholder: t('people.form.title_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;'
+
+  .form-row{style: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;'}
+    .form-group
+      = f.label :affiliation, t('people.form.affiliation_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
+      = f.text_field :affiliation, placeholder: t('people.form.affiliation_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;'
+
+    .form-group
+      = f.label :country, t('people.form.country_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
+      = f.text_field :country, placeholder: t('people.form.country_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;'
+
+  .form-group{style: 'margin-bottom: 1.5rem;'}
+    = f.label :comment, t('people.form.comment_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
+    = f.text_area :comment, placeholder: t('people.form.comment_placeholder'), rows: 3, style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem; resize: vertical;'
+
+  %h2{style: 'font-size: 1.3rem; margin: 2rem 0 1.5rem; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;'}
+    = t('people.form.authority_ids_section')
+
+  .form-row{style: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;'}
+    .form-group
+      = f.label :viaf_id, t('people.form.viaf_id_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
+      = f.number_field :viaf_id, placeholder: t('people.form.viaf_id_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;'
+
+    .form-group
+      = f.label :wikidata_q, t('people.form.wikidata_q_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
+      = f.number_field :wikidata_q, placeholder: t('people.form.wikidata_q_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;'
+
+  .form-row{style: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;'}
+    .form-group
+      = f.label :openlibrary_id, t('people.form.openlibrary_id_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
+      = f.text_field :openlibrary_id, placeholder: t('people.form.openlibrary_id_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;'
+
+    .form-group
+      = f.label :loc_id, t('people.form.loc_id_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
+      = f.text_field :loc_id, placeholder: t('people.form.loc_id_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;'
+
+  .form-group{style: 'margin-bottom: 2rem;'}
+    = f.label :gutenberg_id, t('people.form.gutenberg_id_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
+    = f.number_field :gutenberg_id, placeholder: t('people.form.gutenberg_id_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;'
+
+  .form-actions{style: 'display: flex; gap: 0.5rem; border-top: 2px solid #e2e8f0; padding-top: 1.5rem;'}
+    = f.submit t('common.actions.save'), class: 'btn btn-primary'
+    = link_to t('common.actions.cancel'), people_path, class: 'btn btn-secondary'

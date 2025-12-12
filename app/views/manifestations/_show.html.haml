@@ -2,6 +2,11 @@
 
 -# Show aboutnesses for the main embodiment (sequence_number: nil)
 - main_embodiment = manifestation.embodiments.find_by(sequence_number: nil)
+-# Show authors of the publication
+- if main_embodiment&.expression&.work&.creators&.any?
+  %p.text-muted
+    %strong= t('manifestations.show.authors_label', default: 'Authors:')
+    = main_embodiment.expression.work.creators.map(&:name).join(', ')
 - if main_embodiment
   .panel.panel-default
     .panel-heading
@@ -29,6 +34,9 @@
       - unless parent_expression.nil? || parent_expression.container_expressions.empty?
         = '-->'
       = emb.expression.title
+      - if emb.expression.work&.creators&.any?
+        %span.text-muted{style: 'margin-left: 0.5rem;'}
+          = "— #{emb.expression.work.creators.map(&:name).join(', ')}"
       - entry_aboutnesses = emb.aboutnesses
       .panel.panel-default.panel-subject-headings
         .panel-heading

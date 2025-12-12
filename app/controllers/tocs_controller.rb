@@ -530,11 +530,30 @@ class TocsController < ApplicationController
         }
       end
     else
-      # Open Library URI
-      uri = uri_or_book_data
-      @book = rest_get("#{uri}.json")
-      author_keys = @book['authors'].collect { |b| b['key'] }
-      @authors = author_keys.map { |k| rest_get("http://openlibrary.org#{k}.json") }
+      # Open Library URI - wrap in error handling
+      begin
+        uri = uri_or_book_data
+        @book = rest_get("#{uri}.json")
+        author_keys = @book['authors'].collect { |b| b['key'] }
+        @authors = author_keys.map { |k| rest_get("http://openlibrary.org#{k}.json") }
+      rescue RestClient::Exception, SocketError, Errno::ECONNREFUSED, Timeout::Error, JSON::ParserError, StandardError => e
+        # Log the error for debugging (safely handle exception message)
+        begin
+          logger.error "Failed to fetch author information from Open Library: #{e.class} - #{e.message}"
+        rescue
+          logger.error "Failed to fetch author information from Open Library: #{e.class}"
+        end
+
+        # Set authors to empty array so views don't break
+        @book ||= {}
+        @authors = []
+
+        # Show warning to user (using flash.now for AJAX/edit requests)
+        flash.now[:warning] = I18n.t('tocs.flash.openlibrary_server_error')
+
+        # Return early - no need to call map_authors with empty data
+        return
+      end
     end
     map_authors
   end

@@ -768,6 +768,120 @@ RSpec.describe TocsController, type: :controller do
         expect(authors).to eq([])
       end
     end
+
+    context 'when Open Library server returns error' do
+      before do
+        controller.instance_variable_set(:@toc, Toc.new(book_uri: 'http://openlibrary.org/books/OL1M'))
+      end
+
+      it 'handles 500 Internal Server Error gracefully' do
+        allow(controller).to receive(:rest_get).and_raise(RestClient::InternalServerError.new('Server error'))
+
+        controller.send(:get_authors, 'http://openlibrary.org/books/OL1M')
+
+        authors = controller.instance_variable_get(:@authors)
+        book = controller.instance_variable_get(:@book)
+
+        expect(authors).to eq([])
+        expect(book).to eq({})
+        expect(flash.now[:warning]).to eq('Unable to fetch author information from Open Library. The service may be temporarily unavailable. You can still edit and save the TOC.')
+      end
+
+      it 'handles 503 Service Unavailable gracefully' do
+        allow(controller).to receive(:rest_get).and_raise(RestClient::ServiceUnavailable.new('Service unavailable'))
+
+        controller.send(:get_authors, 'http://openlibrary.org/books/OL1M')
+
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors).to eq([])
+        expect(flash.now[:warning]).to be_present
+      end
+
+      it 'handles network timeout errors gracefully' do
+        allow(controller).to receive(:rest_get).and_raise(Timeout::Error.new('Request timeout'))
+
+        controller.send(:get_authors, 'http://openlibrary.org/books/OL1M')
+
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors).to eq([])
+        expect(flash.now[:warning]).to be_present
+      end
+
+      it 'handles connection refused errors gracefully' do
+        allow(controller).to receive(:rest_get).and_raise(Errno::ECONNREFUSED.new('Connection refused'))
+
+        controller.send(:get_authors, 'http://openlibrary.org/books/OL1M')
+
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors).to eq([])
+        expect(flash.now[:warning]).to be_present
+      end
+
+      it 'handles socket errors gracefully' do
+        allow(controller).to receive(:rest_get).and_raise(SocketError.new('Connection failed'))
+
+        controller.send(:get_authors, 'http://openlibrary.org/books/OL1M')
+
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors).to eq([])
+        expect(flash.now[:warning]).to be_present
+      end
+
+      it 'handles JSON parsing errors gracefully' do
+        allow(controller).to receive(:rest_get).and_raise(JSON::ParserError.new('Invalid JSON'))
+
+        controller.send(:get_authors, 'http://openlibrary.org/books/OL1M')
+
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors).to eq([])
+        expect(flash.now[:warning]).to be_present
+      end
+
+      it 'logs the error for debugging' do
+        allow(controller).to receive(:rest_get).and_raise(RestClient::InternalServerError.new('Server error'))
+        allow(Rails.logger).to receive(:error)
+
+        controller.send(:get_authors, 'http://openlibrary.org/books/OL1M')
+
+        expect(Rails.logger).to have_received(:error).with(/Failed to fetch author information from Open Library/)
+      end
+
+      it 'does not call map_authors when error occurs' do
+        allow(controller).to receive(:rest_get).and_raise(RestClient::InternalServerError.new('Server error'))
+        allow(controller).to receive(:map_authors)
+
+        controller.send(:get_authors, 'http://openlibrary.org/books/OL1M')
+
+        expect(controller).not_to have_received(:map_authors)
+      end
+    end
+
+    context 'when Open Library server is down during edit action' do
+      let(:ol_toc) do
+        Toc.create!(
+          book_uri: 'http://openlibrary.org/books/OL123M',
+          title: 'Open Library Book'
+        )
+      end
+
+      before do
+        allow(controller).to receive(:rest_get).and_raise(RestClient::InternalServerError.new('Server error'))
+      end
+
+      it 'allows edit page to load with warning' do
+        get :edit, params: { id: ol_toc.id }
+
+        expect(response).to have_http_status(:success)
+        expect(assigns(:authors)).to eq([])
+        expect(flash.now[:warning]).to be_present
+      end
+
+      it 'sets @is_gutenberg to false for Open Library books even when error occurs' do
+        get :edit, params: { id: ol_toc.id }
+
+        expect(assigns(:is_gutenberg)).to eq(false)
+      end
+    end
   end
 
   describe '#map_authors - generalized for both sources' do

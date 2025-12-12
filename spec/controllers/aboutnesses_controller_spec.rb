@@ -121,6 +121,135 @@ RSpec.describe AboutnessesController, type: :controller do
       end
     end
 
+    context 'when creating a Wikidata aboutness with P244' do
+      let(:wikidata_params) do
+        {
+          embodiment_id: embodiment.id,
+          aboutness: {
+            subject_heading_uri: 'http://www.wikidata.org/entity/Q395',
+            source_name: 'Wikidata',
+            subject_heading_label: 'mathematics'
+          }
+        }
+      end
+
+      let(:wikidata_client) { instance_double(SubjectHeadings::WikidataClient) }
+
+      before do
+        allow(SubjectHeadings::WikidataClient).to receive(:new).and_return(wikidata_client)
+      end
+
+      context 'when the Wikidata entity has a Library of Congress ID' do
+        before do
+          allow(wikidata_client).to receive(:get_library_of_congress_id).with('Q395').and_return('sh85082139')
+        end
+
+        it 'creates both Wikidata and LC aboutnesses' do
+          expect {
+            post :create, params: wikidata_params
+          }.to change(Aboutness, :count).by(2)
+        end
+
+        it 'creates an LC aboutness with the correct URI' do
+          post :create, params: wikidata_params
+
+          lc_aboutness = Aboutness.find_by(source_name: 'LCSH')
+          expect(lc_aboutness).to be_present
+          expect(lc_aboutness.subject_heading_uri).to eq('https://id.loc.gov/authorities/subjects/sh85082139')
+        end
+
+        it 'sets the same status for both aboutnesses' do
+          post :create, params: wikidata_params
+
+          wikidata_aboutness = Aboutness.find_by(source_name: 'Wikidata')
+          lc_aboutness = Aboutness.find_by(source_name: 'LCSH')
+          expect(wikidata_aboutness.status).to eq('proposed')
+          expect(lc_aboutness.status).to eq('proposed')
+        end
+
+        it 'sets the same contributor for both aboutnesses' do
+          post :create, params: wikidata_params
+
+          wikidata_aboutness = Aboutness.find_by(source_name: 'Wikidata')
+          lc_aboutness = Aboutness.find_by(source_name: 'LCSH')
+          expect(wikidata_aboutness.contributor_id).to eq(user.id)
+          expect(lc_aboutness.contributor_id).to eq(user.id)
+        end
+
+        it 'uses the same label for both aboutnesses' do
+          post :create, params: wikidata_params
+
+          wikidata_aboutness = Aboutness.find_by(source_name: 'Wikidata')
+          lc_aboutness = Aboutness.find_by(source_name: 'LCSH')
+          expect(wikidata_aboutness.subject_heading_label).to eq('mathematics')
+          expect(lc_aboutness.subject_heading_label).to eq('mathematics')
+        end
+
+        context 'when LC aboutness already exists' do
+          before do
+            Aboutness.create!(
+              embodiment: embodiment,
+              subject_heading_uri: 'https://id.loc.gov/authorities/subjects/sh85082139',
+              source_name: 'LCSH',
+              subject_heading_label: 'Mathematics'
+            )
+          end
+
+          it 'only creates the Wikidata aboutness' do
+            expect {
+              post :create, params: wikidata_params
+            }.to change(Aboutness, :count).by(1)
+          end
+
+          it 'does not create a duplicate LC aboutness' do
+            post :create, params: wikidata_params
+
+            lc_aboutnesses = Aboutness.where(
+              embodiment: embodiment,
+              subject_heading_uri: 'https://id.loc.gov/authorities/subjects/sh85082139'
+            )
+            expect(lc_aboutnesses.count).to eq(1)
+          end
+        end
+      end
+
+      context 'when the Wikidata entity does not have a Library of Congress ID' do
+        before do
+          allow(wikidata_client).to receive(:get_library_of_congress_id).with('Q395').and_return(nil)
+        end
+
+        it 'only creates the Wikidata aboutness' do
+          expect {
+            post :create, params: wikidata_params
+          }.to change(Aboutness, :count).by(1)
+        end
+
+        it 'does not create an LC aboutness' do
+          post :create, params: wikidata_params
+
+          lc_aboutness = Aboutness.find_by(source_name: 'LCSH')
+          expect(lc_aboutness).to be_nil
+        end
+      end
+
+      context 'when there is an error fetching the LC ID' do
+        before do
+          allow(wikidata_client).to receive(:get_library_of_congress_id).and_raise(StandardError.new('API error'))
+        end
+
+        it 'still creates the Wikidata aboutness' do
+          expect {
+            post :create, params: wikidata_params
+          }.to change(Aboutness, :count).by(1)
+        end
+
+        it 'logs the error' do
+          expect(Rails.logger).to receive(:error).with(/Error auto-adding LC subject heading/)
+          post :create, params: wikidata_params
+        end
+      end
+    end
+
     context 'with invalid parameters' do
       let(:invalid_params) do
         {

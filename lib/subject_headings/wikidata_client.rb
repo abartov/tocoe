@@ -12,6 +12,26 @@ module SubjectHeadings
     def initialize
     end
 
+    # Get Library of Congress Authority ID (P244) for a Wikidata entity
+    # @param entity_id [String] The Wikidata entity ID (e.g., "Q395")
+    # @return [String, nil] The LC authority ID (e.g., "sh85082139"), or nil if not found
+    def get_library_of_congress_id(entity_id)
+      return nil if entity_id.blank?
+
+      begin
+        entity_details = fetch_entities([entity_id])
+        entity = entity_details[entity_id]
+        return nil unless entity.is_a?(Hash)
+
+        claims = entity.dig('claims', 'P244') || []
+        # P244 is a string value, not an entity reference
+        claims.first&.dig('mainsnak', 'datavalue', 'value')
+      rescue StandardError => e
+        Rails.logger.error("Wikidata API error fetching P244: #{e.message}")
+        nil
+      end
+    end
+
     # Search for Wikidata entities (items) by keyword
     # @param query [String] The search term
     # @param count [Integer] Number of results to return

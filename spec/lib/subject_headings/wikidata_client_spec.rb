@@ -167,4 +167,113 @@ RSpec.describe SubjectHeadings::WikidataClient do
       end
     end
   end
+
+  describe '#get_library_of_congress_id' do
+    context 'with a valid entity that has P244' do
+      it 'returns the Library of Congress Authority ID', :skip_in_ci do
+        # Q395 (mathematics) has P244: sh85082139
+        lc_id = client.get_library_of_congress_id('Q395')
+        expect(lc_id).to eq('sh85082139')
+      end
+    end
+
+    context 'with an entity that does not have P244' do
+      let(:mock_entities_response_no_p244) do
+        {
+          entities: {
+            'Q42' => {
+              claims: {
+                'P31' => [
+                  {
+                    mainsnak: {
+                      datavalue: {
+                        value: { id: 'Q5' }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }.to_json
+      end
+
+      before do
+        allow(Net::HTTP).to receive(:get_response) do |uri|
+          instance_double(Net::HTTPResponse, code: '200', body: mock_entities_response_no_p244, is_a?: true)
+        end
+      end
+
+      it 'returns nil' do
+        lc_id = client.get_library_of_congress_id('Q42')
+        expect(lc_id).to be_nil
+      end
+    end
+
+    context 'with stubbed API response containing P244' do
+      let(:mock_entities_response_with_p244) do
+        {
+          entities: {
+            'Q395' => {
+              claims: {
+                'P244' => [
+                  {
+                    mainsnak: {
+                      datavalue: {
+                        value: 'sh85082139'
+                      }
+                    }
+                  }
+                ],
+                'P31' => [
+                  {
+                    mainsnak: {
+                      datavalue: {
+                        value: { id: 'Q11862829' }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }.to_json
+      end
+
+      before do
+        allow(Net::HTTP).to receive(:get_response) do |uri|
+          instance_double(Net::HTTPResponse, code: '200', body: mock_entities_response_with_p244, is_a?: true)
+        end
+      end
+
+      it 'parses the P244 value correctly' do
+        lc_id = client.get_library_of_congress_id('Q395')
+        expect(lc_id).to eq('sh85082139')
+      end
+    end
+
+    context 'with an empty entity_id' do
+      it 'returns nil for blank string' do
+        lc_id = client.get_library_of_congress_id('')
+        expect(lc_id).to be_nil
+      end
+
+      it 'returns nil for nil' do
+        lc_id = client.get_library_of_congress_id(nil)
+        expect(lc_id).to be_nil
+      end
+    end
+
+    context 'when API returns an error' do
+      before do
+        allow(Net::HTTP).to receive(:get_response).and_raise(StandardError.new('Network error'))
+      end
+
+      it 'logs the error and returns nil' do
+        expect(Rails.logger).to receive(:error).with(/Wikidata API error fetching P244/)
+        lc_id = client.get_library_of_congress_id('Q395')
+        expect(lc_id).to be_nil
+      end
+    end
+  end
 end

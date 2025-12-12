@@ -46,6 +46,12 @@ class AboutnessesController < ApplicationController
     end
 
     if @aboutness.save
+      # If this is a Wikidata aboutness, check for Library of Congress Authority (P244)
+      # and automatically add it as well
+      if @aboutness.source_name == 'Wikidata'
+        auto_add_library_of_congress_heading(@aboutness)
+      end
+
       # If remove_subject parameter is provided, remove it from the TOC's imported_subjects
       if params[:remove_subject].present?
         # Find the TOC associated with this embodiment
@@ -109,5 +115,42 @@ class AboutnessesController < ApplicationController
 
   def aboutness_params
     params.require(:aboutness).permit(:subject_heading_uri, :source_name, :subject_heading_label)
+  end
+
+  # Automatically add Library of Congress subject heading if the Wikidata entity has P244
+  def auto_add_library_of_congress_heading(wikidata_aboutness)
+    # Extract entity ID from Wikidata URI (e.g., "Q395" from "http://www.wikidata.org/entity/Q395")
+    entity_id = wikidata_aboutness.subject_heading_uri.split('/').last
+    return unless entity_id.present? && entity_id.match?(/^Q\d+$/)
+
+    # Fetch P244 (Library of Congress Authority) from Wikidata
+    wikidata_client = SubjectHeadings::WikidataClient.new
+    lc_id = wikidata_client.get_library_of_congress_id(entity_id)
+    return unless lc_id.present?
+
+    # Create LC aboutness with the same status as the Wikidata aboutness
+    # Use https (not http) for LC URIs
+    lc_uri = "https://id.loc.gov/authorities/subjects/#{lc_id}"
+
+    # Check if this LC heading already exists for this embodiment
+    existing = @embodiment.aboutnesses.find_by(subject_heading_uri: lc_uri)
+    return if existing.present?
+
+    # Create the LC aboutness with the same contributor/status as the Wikidata one
+    lc_aboutness = @embodiment.aboutnesses.new(
+      subject_heading_uri: lc_uri,
+      source_name: 'LCSH',
+      subject_heading_label: wikidata_aboutness.subject_heading_label, # Use same label
+      contributor_id: wikidata_aboutness.contributor_id,
+      status: wikidata_aboutness.status
+    )
+
+    if lc_aboutness.save
+      Rails.logger.info("Auto-added LC subject heading #{lc_uri} from Wikidata entity #{entity_id}")
+    else
+      Rails.logger.error("Failed to auto-add LC subject heading: #{lc_aboutness.errors.full_messages.join(', ')}")
+    end
+  rescue StandardError => e
+    Rails.logger.error("Error auto-adding LC subject heading: #{e.message}")
   end
 end

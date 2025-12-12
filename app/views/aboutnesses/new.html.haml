@@ -1,4 +1,22 @@
 %h1= t('aboutnesses.new.add_subject_heading')
+
+.work-context{style: 'background: #f7fafc; border-left: 4px solid #667eea; padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 4px;'}
+  %h3{style: 'font-size: 1.2rem; margin-bottom: 0.5rem; color: #2d3748;'}
+    📚
+    = @embodiment.expression&.title || t('aboutnesses.new.untitled_work')
+  - if @embodiment.expression&.work
+    %p{style: 'color: #4a5568; margin-bottom: 0.5rem;'}
+      %strong= t('aboutnesses.new.work_label', default: 'Work:')
+      = @embodiment.expression.work.title
+  - existing_subjects = @embodiment.aboutnesses
+  - if existing_subjects.any?
+    %p{style: 'color: #4a5568; margin-bottom: 0.25rem;'}
+      %strong= t('aboutnesses.new.existing_subjects', default: 'Existing subjects:')
+    .subject-tags{style: 'display: flex; flex-wrap: wrap; gap: 0.5rem;'}
+      - existing_subjects.each do |aboutness|
+        %span.label.label-primary{style: 'font-size: 0.9rem; padding: 0.4rem 0.8rem; border-radius: 12px; background: #667eea;'}
+          = aboutness.subject_heading_label
+
 %p= t('aboutnesses.new.instructions', title: @embodiment.expression&.title || 'this text')
 
 .row

@@ -335,6 +335,9 @@ en:
     new:
       add_subject_heading: "Add Subject Heading"
       instructions: "Search for and select a subject heading to associate with: %{title}"
+      untitled_work: "Untitled Work"
+      work_label: "Work:"
+      existing_subjects: "Existing subjects:"
 
   # Help page
   help:

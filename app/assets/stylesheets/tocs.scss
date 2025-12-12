@@ -1,3 +1,50 @@
 // Place all the styles related to the tocs controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+// Status badges with color-coding (R20)
+.status-badge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  // Empty status - needs work (light red/orange)
+  &.status-empty {
+    background: #fed7d7;
+    color: #742a2a;
+    border: 1px solid #fc8181;
+  }
+
+  // Pages marked - in progress (light blue)
+  &.status-pages_marked {
+    background: #bee3f8;
+    color: #2c5282;
+    border: 1px solid #63b3ed;
+  }
+
+  // Transcribed - almost done (light purple)
+  &.status-transcribed {
+    background: #e9d8fd;
+    color: #44337a;
+    border: 1px solid #b794f4;
+  }
+
+  // Verified - complete (light green)
+  &.status-verified {
+    background: #c6f6d5;
+    color: #22543d;
+    border: 1px solid #68d391;
+  }
+
+  // Error status (red)
+  &.status-error {
+    background: #fed7d7;
+    color: #742a2a;
+    border: 1px solid #fc8181;
+  }
+}

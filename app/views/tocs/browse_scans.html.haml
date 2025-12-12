@@ -25,13 +25,13 @@
   .row.scan-grid
     - @pages.each do |page_data|
       .col-md-3.col-sm-4.col-xs-6.scan-page{ data: { page: page_data[:page_number] } }
-        .card.mb-3
+        .card.mb-3.scan-card{ class: (@marked_pages.include?(page_data[:url]) ? 'selected' : '') }
           = image_tag page_data[:thumb_url], class: 'card-img-top', alt: t('tocs.browse_scans.page_label', number: page_data[:page_number]), data: { full_url: page_data[:url] }
           .card-body
             .form-check
               = check_box_tag "marked_pages[]", page_data[:url], @marked_pages.include?(page_data[:url]), class: 'form-check-input page-checkbox', id: "page_#{page_data[:page_number]}"
               = label_tag "page_#{page_data[:page_number]}", t('tocs.browse_scans.page_label', number: page_data[:page_number]), class: 'form-check-label'
-            %a.btn.btn-sm.btn-link{ href: page_data[:url], target: '_blank' }
+            %a.btn.btn-sm.btn-link.view-full-link{ href: page_data[:url], target: '_blank', onclick: 'event.stopPropagation();' }
               = t('tocs.browse_scans.view_full_size')
 
   .row
@@ -79,17 +79,70 @@
 :css
   .scan-grid .card {
     min-height: 300px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid #dee2e6;
+  }
+  .scan-grid .card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+  .scan-grid .card.selected {
+    border-color: #667eea;
+    background-color: #f7fafc;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  .scan-grid .card.selected .card-img-top {
+    border: 3px solid #667eea;
   }
   .scan-grid .card-img-top {
     height: 200px;
     object-fit: contain;
     background-color: #f8f9fa;
+    border: 3px solid transparent;
+    transition: border-color 0.2s;
   }
   .scan-page {
     margin-bottom: 1rem;
   }
 
 :javascript
+  // Make scan cards clickable
+  document.querySelectorAll('.scan-card').forEach(function(card) {
+    card.addEventListener('click', function(e) {
+      // Don't toggle if clicking on links or checkbox/label
+      if (e.target.tagName === 'A' || e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') {
+        return;
+      }
+
+      const checkbox = this.querySelector('.page-checkbox');
+      if (checkbox && !checkbox.disabled) {
+        checkbox.checked = !checkbox.checked;
+        checkbox.dispatchEvent(new Event('change'));
+
+        // Toggle selected class
+        if (checkbox.checked) {
+          this.classList.add('selected');
+        } else {
+          this.classList.remove('selected');
+        }
+      }
+    });
+  });
+
+  // Update card visual state when checkbox changes
+  document.querySelectorAll('.page-checkbox').forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+      const card = this.closest('.scan-card');
+      if (this.checked) {
+        card.classList.add('selected');
+        document.getElementById('no_explicit_toc').checked = false;
+      } else {
+        card.classList.remove('selected');
+      }
+    });
+  });
+
   // Disable all checkboxes when "no explicit TOC" is checked
   document.getElementById('no_explicit_toc').addEventListener('change', function() {
     const checkboxes = document.querySelectorAll('.page-checkbox');
@@ -97,15 +150,7 @@
       checkbox.disabled = this.checked;
       if (this.checked) {
         checkbox.checked = false;
+        checkbox.closest('.scan-card').classList.remove('selected');
       }
     }.bind(this));
-  });
-
-  // If any page checkbox is checked, uncheck "no explicit TOC"
-  document.querySelectorAll('.page-checkbox').forEach(function(checkbox) {
-    checkbox.addEventListener('change', function() {
-      if (this.checked) {
-        document.getElementById('no_explicit_toc').checked = false;
-      }
-    });
   });

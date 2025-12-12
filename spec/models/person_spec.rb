@@ -63,4 +63,48 @@ RSpec.describe Person, type: :model do
       expect(person.tocs).to include(toc2)
     end
   end
+
+  describe 'authority identifiers' do
+    it 'can store VIAF ID' do
+      person = Person.create!(name: 'Test Author', viaf_id: 12345678)
+      expect(person.viaf_id).to eq(12345678)
+    end
+
+    it 'can store Wikidata Q number' do
+      person = Person.create!(name: 'Test Author', wikidata_q: 87654321)
+      expect(person.wikidata_q).to eq(87654321)
+    end
+
+    it 'can store OpenLibrary ID' do
+      person = Person.create!(name: 'Test Author', openlibrary_id: '/authors/OL123A')
+      expect(person.openlibrary_id).to eq('/authors/OL123A')
+    end
+
+    it 'can store Library of Congress ID' do
+      person = Person.create!(name: 'Test Author', loc_id: 'n79021164')
+      expect(person.loc_id).to eq('n79021164')
+    end
+
+    it 'can store Project Gutenberg author ID' do
+      person = Person.create!(name: 'Test Author', gutenberg_id: 4527)
+      expect(person.gutenberg_id).to eq(4527)
+    end
+
+    it 'can store multiple authority identifiers on the same person' do
+      person = Person.create!(
+        name: 'Test Author',
+        viaf_id: 12345678,
+        wikidata_q: 87654321,
+        openlibrary_id: '/authors/OL123A',
+        loc_id: 'n79021164',
+        gutenberg_id: 4527
+      )
+
+      expect(person.viaf_id).to eq(12345678)
+      expect(person.wikidata_q).to eq(87654321)
+      expect(person.openlibrary_id).to eq('/authors/OL123A')
+      expect(person.loc_id).to eq('n79021164')
+      expect(person.gutenberg_id).to eq(4527)
+    end
+  end
 end

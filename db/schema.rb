@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_12_125738) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_12_233403) do
   create_table "aboutnesses", force: :cascade do |t|
     t.integer "embodiment_id"
     t.string "subject_heading_uri"
@@ -91,6 +91,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_125738) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "openlibrary_id"
+    t.string "loc_id"
+    t.integer "gutenberg_id"
+    t.index ["gutenberg_id"], name: "index_people_on_gutenberg_id"
+    t.index ["loc_id"], name: "index_people_on_loc_id"
     t.index ["openlibrary_id"], name: "index_people_on_openlibrary_id"
     t.index ["viaf_id"], name: "index_people_on_viaf_id"
     t.index ["wikidata_q"], name: "index_people_on_wikidata_q"

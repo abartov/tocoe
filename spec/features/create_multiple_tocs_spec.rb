@@ -131,8 +131,10 @@ RSpec.feature 'Bulk create TOCs', type: :feature, js: true do
     # Click the bulk create button
     find('#bulk-create-btn', visible: :visible).click
 
-    # Expect to be redirected to the TOCs index with the created TOCs visible
-    expect(page.current_path).to eq('/tocs')
+    # Wait for the redirect to complete (redirects to /tocs with status filter)
+    expect(page).to have_current_path('/tocs', ignore_query: true, wait: 5)
+
+    # Expect to see the created TOCs visible
     expect(page).to have_content('First Book')
     expect(page).to have_content('Second Book')
   end

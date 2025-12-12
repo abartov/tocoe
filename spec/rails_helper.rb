@@ -79,9 +79,6 @@ end
 # Capybara and JS driver configuration for feature specs
 begin
   require 'capybara/rspec'
-  # Note: webdrivers gem is not installed, but this require is kept for compatibility.
-  # Selenium WebDriver 4.x+ uses Selenium Manager for automatic driver management.
-  require 'webdrivers'
   require 'database_cleaner'
 
   Capybara.server = :puma, { Silent: true }
@@ -102,6 +99,7 @@ begin
 #      DatabaseCleaner.strategy = :truncation
 #    end
   end
-rescue LoadError
-  # Capybara/webdrivers not available in all environments; feature specs may be skipped.
+rescue LoadError => e
+  # Capybara/database_cleaner not available in all environments; feature specs may be skipped.
+  warn "Warning: Could not load Capybara configuration: #{e.message}"
 end

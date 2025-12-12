@@ -14,7 +14,7 @@
       %strong= t('aboutnesses.new.existing_subjects', default: 'Existing subjects:')
     .subject-tags{style: 'display: flex; flex-wrap: wrap; gap: 0.5rem;'}
       - existing_subjects.each do |aboutness|
-        %span.label.label-primary{style: 'font-size: 0.9rem; padding: 0.4rem 0.8rem; border-radius: 12px; background: #667eea;'}
+        %span.label.label-primary{style: 'font-size: 1rem; padding: 0.4rem 0.8rem; border-radius: 12px; background: #667eea;'}
           = aboutness.subject_heading_label
 
 %p= t('aboutnesses.new.instructions', title: @embodiment.expression&.title || 'this text')

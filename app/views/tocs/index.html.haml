@@ -38,12 +38,12 @@
           .toc-title{style: 'flex: 1;'}
             %h3{style: 'font-size: 1.2rem; font-weight: 600; margin-bottom: 0.25rem;'}
               = link_to toc.title, toc, style: 'color: #667eea; text-decoration: none;'
-            %p{style: 'color: #718096; font-size: 0.9rem; margin: 0;'}= toc.book_uri
+            %p{style: 'color: #718096; font-size: 1rem; margin: 0;'}= toc.book_uri
 
           %span.status-badge{class: "status-#{toc.status}"}
             = status_badge_with_icon(toc.status)
 
-        .toc-meta{style: 'display: flex; gap: 1.5rem; flex-wrap: wrap; color: #4a5568; font-size: 0.9rem; margin-bottom: 0.75rem;'}
+        .toc-meta{style: 'display: flex; gap: 1.5rem; flex-wrap: wrap; color: #4a5568; font-size: 1rem; margin-bottom: 0.75rem;'}
           %span
             📅
             = toc.created_at.strftime('%b %d, %Y')
@@ -57,11 +57,11 @@
               = toc.source == 'openlibrary' ? 'Open Library' : 'Gutenberg'
 
         - if toc.toc_body.present?
-          .toc-preview{style: 'color: #718096; font-size: 0.9rem; line-height: 1.4; padding: 0.75rem; background: #f7fafc; border-radius: 4px; margin-bottom: 0.75rem; overflow: hidden;'}
+          .toc-preview{style: 'color: #718096; font-size: 1rem; line-height: 1.4; padding: 0.75rem; background: #f7fafc; border-radius: 4px; margin-bottom: 0.75rem; overflow: hidden;'}
             = format_toc_preview(toc.toc_body)
 
         - if toc.comments.present?
-          .toc-comments{style: 'color: #4a5568; font-size: 0.9rem; margin-bottom: 0.75rem;'}
+          .toc-comments{style: 'color: #4a5568; font-size: 1rem; margin-bottom: 0.75rem;'}
             💬
             = toc.comments
 

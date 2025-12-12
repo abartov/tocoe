@@ -4,7 +4,7 @@
       .panel-heading
         %h4= t('tocs.form.ocr_section.title')
       .panel-body
-        = form_tag({action: 'do_ocr'}, {remote: true, id: 'ocr_form'}) do
+        #ocr_form
           = hidden_field_tag :toc_id, @toc.id
 
           .form-group
@@ -16,7 +16,7 @@
               %span.help-block= t('tocs.form.ocr_section.urls_help')
 
           .ocr-actions
-            = submit_tag t('tocs.form.ocr_section.attempt_button'), id: 'ocr_submit', class: 'btn btn-primary btn-lg'
+            = button_tag t('tocs.form.ocr_section.attempt_button'), id: 'ocr_submit', type: 'button', class: 'btn btn-primary btn-lg'
             = button_tag(type: 'button', id: 'paste_ocr', class: 'btn btn-success btn-lg', style: 'display: none;') do
               %span.glyphicon.glyphicon-paste
               = t('tocs.form.ocr_section.paste_button')
@@ -76,11 +76,31 @@
         $('a[href="#toc-body"]').tab('show');
       });
 
-      $('#ocr_form').on('ajax:before', function() {
+      $('#ocr_submit').click(function() {
+        // Disable button and show loading
         $('#ocr_submit').prop('disabled', true);
         $('#ocr_working').show();
         $('#paste_ocr').hide();
         $('#results').html('');
+
+        // Make AJAX POST request
+        $.ajax({
+          url: '#{tocs_do_ocr_path}',
+          type: 'POST',
+          dataType: 'script',
+          data: {
+            toc_id: $('#toc_id').val(),
+            ocr_images: $('#ocr_images').val()
+          },
+          headers: {
+            'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+          },
+          error: function(xhr, status, error) {
+            $('#ocr_submit').prop('disabled', false);
+            $('#ocr_working').hide();
+            $('#results').html('<span style="color: red;">Error: ' + error + '</span>');
+          }
+        });
       });
 
       // Handle click on scan thumbnails to open zoomed modal

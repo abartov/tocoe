@@ -48,3 +48,59 @@
     border: 1px solid #fc8181;
   }
 }
+
+// TOC Body tab side-by-side layout
+.toc-body-layout {
+  display: block;
+
+  &.side-by-side {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+
+    .reference-panel {
+      flex: 0 0 45%;
+      max-width: 45%;
+      min-width: 400px;
+
+      .panel {
+        margin-bottom: 0;
+      }
+    }
+
+    .editing-panel {
+      flex: 1;
+      min-width: 400px;
+    }
+  }
+}
+
+// Reference toggle button
+.reference-toggle-section {
+  #toggleReference {
+    font-weight: 600;
+
+    #toggleIcon {
+      margin-right: 5px;
+    }
+  }
+}
+
+// Make the layout responsive
+@media (max-width: 1200px) {
+  .toc-body-layout.side-by-side {
+    flex-direction: column;
+
+    .reference-panel {
+      flex: 0 0 auto;
+      max-width: 100%;
+      min-width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .editing-panel {
+      flex: 0 0 auto;
+      min-width: 100%;
+    }
+  }
+}

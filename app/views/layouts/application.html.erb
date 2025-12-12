@@ -58,9 +58,49 @@
     </div>
   </nav>
 
+  <%= render_breadcrumbs %>
+
+  <%= render 'shared/flash_messages' %>
+
   <div class="main-content">
     <%= yield %>
   </div>
+
+  <footer class="tocoe-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4><%= t('footer.about_title', default: 'About ToCoE') %></h4>
+        <p><%= t('footer.about_description', default: 'Table of Contents of Everything - Creating CC0 public domain tables of contents through volunteer labor and linked open data.') %></p>
+      </div>
+
+      <div class="footer-section">
+        <h4><%= t('footer.links_title', default: 'Links') %></h4>
+        <ul class="footer-links">
+          <li><a href="https://github.com/abartov/tocoe" target="_blank" rel="noopener">
+            <%= t('footer.github', default: 'GitHub Repository') %> →
+          </a></li>
+          <li><a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener">
+            <%= t('footer.license', default: 'CC0 1.0 Universal') %> →
+          </a></li>
+          <li><%= link_to t('footer.help', default: 'Help & Documentation'), help_path %></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4><%= t('footer.contact_title', default: 'Contact') %></h4>
+        <p><%= t('footer.contact_description', default: 'Questions or feedback?') %></p>
+        <p>
+          <a href="https://github.com/abartov/tocoe/issues" target="_blank" rel="noopener">
+            <%= t('footer.report_issue', default: 'Report an Issue') %> →
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; <%= Time.current.year %> ToCoE. <%= t('footer.cc0_notice', default: 'All content released under CC0 1.0 Universal.') %></p>
+    </div>
+  </footer>
 </div>
 
 <script>

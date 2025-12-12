@@ -1,0 +1,62 @@
+<% flash.each do |type, message| %>
+  <% next if message.blank? %>
+  <%
+    # Map Rails flash types to Bootstrap alert types and icons
+    alert_class = case type.to_sym
+                  when :notice, :success
+                    'alert-success'
+                  when :alert, :error
+                    'alert-danger'
+                  when :warning
+                    'alert-warning'
+                  else
+                    'alert-info'
+                  end
+
+    icon = case type.to_sym
+           when :notice, :success
+             '✅'
+           when :alert, :error
+             '❌'
+           when :warning
+             '⚠️'
+           else
+             'ℹ️'
+           end
+  %>
+
+  <div class="flash-message alert <%= alert_class %>"
+       style="border-left: 4px solid; border-radius: 8px; padding: 1rem 1.5rem; margin: 1rem 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); animation: slideIn 0.3s ease-out;"
+       role="alert">
+    <div class="d-flex align-items-center">
+      <span style="font-size: 1.5rem; margin-right: 1rem;"><%= icon %></span>
+      <div style="flex: 1;">
+        <%= message %>
+      </div>
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="margin-left: 1rem; opacity: 0.6; cursor: pointer; background: none; border: none; font-size: 1.5rem;">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </div>
+<% end %>
+
+<style>
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.flash-message {
+  transition: opacity 0.2s ease-out;
+}
+
+.flash-message .close:hover {
+  opacity: 1;
+}
+</style>

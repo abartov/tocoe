@@ -9,7 +9,7 @@
     = @toc.book_uri
   %p
     %span.status-badge{class: "status-#{@toc.status}", style: 'display: inline-block; padding: 0.35rem 0.85rem; border-radius: 16px; font-size: 0.85rem; font-weight: 600;'}
-      = @toc.status.titleize
+      = status_badge_with_icon(@toc.status)
 
 .mb-3
   = link_to t('common.actions.edit'), edit_toc_path(@toc), class: 'btn btn-primary'
@@ -18,34 +18,44 @@
     = link_to t('tocs.show.browse_scans_link'), browse_scans_toc_path(@toc), class: 'btn btn-info'
 
 - if @toc.pages_marked?
-  .alert.alert-info
-    %p
-      %strong= t('tocs.show.pages_marked_alert.title')
-      = t('tocs.show.pages_marked_alert.description')
-    %p
-      = link_to t('tocs.show.pages_marked_alert.edit_button'), edit_toc_path(@toc), class: 'btn btn-primary'
-      = button_to t('tocs.show.pages_marked_alert.mark_transcribed_button'), mark_transcribed_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: t('tocs.show.pages_marked_alert.confirm_transcribed') }
+  .alert.alert-info.status-alert{style: 'border-left: 4px solid #3182ce; background: #ebf8ff; border-radius: 8px; padding: 1.5rem;'}
+    .d-flex.align-items-start
+      %span{style: 'font-size: 2rem; margin-right: 1rem;'} 📑
+      .flex-grow-1
+        %p{style: 'margin-bottom: 0.75rem;'}
+          %strong{style: 'font-size: 1.1rem; color: #2c5282;'}= t('tocs.show.pages_marked_alert.title')
+        %p{style: 'color: #2d3748; margin-bottom: 1rem;'}= t('tocs.show.pages_marked_alert.description')
+        %p{style: 'margin: 0;'}
+          = link_to t('tocs.show.pages_marked_alert.edit_button'), edit_toc_path(@toc), class: 'btn btn-primary'
+          = button_to t('tocs.show.pages_marked_alert.mark_transcribed_button'), mark_transcribed_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: t('tocs.show.pages_marked_alert.confirm_transcribed') }
 
 - elsif @toc.transcribed?
-  .alert.alert-success
-    %p
-      %strong= t('tocs.show.transcribed_alert.title')
-      = t('tocs.show.transcribed_alert.description')
-    - if current_user && @toc.contributor_id == current_user.id
-      %p.text-warning
-        = t('tocs.show.transcribed_alert.cannot_verify_own')
-    - else
-      %p
-        = button_to t('tocs.show.transcribed_alert.verify_button'), verify_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: t('tocs.show.transcribed_alert.confirm_verified') }
+  .alert.alert-success.status-alert{style: 'border-left: 4px solid #38a169; background: #f0fff4; border-radius: 8px; padding: 1.5rem;'}
+    .d-flex.align-items-start
+      %span{style: 'font-size: 2rem; margin-right: 1rem;'} 📄
+      .flex-grow-1
+        %p{style: 'margin-bottom: 0.75rem;'}
+          %strong{style: 'font-size: 1.1rem; color: #22543d;'}= t('tocs.show.transcribed_alert.title')
+        %p{style: 'color: #2d3748; margin-bottom: 1rem;'}= t('tocs.show.transcribed_alert.description')
+        - if current_user && @toc.contributor_id == current_user.id
+          %p.text-warning{style: 'margin-bottom: 1rem;'}
+            ⚠️
+            = t('tocs.show.transcribed_alert.cannot_verify_own')
+        - else
+          %p{style: 'margin: 0;'}
+            = button_to t('tocs.show.transcribed_alert.verify_button'), verify_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: t('tocs.show.transcribed_alert.confirm_verified') }
 
 - if @toc.no_explicit_toc
   %p
     %b= t('tocs.show.no_explicit_toc')
 - elsif @toc.empty?
-  .alert.alert-warning
-    %p
-      %strong= t('tocs.show.empty_alert.title')
-      = t('tocs.show.empty_alert.description')
+  .alert.alert-warning.status-alert{style: 'border-left: 4px solid #d69e2e; background: #fefcbf; border-radius: 8px; padding: 1.5rem;'}
+    .d-flex.align-items-start
+      %span{style: 'font-size: 2rem; margin-right: 1rem;'} 📝
+      .flex-grow-1
+        %p{style: 'margin-bottom: 0.75rem;'}
+          %strong{style: 'font-size: 1.1rem; color: #744210;'}= t('tocs.show.empty_alert.title')
+        %p{style: 'color: #2d3748; margin: 0;'}= t('tocs.show.empty_alert.description')
 
 .row
   - if @is_gutenberg && @fulltext_url.present?

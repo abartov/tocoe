@@ -43,7 +43,7 @@
         data: { source: source, query: query },
         dataType: 'json',
         beforeSend: function() {
-          $('#search_results').html('<p class="text-muted">Searching...</p>');
+          $('#search_results').html('<div class="loading-spinner"><div class="spinner"></div><span class="loading-text">Searching...</span></div>');
         },
         success: function(data) {
           if (data.length === 0) {

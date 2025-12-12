@@ -68,4 +68,58 @@ module TocsHelper
 
     html_lines.join("\n").html_safe
   end
+
+  # Format TOC body for compact preview in index (first few entries)
+  def format_toc_preview(markdown, max_entries: 3)
+    return '' if markdown.blank?
+
+    entries = []
+    entry_count = 0
+
+    markdown.split("\n").each do |line|
+      next if line.strip.empty?
+      break if entry_count >= max_entries
+
+      # Match heading patterns
+      if line =~ /^(\#{1,2})\s+(.+)$/
+        level = $1.length
+        content = $2.strip
+
+        # Skip section headings (end with /)
+        next if content.end_with?('/')
+
+        # Parse title and author
+        if content.include?('||')
+          title, authors = content.split('||', 2)
+          entries << "#{title.strip} — #{authors.strip}"
+        else
+          entries << content
+        end
+
+        entry_count += 1
+      end
+    end
+
+    result = entries.join(' • ')
+
+    # Add ellipsis if there are more entries
+    total_lines = markdown.split("\n").reject { |l| l.strip.empty? || l.strip.end_with?('/') }.count
+    result += ' …' if total_lines > max_entries
+
+    result
+  end
+
+  # Format status badge with icon
+  def status_badge_with_icon(status)
+    icons = {
+      'empty' => '📝',
+      'pages_marked' => '📑',
+      'transcribed' => '📄',
+      'verified' => '✅',
+      'error' => '❌'
+    }
+
+    icon = icons[status.to_s] || '📋'
+    "#{icon} #{status.to_s.titleize}".html_safe
+  end
 end

@@ -1,0 +1,91 @@
+.search-page{style: 'max-width: 1200px; margin: 0 auto; padding: 0 2rem;'}
+  .search-header{style: 'background: #f7fafc; border-bottom: 2px solid #e2e8f0; padding: 1.5rem 2rem; margin: -2rem -2rem 2rem -2rem;'}
+    %h1{style: 'font-size: 1.8rem; margin-bottom: 1rem; color: #2d3748;'}
+      = t('tocs.search.title', default: 'Search Results')
+
+    .search-form{style: 'max-width: 600px;'}
+      = form_tag search_tocs_path, method: :get, class: 'navbar-search-form', style: 'position: relative;' do
+        = text_field_tag :search, @query, placeholder: t('tocs.search.placeholder', default: 'Search TOCs, works, and publications...'), class: 'form-control', style: 'padding-right: 100px; font-size: 1rem; border: 2px solid #e2e8f0; border-radius: 24px; padding: 0.75rem 1.25rem;'
+        = button_tag t('common.actions.search', default: 'Search'), type: 'submit', class: 'btn btn-primary', style: 'position: absolute; right: 5px; top: 5px; border-radius: 20px;'
+
+  - if @query.present?
+    .search-stats{style: 'color: #4a5568; margin-bottom: 1.5rem; padding: 0.75rem; background: #f7fafc; border-radius: 6px;'}
+      %strong= t('tocs.search.query_label', default: 'Search query:')
+      = @query
+      %br
+      = t('tocs.search.results_count', default: 'Found %{toc_count} TOCs, %{work_count} works, and %{manifestation_count} publications', toc_count: @tocs.count, work_count: @works.count, manifestation_count: @manifestations.count)
+
+    - if @tocs.any?
+      %h2{style: 'font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; color: #2d3748;'}
+        📚
+        = t('tocs.search.tocs_section', default: 'Tables of Contents')
+        %span{style: 'color: #718096; font-size: 1.2rem; font-weight: normal;'}= "(#{@tocs.count})"
+
+      .toc-results
+        - @tocs.each do |toc|
+          .toc-card{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; transition: all 0.2s;', onmouseover: 'this.style.borderColor="#667eea"; this.style.boxShadow="0 4px 12px rgba(102, 126, 234, 0.1)"', onmouseout: 'this.style.borderColor="#e2e8f0"; this.style.boxShadow="none"'}
+            .toc-header{style: 'display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;'}
+              .toc-title{style: 'flex: 1;'}
+                %h3{style: 'font-size: 1.2rem; font-weight: 600; margin-bottom: 0.25rem;'}
+                  = link_to toc.title, toc, style: 'color: #667eea; text-decoration: none;'
+                %p{style: 'color: #718096; font-size: 1rem; margin: 0;'}= toc.book_uri
+
+              %span.status-badge{class: "status-#{toc.status}"}
+                = status_badge_with_icon(toc.status)
+
+            - if toc.toc_body.present?
+              .toc-preview{style: 'color: #718096; font-size: 1rem; line-height: 1.4; padding: 0.75rem; background: #f7fafc; border-radius: 4px; margin-bottom: 0.75rem;'}
+                = format_toc_preview(toc.toc_body)
+
+            .toc-actions{style: 'display: flex; gap: 0.5rem;'}
+              = link_to t('common.actions.view', default: 'View'), toc, class: 'btn btn-primary btn-sm'
+              = link_to t('common.actions.edit', default: 'Edit'), edit_toc_path(toc), class: 'btn btn-secondary btn-sm'
+
+    - if @works.any?
+      %h2{style: 'font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; color: #2d3748;'}
+        📖
+        = t('tocs.search.works_section', default: 'Works')
+        %span{style: 'color: #718096; font-size: 1.2rem; font-weight: normal;'}= "(#{@works.count})"
+
+      .work-results
+        - @works.each do |work|
+          .work-card{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 0.75rem; transition: all 0.2s;', onmouseover: 'this.style.borderColor="#667eea"; this.style.boxShadow="0 4px 12px rgba(102, 126, 234, 0.1)"', onmouseout: 'this.style.borderColor="#e2e8f0"; this.style.boxShadow="none"'}
+            %h4{style: 'font-size: 1.1rem; font-weight: 600; margin: 0; color: #2d3748;'}= work.title
+            - if work.creators.any?
+              %p{style: 'color: #718096; margin: 0.25rem 0 0 0;'}
+                = t('tocs.search.by_author', default: 'by')
+                = work.creators.map(&:name).join(', ')
+
+    - if @manifestations.any?
+      %h2{style: 'font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; color: #2d3748;'}
+        📕
+        = t('tocs.search.manifestations_section', default: 'Publications')
+        %span{style: 'color: #718096; font-size: 1.2rem; font-weight: normal;'}= "(#{@manifestations.count})"
+
+      .manifestation-results
+        - @manifestations.each do |manifestation|
+          .manifestation-card{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 0.75rem; transition: all 0.2s;', onmouseover: 'this.style.borderColor="#667eea"; this.style.boxShadow="0 4px 12px rgba(102, 126, 234, 0.1)"', onmouseout: 'this.style.borderColor="#e2e8f0"; this.style.boxShadow="none"'}
+            %h4{style: 'font-size: 1.1rem; font-weight: 600; margin: 0; color: #2d3748;'}= manifestation.title
+            - if manifestation.publisher.present?
+              %p{style: 'color: #718096; margin: 0.25rem 0 0 0;'}
+                = manifestation.publisher
+                - if manifestation.publication_date.present?
+                  = "(#{manifestation.publication_date})"
+            - if manifestation.toc
+              %p{style: 'margin-top: 0.5rem;'}
+                = link_to t('tocs.search.view_toc', default: 'View TOC'), manifestation.toc, class: 'btn btn-sm btn-primary'
+
+    - if @tocs.empty? && @works.empty? && @manifestations.empty?
+      .empty-state{style: 'text-align: center; padding: 3rem; background: #f7fafc; border-radius: 8px; color: #718096;'}
+        %p{style: 'font-size: 1.5rem; margin-bottom: 0.5rem;'} 🔍
+        %p{style: 'font-size: 1.2rem; margin-bottom: 1rem;'}
+          = t('tocs.search.no_results', default: 'No results found for "%{query}"', query: @query)
+        %p{style: 'margin-bottom: 1rem;'}
+          = t('tocs.search.try_different', default: 'Try a different search term or browse all TOCs')
+        = link_to t('tocs.index.title', default: 'Browse TOCs'), tocs_path, class: 'btn btn-primary'
+
+  - else
+    .empty-state{style: 'text-align: center; padding: 3rem; background: #f7fafc; border-radius: 8px; color: #718096;'}
+      %p{style: 'font-size: 1.5rem; margin-bottom: 0.5rem;'} 🔍
+      %p{style: 'font-size: 1.2rem;'}
+        = t('tocs.search.enter_query', default: 'Enter a search term to find TOCs, works, and publications')

@@ -24,6 +24,29 @@ class TocsController < ApplicationController
     @tocs = apply_sorting(@tocs)
   end
 
+  # GET /tocs/search
+  def search
+    @query = params[:search]
+
+    if @query.blank?
+      @tocs = []
+      @works = []
+      @manifestations = []
+    else
+      # Search TOCs by title, book_uri, toc_body, and comments
+      @tocs = Toc.where(
+        'title LIKE ? OR book_uri LIKE ? OR toc_body LIKE ? OR comments LIKE ?',
+        "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"
+      ).order(updated_at: :desc).limit(50)
+
+      # Search Works by title
+      @works = Work.where('title LIKE ?', "%#{@query}%").order(:title).limit(20)
+
+      # Search Manifestations by title
+      @manifestations = Manifestation.where('title LIKE ?', "%#{@query}%").order(:title).limit(20)
+    end
+  end
+
   # GET /tocs/1
   # GET /tocs/1.json
   def show

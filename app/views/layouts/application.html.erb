@@ -27,7 +27,7 @@
 
       <% if user_signed_in? %>
         <div class="navbar-search">
-          <%= form_tag publications_search_path, method: :get, class: 'navbar-search-form' do %>
+          <%= form_tag search_tocs_path, method: :get, class: 'navbar-search-form' do %>
             <%= text_field_tag :search, params[:search],
                 placeholder: t('common.nav.quick_search', default: 'Quick search...'),
                 class: 'navbar-search-input' %>

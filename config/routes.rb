@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   resources :tocs do
     collection do
       post :create_multiple
+      get :search
     end
     member do
       get :browse_scans

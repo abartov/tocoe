@@ -1,0 +1,63 @@
+// ============================================================================
+// Aboutnesses (Subject Headings) Styles
+// ============================================================================
+// Implements R22: Modernize form layouts (remove inline styles)
+// ============================================================================
+
+@import "design_system";
+
+// Work Context Section
+.work-context {
+  background: $bg-secondary;
+  border-left: 4px solid $secondary-500;
+  padding: $space-6;
+  margin-bottom: $space-6;
+  border-radius: $radius-base;
+}
+
+.work-context-title {
+  font-size: $text-xl;
+  margin-bottom: $space-2;
+  color: $text-primary;
+  font-weight: $font-semibold;
+}
+
+.work-context-info {
+  color: $text-secondary;
+  margin-bottom: $space-2;
+  line-height: $leading-relaxed;
+
+  strong {
+    color: $text-primary;
+    font-weight: $font-semibold;
+  }
+
+  &:last-of-type {
+    margin-bottom: $space-3;
+  }
+}
+
+// Subject Tags
+.subject-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-2;
+  margin-top: $space-2;
+}
+
+.subject-tag {
+  display: inline-block;
+  font-size: $text-base;
+  padding: $space-2 $space-3;
+  border-radius: $radius-md;
+  background: $secondary-500;
+  color: $text-inverse;
+  font-weight: $font-medium;
+  transition: all $transition-base;
+
+  &:hover {
+    background: $secondary-600;
+    transform: translateY(-1px);
+    box-shadow: $shadow-sm;
+  }
+}

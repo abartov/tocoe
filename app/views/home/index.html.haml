@@ -1,42 +1,63 @@
-.container{style: 'margin-top: 50px;'}
-  .row
-    .col-md-8.col-md-offset-2
-      .jumbotron
-        %h1= t('home.index.app_name')
-        %h2= t('home.index.tagline')
-        %p.lead
-          = t('home.index.description')
-        %hr
-        %p
+.homepage-hero
+  .container
+    .row
+      .col-md-10.col-md-offset-1
+        .hero-content.text-center
+          %h1.hero-title= t('home.index.app_name')
+          %p.hero-subtitle= t('home.index.tagline')
+          %p.hero-description= t('home.index.description')
+
+          .hero-cta
+            = link_to t('home.index.sign_in_button'), user_google_oauth2_omniauth_authorize_path, class: 'btn btn-primary btn-lg btn-hero', method: :post
+            = link_to t('home.index.browse_tocs_button'), tocs_path, class: 'btn btn-default btn-lg btn-hero-secondary'
+
+.homepage-features
+  .container
+    .row.text-center
+      .col-md-12
+        %h2.section-title= t('home.index.how_it_works_title')
+
+    .row
+      .col-md-3.col-sm-6
+        .feature-card
+          .feature-icon
+            %span.glyphicon.glyphicon-search
+          %h3.feature-title= t('home.index.step_1_title')
+          %p.feature-description= t('home.index.step_1_description')
+
+      .col-md-3.col-sm-6
+        .feature-card
+          .feature-icon
+            %span.glyphicon.glyphicon-pencil
+          %h3.feature-title= t('home.index.step_2_title')
+          %p.feature-description= t('home.index.step_2_description')
+
+      .col-md-3.col-sm-6
+        .feature-card
+          .feature-icon
+            %span.glyphicon.glyphicon-eye-open
+          %h3.feature-title= t('home.index.step_3_title')
+          %p.feature-description= t('home.index.step_3_description')
+
+      .col-md-3.col-sm-6
+        .feature-card
+          .feature-icon
+            %span.glyphicon.glyphicon-share-alt
+          %h3.feature-title= t('home.index.step_4_title')
+          %p.feature-description= t('home.index.step_4_description')
+
+.homepage-about
+  .container
+    .row
+      .col-md-8.col-md-offset-2.text-center
+        %h2.section-title= t('home.index.about_title')
+        %p.about-text
           = t('home.index.mmob_intro')
           %strong= t('home.index.mmob_name')
           = t('home.index.mmob_description')
-        %p
-          = t('home.index.goal_intro')
-        %ul
-          %li= t('home.index.uses.research')
-          %li= t('home.index.uses.cataloging')
-          %li= t('home.index.uses.search')
-          %li= t('home.index.uses.preservation')
-        %p
-          = t('home.index.cc0_notice')
-        %hr
-        - if user_signed_in?
-          %p
-            %strong= t('home.index.welcome_back', email: current_user.email)
-          %p
-            = link_to t('home.index.search_books_button'), publications_search_path, class: 'btn btn-primary btn-lg'
-            = link_to t('home.index.view_tocs_button'), tocs_path, class: 'btn btn-info btn-lg', style: 'margin-left: 10px;'
-          %p.text-muted
-            %small= t('home.index.view_tocs_help')
-        - else
-          %p
-            %strong= t('home.index.sign_in_prompt')
-          = link_to t('home.index.sign_in_button'), user_google_oauth2_omniauth_authorize_path, class: 'btn btn-primary btn-lg', method: :post
-      .panel.panel-default{style: 'margin-top: 30px;'}
-        .panel-body
-          %p.text-muted
-            = t('home.index.learn_more')
-            = link_to 'aboutness.org', 'http://aboutness.org', target: '_blank'
-            |
-            = link_to t('home.index.mmob_name'), 'https://meta.wikimedia.org/wiki/Massively-Multiplayer_Online_Bibliography', target: '_blank'
+        %p.about-text= t('home.index.cc0_notice')
+
+        .about-links
+          = link_to 'Learn More at aboutness.org', 'http://aboutness.org', target: '_blank', class: 'btn btn-link'
+          |
+          = link_to t('home.index.mmob_name'), 'https://meta.wikimedia.org/wiki/Massively-Multiplayer_Online_Bibliography', target: '_blank', class: 'btn btn-link'

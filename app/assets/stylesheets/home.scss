@@ -1,0 +1,198 @@
+// ============================================================================
+// Homepage Styles
+// ============================================================================
+// Implements R9: Simplified homepage with clear value proposition
+// ============================================================================
+
+@import "design_system";
+
+// Hero Section
+.homepage-hero {
+  background: linear-gradient(135deg, $secondary-500 0%, $accent-500 100%);
+  color: $text-inverse;
+  padding: $space-20 0;
+  margin-bottom: 0;
+}
+
+.hero-content {
+  padding: $space-8 0;
+}
+
+.hero-title {
+  font-size: $text-5xl;
+  font-weight: $font-extrabold;
+  margin-bottom: $space-4;
+  color: $text-inverse;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: $text-4xl;
+  }
+}
+
+.hero-subtitle {
+  font-size: $text-2xl;
+  font-weight: $font-semibold;
+  margin-bottom: $space-4;
+  color: $text-inverse;
+  opacity: 0.95;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: $text-xl;
+  }
+}
+
+.hero-description {
+  font-size: $text-lg;
+  line-height: $leading-relaxed;
+  margin-bottom: $space-8;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  color: $text-inverse;
+  opacity: 0.9;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: $text-base;
+  }
+}
+
+.hero-cta {
+  margin-top: $space-8;
+}
+
+.btn-hero {
+  margin: $space-2;
+  padding: $space-4 $space-8;
+  font-size: $text-lg;
+  font-weight: $font-semibold;
+  border-radius: $radius-lg;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: $shadow-lg;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-xl;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    display: block;
+    width: 100%;
+    margin: $space-2 0;
+    font-size: $text-base;
+  }
+}
+
+.btn-hero-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid $text-inverse;
+  color: $text-inverse;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: $text-inverse;
+  }
+}
+
+// Features Section
+.homepage-features {
+  padding: $space-20 0;
+  background: $bg-secondary;
+}
+
+.section-title {
+  font-size: $text-4xl;
+  font-weight: $font-bold;
+  margin-bottom: $space-12;
+  color: $text-primary;
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: $text-3xl;
+    margin-bottom: $space-8;
+  }
+}
+
+.feature-card {
+  padding: $space-8;
+  text-align: center;
+  transition: transform $transition-base;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    padding: $space-6;
+    margin-bottom: $space-6;
+  }
+}
+
+.feature-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto $space-6;
+  background: linear-gradient(135deg, $secondary-500 0%, $accent-500 100%);
+  border-radius: $radius-full;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $shadow-lg;
+
+  .glyphicon {
+    font-size: $text-3xl;
+    color: $text-inverse;
+  }
+}
+
+.feature-title {
+  font-size: $text-xl;
+  font-weight: $font-bold;
+  margin-bottom: $space-3;
+  color: $text-primary;
+}
+
+.feature-description {
+  font-size: $text-base;
+  color: $text-secondary;
+  line-height: $leading-relaxed;
+}
+
+// About Section
+.homepage-about {
+  padding: $space-20 0;
+  background: $bg-primary;
+}
+
+.about-text {
+  font-size: $text-lg;
+  line-height: $leading-relaxed;
+  color: $text-secondary;
+  margin-bottom: $space-6;
+
+  strong {
+    color: $secondary-600;
+    font-weight: $font-semibold;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    font-size: $text-base;
+  }
+}
+
+.about-links {
+  margin-top: $space-8;
+
+  .btn-link {
+    color: $secondary-600;
+    font-weight: $font-medium;
+    font-size: $text-base;
+    text-decoration: none;
+    margin: 0 $space-3;
+
+    &:hover {
+      color: $secondary-700;
+      text-decoration: underline;
+    }
+  }
+}

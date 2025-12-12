@@ -2,6 +2,29 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+@import "design_system";
+
+// Required Field Indicators (R8: Error Prevention)
+.required-field {
+  position: relative;
+
+  .required-asterisk {
+    color: $error-600;
+    font-weight: $font-bold;
+    margin-left: $space-1;
+    font-size: $text-lg;
+  }
+
+  .form-control:invalid {
+    border-color: $error-500;
+
+    &:focus {
+      border-color: $error-600;
+      box-shadow: 0 0 0 3px rgba($error-500, 0.1);
+    }
+  }
+}
+
 // Status badges with color-coding (R20)
 .status-badge {
   padding: 0.375rem 0.75rem;

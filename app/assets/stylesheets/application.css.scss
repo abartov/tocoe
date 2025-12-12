@@ -14,13 +14,14 @@
  *= require_self
  */
 
+@import "design_system";
 @import "bootstrap-sprockets";
 @import "bootstrap";
 
 /* ToCoE Navigation Bar */
 .tocoe-navbar {
-  background: white;
-  border-bottom: 2px solid #e2e8f0;
+  background: $bg-primary;
+  border-bottom: 2px solid $border-light;
   padding: 0;
   margin-bottom: 0;
 }
@@ -29,7 +30,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 2rem;
+  padding: $space-4 $space-8;
   max-width: 100%;
 }
 
@@ -56,7 +57,7 @@
 .navbar-menu {
   display: flex;
   list-style: none;
-  gap: 2rem;
+  gap: $space-8;
   margin: 0;
   padding: 0;
   align-items: center;
@@ -66,20 +67,20 @@
   }
 
   .nav-link {
-    color: #4a5568;
+    color: $text-secondary;
     text-decoration: none;
-    font-weight: 500;
-    padding: 0.5rem 0;
-    transition: color 0.2s ease;
+    font-weight: $font-medium;
+    padding: $space-2 0;
+    transition: color $transition-base;
 
     &:hover {
-      color: #667eea;
+      color: $secondary-500;
       text-decoration: none;
     }
 
     &.active {
-      color: #667eea;
-      border-bottom: 2px solid #667eea;
+      color: $secondary-500;
+      border-bottom: 2px solid $secondary-500;
     }
   }
 }
@@ -236,36 +237,36 @@
 /* Status Badges */
 .status-badge {
   display: inline-block;
-  padding: 0.35rem 0.85rem;
-  border-radius: 16px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  padding: $space-2 $space-3;
+  border-radius: $radius-xl;
+  font-size: $text-sm;
+  font-weight: $font-semibold;
   text-transform: capitalize;
 }
 
 .status-empty {
-  background: #fee;
-  color: #c53030;
+  background: $error-100;
+  color: $error-700;
 }
 
 .status-pages_marked {
-  background: #fef3c7;
-  color: #92400e;
+  background: $warning-100;
+  color: $warning-700;
 }
 
 .status-transcribed {
-  background: #dbeafe;
-  color: #1e40af;
+  background: $info-100;
+  color: $info-700;
 }
 
 .status-verified {
-  background: #d1fae5;
-  color: #065f46;
+  background: $success-100;
+  color: $success-700;
 }
 
 .status-error {
-  background: #fed7d7;
-  color: #c53030;
+  background: $error-100;
+  color: $error-700;
 }
 
 /* Mobile Responsive */

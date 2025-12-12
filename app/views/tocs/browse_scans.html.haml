@@ -34,7 +34,11 @@
             .form-check
               = check_box_tag "marked_pages[]", page_data[:url], @marked_pages.include?(page_data[:url]), class: 'form-check-input page-checkbox', id: "page_#{page_data[:page_number]}"
               = label_tag "page_#{page_data[:page_number]}", t('tocs.browse_scans.page_label', number: page_data[:page_number]), class: 'form-check-label'
+            %button.btn.btn-sm.btn-link.view-preview{ type: 'button', data: { url: page_data[:url], page: page_data[:page_number] }, onclick: 'event.stopPropagation();' }
+              %span.glyphicon.glyphicon-eye-open
+              = t('tocs.browse_scans.quick_preview')
             %a.btn.btn-sm.btn-link.view-full-link{ href: page_data[:url], target: '_blank', onclick: 'event.stopPropagation();' }
+              %span.glyphicon.glyphicon-new-window
               = t('tocs.browse_scans.view_full_size')
 
   .row
@@ -79,6 +83,22 @@
       = submit_tag t('tocs.browse_scans.save_button'), class: 'btn btn-primary'
       = link_to t('common.actions.cancel'), @toc, class: 'btn btn-default'
 
+/ Lightbox Modal for Image Preview
+#scan-lightbox.modal.fade{tabindex: '-1', role: 'dialog', 'aria-labelledby': 'lightbox-title', 'aria-hidden': 'true'}
+  .modal-dialog.modal-lg{role: 'document', style: 'max-width: 90%; margin: 30px auto;'}
+    .modal-content
+      .modal-header
+        %button.close{type: 'button', 'data-dismiss': 'modal', 'aria-label': 'Close'}
+          %span{'aria-hidden': 'true'} &times;
+        %h4#lightbox-title.modal-title= t('tocs.browse_scans.lightbox_title')
+      .modal-body.text-center
+        %img#lightbox-image{src: '', alt: '', style: 'max-width: 100%; max-height: 80vh; object-fit: contain;'}
+      .modal-footer
+        %a#lightbox-new-tab.btn.btn-default{href: '#', target: '_blank'}
+          %span.glyphicon.glyphicon-new-window
+          = t('tocs.browse_scans.open_in_new_tab')
+        %button.btn.btn-primary{type: 'button', 'data-dismiss': 'modal'}= t('common.actions.cancel')
+
 :css
   .scan-grid .card {
     min-height: 320px;
@@ -111,11 +131,52 @@
   }
 
 :javascript
+  // Lightbox functionality
+  document.querySelectorAll('.view-preview').forEach(function(button) {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const imageUrl = this.getAttribute('data-url');
+      const pageNumber = this.getAttribute('data-page');
+
+      // Update modal content
+      document.getElementById('lightbox-image').src = imageUrl;
+      document.getElementById('lightbox-image').alt = 'Page ' + pageNumber;
+      document.getElementById('lightbox-title').textContent = 'Page ' + pageNumber + ' Preview';
+      document.getElementById('lightbox-new-tab').href = imageUrl;
+
+      // Show the modal
+      $('#scan-lightbox').modal('show');
+    });
+  });
+
+  // Also allow clicking on thumbnail images for preview
+  document.querySelectorAll('.card-img-top').forEach(function(img) {
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', function(e) {
+      e.stopPropagation();
+
+      const imageUrl = this.getAttribute('data-full_url');
+      const imageId = this.getAttribute('data-image_id');
+      const pageNumber = imageId.replace('browse-', '');
+
+      // Update modal content
+      document.getElementById('lightbox-image').src = imageUrl;
+      document.getElementById('lightbox-image').alt = 'Page ' + pageNumber;
+      document.getElementById('lightbox-title').textContent = 'Page ' + pageNumber + ' Preview';
+      document.getElementById('lightbox-new-tab').href = imageUrl;
+
+      // Show the modal
+      $('#scan-lightbox').modal('show');
+    });
+  });
+
   // Make scan cards clickable
   document.querySelectorAll('.scan-card').forEach(function(card) {
     card.addEventListener('click', function(e) {
-      // Don't toggle if clicking on links or checkbox/label
-      if (e.target.tagName === 'A' || e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') {
+      // Don't toggle if clicking on links, buttons, checkbox/label, or images
+      if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL' || e.target.tagName === 'IMG' || e.target.classList.contains('glyphicon')) {
         return;
       }
 

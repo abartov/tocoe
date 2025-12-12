@@ -1,13 +1,21 @@
 .basic-info-section
-  .form-group
-    = f.label t('tocs.form.book_uri_label'), class: 'control-label'
+  .alert.alert-info{style: 'margin-bottom: 1.5rem;'}
+    %span.glyphicon.glyphicon-info-sign{style: 'margin-right: 0.5rem;'}
+    %strong= t('tocs.form.required_fields_notice')
+
+  .form-group.required-field
+    = f.label t('tocs.form.book_uri_label'), class: 'control-label' do
+      = t('tocs.form.book_uri_label')
+      %span.required-asterisk *
     = help_tooltip t('tocs.form.book_uri_tooltip'), placement: 'right'
-    = f.text_field :book_uri, class: 'form-control', placeholder: 'https://openlibrary.org/books/...'
+    = f.text_field :book_uri, class: 'form-control', placeholder: 'https://openlibrary.org/books/...', required: true
     %span.help-block= t('tocs.form.book_uri_help')
 
-  .form-group
-    = f.label t('common.labels.title'), class: 'control-label'
-    = f.text_field :title, class: 'form-control', placeholder: t('tocs.form.title_placeholder')
+  .form-group.required-field
+    = f.label t('common.labels.title'), class: 'control-label' do
+      = t('common.labels.title')
+      %span.required-asterisk *
+    = f.text_field :title, class: 'form-control', placeholder: t('tocs.form.title_placeholder'), required: true
 
   .form-group
     = f.label t('tocs.form.authors_label'), class: 'control-label'

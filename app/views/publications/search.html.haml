@@ -1,33 +1,54 @@
 .row
   .col-xs-12
-    %h1= t('publications.search.title')
-    %p= t('publications.search.description')
-    = form_tag publications_search_path, :method => 'get', :id => 'publications_search' do
-      .form-group
-        = label_tag :source, t('publications.search.form.source_label')
-        .radio
-          = label_tag 'source_openlibrary' do
-            = radio_button_tag :source, 'openlibrary', (@source.nil? || @source == 'openlibrary'), id: 'source_openlibrary'
-            = t('publications.search.form.source_openlibrary')
-        .radio
-          = label_tag 'source_gutendex' do
-            = radio_button_tag :source, 'gutendex', (@source == 'gutendex'), id: 'source_gutendex'
-            = t('publications.search.form.source_gutendex')
-      .form-group
-        = label_tag :search, t('publications.search.form.general_search_label')
-        = text_field_tag :search, params[:search], class: 'form-control', placeholder: t('publications.search.form.general_search_placeholder')
-      .form-group
-        = label_tag :title, t('publications.search.form.title_search_label')
-        = text_field_tag :title, params[:title], class: 'form-control', placeholder: t('publications.search.form.title_search_placeholder')
-      .form-group
-        = label_tag :author, t('publications.search.form.author_search_label')
-        = text_field_tag :author, params[:author], class: 'form-control', placeholder: t('publications.search.form.author_search_placeholder')
-      .form-group#fulltext-only-group
-        = check_box_tag :fulltext_only, '1', params[:fulltext_only] == '1'
-        = label_tag :fulltext_only, t('publications.search.form.fulltext_only_label')
-        = help_tooltip t('publications.search.form.fulltext_only_tooltip')
-      = submit_tag t('publications.search.form.search_button'), :name => nil, class: 'btn btn-primary'
-      = button_tag t('publications.search.multi_select_button'), type: 'button', class: 'btn btn-default', id: 'toggle-multiselect', style: 'margin-left: 10px; display: none;'
+    .search-header
+      %h1= t('publications.search.title')
+      %p.search-description= t('publications.search.description')
+
+    .search-form-container
+      = form_tag publications_search_path, :method => 'get', :id => 'publications_search' do
+        / Main horizontal search bar
+        .search-bar-horizontal
+          .search-input-group
+            = text_field_tag :search, params[:search], class: 'form-control search-input-main', placeholder: t('publications.search.form.general_search_placeholder')
+            = submit_tag t('publications.search.form.search_button'), :name => nil, class: 'btn btn-primary btn-search'
+
+          .search-actions
+            %button.btn.btn-default{type: 'button', id: 'toggle-advanced', 'data-toggle' => 'collapse', 'data-target' => '#advanced-search'}
+              %span.glyphicon.glyphicon-cog
+              = t('publications.search.form.advanced_search')
+            = button_tag t('publications.search.multi_select_button'), type: 'button', class: 'btn btn-default', id: 'toggle-multiselect', style: 'display: none;'
+
+        / Advanced search collapsible section
+        #advanced-search.collapse{class: (params[:title].present? || params[:author].present? || params[:source] == 'gutendex' || params[:fulltext_only] == '1') ? 'in' : ''}
+          .advanced-search-panel
+            .row
+              .col-md-4
+                .form-group
+                  = label_tag :title, t('publications.search.form.title_search_label'), class: 'control-label-sm'
+                  = text_field_tag :title, params[:title], class: 'form-control input-sm', placeholder: t('publications.search.form.title_search_placeholder')
+
+              .col-md-4
+                .form-group
+                  = label_tag :author, t('publications.search.form.author_search_label'), class: 'control-label-sm'
+                  = text_field_tag :author, params[:author], class: 'form-control input-sm', placeholder: t('publications.search.form.author_search_placeholder')
+
+              .col-md-4
+                .form-group
+                  = label_tag :source, t('publications.search.form.source_label'), class: 'control-label-sm'
+                  .source-radios
+                    = label_tag 'source_openlibrary', class: 'radio-inline' do
+                      = radio_button_tag :source, 'openlibrary', (@source.nil? || @source == 'openlibrary'), id: 'source_openlibrary'
+                      = t('publications.search.form.source_openlibrary')
+                    = label_tag 'source_gutendex', class: 'radio-inline' do
+                      = radio_button_tag :source, 'gutendex', (@source == 'gutendex'), id: 'source_gutendex'
+                      = t('publications.search.form.source_gutendex')
+
+            .row
+              .col-md-12
+                .form-group#fulltext-only-group
+                  = check_box_tag :fulltext_only, '1', params[:fulltext_only] == '1'
+                  = label_tag :fulltext_only, t('publications.search.form.fulltext_only_label')
+                  = help_tooltip t('publications.search.form.fulltext_only_tooltip')
 
     - if @num_results
       %p.text-muted

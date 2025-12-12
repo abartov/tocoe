@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToCoE: The Table of Contents of Everything</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px;
+            display: none;
+            overflow-y: auto;
+            animation: slideIn 0.5s ease;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #2d3748;
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        h2 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        p, li {
+            color: #4a5568;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #fef3c7 0%, #fde68a 100%);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .term {
+            color: #667eea;
+            font-weight: 600;
+            border-bottom: 2px dotted #667eea;
+            cursor: help;
+        }
+
+        .definition {
+            background: #edf2f7;
+            border-left: 4px solid #667eea;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 4px;
+        }
+
+        .definition strong {
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            background: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #667eea;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-number {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+        }
+
+        .example-box {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .workflow-step {
+            background: linear-gradient(135deg, #a5b4fc 0%, #c4b5fd 100%);
+            color: #1e293b;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .workflow-step h3 {
+            color: #4c1d95;
+            margin-top: 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .feature-card h4 {
+            color: #667eea;
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .screenshot-placeholder {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+            border: 2px dashed #a0aec0;
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            margin: 1.5rem 0;
+        }
+
+        .screenshot {
+            max-width: 100%;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            margin: 1.5rem 0;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .screenshot:hover {
+            transform: scale(1.02);
+        }
+
+        .image-credit {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .cc0-badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 0.5rem 0;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 2rem 0;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f7fafc;
+            border-radius: 8px;
+            flex: 1;
+            margin: 0 1rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #718096;
+            margin-top: 0.5rem;
+        }
+
+        .intro-slide h1 {
+            font-size: 4rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            color: #718096;
+            margin-bottom: 3rem;
+        }
+
+        code {
+            background: #2d3748;
+            color: #68d391;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .future-plans li {
+            margin-bottom: 1.5rem;
+        }
+
+        .author-image {
+            max-width: 200px;
+            border-radius: 8px;
+            margin: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active intro-slide">
+            <h1>📚 ToCoE</h1>
+            <p class="subtitle">The Table of Contents of Everything</p>
+            <h2>Building the World's Largest Public Domain Collection of Tables of Contents</h2>
+            <br><br>
+            <p style="font-size: 1.5rem; line-height: 2;">A crowdsourced platform for creating comprehensive, structured tables of contents for books, journals, and anthologies — <span class="highlight">all dedicated to the public domain</span>.</p>
+            <br>
+            <div class="cc0-badge">🌍 CC0 Public Domain Dedication</div>
+        </div>
+
+        <!-- Slide 2: The Mission -->
+        <div class="slide">
+            <h1>🎯 The Mission</h1>
+            <h2>Why ToCoE Exists</h2>
+            <p>Tables of contents are fundamental to navigating and discovering knowledge, yet comprehensive, machine-readable ToC data barely exists in the public domain.</p>
+
+            <div class="workflow-step">
+                <h3>The Challenge</h3>
+                <p>Libraries and databases have bibliographic records, but detailed tables of contents — especially for anthologies, essay collections, and journals — are often missing or locked behind commercial databases.</p>
+            </div>
+
+            <div class="workflow-step">
+                <h3>The Solution: Crowdsourcing + Public Domain</h3>
+                <p>ToCoE harnesses <span class="highlight">volunteer labor</span> to transcribe and structure tables of contents, then releases all data as <span class="highlight">CC0 (Creative Commons Zero)</span> — meaning anyone can use it for any purpose, with no restrictions.</p>
+            </div>
+
+            <div class="definition">
+                <strong>CC0 (Creative Commons Zero):</strong> A public domain dedication that waives all copyright and related rights. It's the most permissive way to share data — no attribution required, no restrictions whatsoever.
+            </div>
+        </div>
+
+        <!-- Slide 3: Understanding FRBR -->
+        <div class="slide">
+            <h1>📖 Understanding the Data Model</h1>
+            <h2>FRBR: The Secret Sauce</h2>
+            <p>ToCoE uses the <span class="term">FRBR model</span> to organize bibliographic information precisely and powerfully.</p>
+
+            <div class="definition">
+                <strong>FRBR (Functional Requirements for Bibliographic Records):</strong> An international library standard that separates the abstract idea of a creative work from its various editions, translations, and physical copies.
+            </div>
+
+            <h3>The Four Levels</h3>
+            <ol>
+                <li><strong class="term">Work</strong> — The abstract intellectual content (e.g., Shakespeare's "Hamlet" as a concept)</li>
+                <li><strong class="term">Expression</strong> — A specific realization of a Work (e.g., a particular English translation, or the 1603 First Quarto edition)</li>
+                <li><strong class="term">Manifestation</strong> — A physical or digital publication (e.g., the 1985 Penguin paperback edition)</li>
+                <li><strong class="term">Person</strong> — Creators and contributors (authors, translators, editors)</li>
+            </ol>
+
+            <h3>Why This Matters for ToC</h3>
+            <p>An anthology like "The Best American Essays 2023" contains many separate Works (each essay). FRBR lets us:</p>
+            <ul>
+                <li>Track each essay as an independent Work</li>
+                <li>Link essays to their original authors</li>
+                <li>Preserve the anthology's table of contents order</li>
+                <li>Connect to external authority files like <span class="term">Wikidata</span> and the <span class="term">Library of Congress</span></li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: The Workflow - Step 1 -->
+        <div class="slide">
+            <h1>🔄 The Workflow</h1>
+            <h2>Step 1: Finding a Book</h2>
+            <p>Contributors start by searching for a book from two major sources:</p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🌐 Open Library</h4>
+                    <p>A project of the Internet Archive with millions of book records and scanned page images</p>
+                    <div class="definition" style="margin-top: 1rem;">
+                        <strong>Open Library:</strong> An open, editable library catalog with a goal of "one web page for every book ever published."
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <h4>📚 Project Gutenberg</h4>
+                    <p>Over 70,000 free ebooks, mostly public domain classics with full text available</p>
+                    <div class="definition" style="margin-top: 1rem;">
+                        <strong>Project Gutenberg:</strong> The oldest digital library, offering free access to books in the public domain.
+                    </div>
+                </div>
+            </div>
+
+            <img src="/presentation-screenshots/publications-search.png" alt="Publications search interface" class="screenshot" onclick="window.open(this.src, '_blank')">
+            <p style="text-align: center; color: #718096; font-size: 1rem; margin-top: -1rem;">
+                <em>Click to view full size • Publications search interface for Open Library and Gutenberg</em>
+            </p>
+
+            <p>Once a book is selected, ToCoE automatically fetches metadata like title, author, and publication date.</p>
+        </div>
+
+        <!-- Slide 5: The Workflow - Step 2 -->
+        <div class="slide">
+            <h1>🔄 The Workflow</h1>
+            <h2>Step 2: Marking ToC Pages (for scanned books)</h2>
+            <p>For scanned books from Open Library, contributors identify which page images contain the table of contents.</p>
+
+            <img src="/presentation-screenshots/browse-scans.png" alt="Browse scans interface" class="screenshot" onclick="window.open(this.src, '_blank')">
+            <p style="text-align: center; color: #718096; font-size: 1rem; margin-top: -1rem;">
+                <em>Click to view full size • Browse scans interface showing page thumbnails with checkboxes</em>
+            </p>
+
+            <h3>The Process</h3>
+            <ol>
+                <li>Browse through scanned page images</li>
+                <li>Check boxes next to pages containing the ToC</li>
+                <li>Mark complete when all ToC pages are identified</li>
+            </ol>
+
+            <p><strong>Real Example from our database:</strong> "The Sacred Wood" by T.S. Eliot — a book of literary criticism with 3 pages of table of contents marked for transcription.</p>
+        </div>
+
+        <!-- Slide 6: The Workflow - Step 3 -->
+        <div class="slide">
+            <h1>🔄 The Workflow</h1>
+            <h2>Step 3: Transcribing the ToC</h2>
+            <p>Contributors transcribe the table of contents using a simple <span class="term">markdown format</span>.</p>
+
+            <div class="definition">
+                <strong>Markdown:</strong> A lightweight text format that's easy to read and write. Think of it as a simplified way to structure text without complex formatting tools.
+            </div>
+
+            <div class="example-box">
+<pre># INTRODUCTION
+# THE PERFECT CRITIC
+# IMPERFECT CRITICS –
+## SWINBURNE AS CRITIC
+## A ROMANTIC ARISTOCRAT
+## THE LOCAL FLAVOUR
+# TRADITION AND THE INDIVIDUAL TALENT
+# THE POSSIBILITY OF A POETIC DRAMA
+# HAMLET AND HIS PROBLEMS
+# BEN JONSON</pre>
+            </div>
+
+            <h3>The Syntax Rules</h3>
+            <ul>
+                <li><code>#</code> — Top-level entry (article, essay, chapter)</li>
+                <li><code>##</code> — Sub-entry (nested component)</li>
+                <li><code># Section Name /</code> — Section heading (trailing slash means no entity created)</li>
+                <li><code># Title || Author Name</code> — Explicit author attribution</li>
+            </ul>
+
+            <p><strong>Example:</strong> <code># Metaphors We Live By || George Lakoff; Mark Johnson</code></p>
+        </div>
+
+        <!-- Slide 7: The Workflow - Step 4 -->
+        <div class="slide">
+            <h1>🔄 The Workflow</h1>
+            <h2>Step 4: Processing & Linking to Linked Data</h2>
+            <p>When a contributor submits a ToC, ToCoE automatically creates the complete FRBR structure:</p>
+
+            <div class="workflow-step">
+                <h3>🏗️ What Happens Behind the Scenes</h3>
+                <ul>
+                    <li>Creates Work, Expression, and Embodiment records for each entry</li>
+                    <li>Links to Person records (authors) via <span class="term">OpenLibrary IDs</span></li>
+                    <li>Preserves the order via sequence numbers</li>
+                    <li>Links to external authority files when available</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <strong>Linked Open Data:</strong> A method of publishing structured data so it can be interlinked and queried. ToCoE connects to:
+                <ul>
+                    <li><strong>VIAF (Virtual International Authority File):</strong> International standard for author names</li>
+                    <li><strong>Wikidata:</strong> Collaborative knowledge base with unique IDs (Q numbers) for people, places, concepts</li>
+                    <li><strong>Library of Congress Subject Headings (LCSH):</strong> Standardized subject terms used by libraries worldwide</li>
+                </ul>
+            </div>
+
+            <p><strong>Real Example:</strong> T.S. Eliot in our database is linked to <code>openlibrary.org/authors/OL116256A</code>, which connects to his VIAF, Wikidata (Q42614), and LC authority records.</p>
+        </div>
+
+        <!-- Slide 8: The Workflow - Step 5 -->
+        <div class="slide">
+            <h1>🔄 The Workflow</h1>
+            <h2>Step 5: Verification & Quality Control</h2>
+            <p>ToCoE implements a <span class="highlight">peer review system</span> to ensure data quality.</p>
+
+            <h3>Status Progression</h3>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Pages Marked</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">Transcribed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Verified ✅</div>
+                </div>
+            </div>
+            <p style="text-align: center; color: #718096; font-size: 1.1rem;">(Current statistics from our database: 8 total ToCs)</p>
+
+            <h3>The Review Process</h3>
+            <ol>
+                <li><strong>Contributor</strong> marks pages or transcribes the ToC</li>
+                <li><strong>Different user</strong> reviews and verifies the work (users cannot verify their own contributions)</li>
+                <li><strong>Verified ToCs</strong> are marked as complete and ready for export</li>
+            </ol>
+
+            <p>This ensures accuracy while keeping the barrier to contribution low.</p>
+        </div>
+
+        <!-- Slide 9: UX Conveniences -->
+        <div class="slide">
+            <h1>✨ User Experience Features</h1>
+            <h2>Making Contribution Easy and Enjoyable</h2>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🔍 Quick Preview of Scans</h4>
+                    <p>Thumbnail previews load progressively with spinners, then expand to full size on click. Browse scans quickly without waiting for all images to load.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🤖 OCR Integration</h4>
+                    <p>Automatic text extraction from page images using an external OCR service. Paste the results directly into the ToC editor with one click.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔎 Zoom Controls</h4>
+                    <p>+/− buttons to zoom in and out on scans, plus a "default" button to reset. Helps read small or blurry text.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📱 Responsive Design</h4>
+                    <p>Works on desktop, tablet, and mobile devices. Contribute from anywhere.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Workflow Stepper</h4>
+                    <p>Visual progress indicator showing current status (pages marked → transcribed → verified).</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📚 Integrated Fulltext Viewer</h4>
+                    <p>For Gutenberg books, view the full text side-by-side with the ToC editor. No need to switch windows.</p>
+                </div>
+            </div>
+
+            <img src="/presentation-screenshots/toc-edit.png" alt="TOC edit interface with tabs" class="screenshot" onclick="window.open(this.src, '_blank')">
+            <p style="text-align: center; color: #718096; font-size: 1rem; margin-top: -1rem;">
+                <em>Click to view full size • TOC edit interface showing tabs for transcription, OCR, and scan browsing</em>
+            </p>
+        </div>
+
+        <!-- Slide 10: Real Data Examples -->
+        <div class="slide">
+            <h1>📊 Real Examples from Our Database</h1>
+            <h2>What ToCoE Has Cataloged So Far</h2>
+
+            <h3>Current Statistics</h3>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number">47</div>
+                    <div class="stat-label">Works</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">48</div>
+                    <div class="stat-label">Expressions</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">17</div>
+                    <div class="stat-label">Manifestations</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">9</div>
+                    <div class="stat-label">People</div>
+                </div>
+            </div>
+
+            <h3>Sample Authors in Our Database</h3>
+
+            <div style="display: flex; gap: 2rem; align-items: flex-start; margin: 2rem 0;">
+                <div style="flex: 1;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/T._S._Eliot%2C_1923.jpg/330px-T._S._Eliot%2C_1923.jpg"
+                         alt="T.S. Eliot, 1923"
+                         class="author-image">
+                    <div class="image-credit">
+                        T.S. Eliot, 1923<br>
+                        Photo by Lady Ottoline Morrell<br>
+                        Public Domain via Wikimedia Commons
+                    </div>
+                </div>
+                <div style="flex: 2;">
+                    <ul>
+                        <li><strong>T.S. Eliot</strong> (OpenLibrary ID: <code>/authors/OL116256A</code>) — "The Sacred Wood: Essays on Poetry and Criticism"</li>
+                        <li><strong>Rudyard Kipling</strong> (OpenLibrary ID: <code>/authors/OL24461A</code>)</li>
+                        <li><strong>Charles Dickens</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Example Book: "The Sacred Wood" by T.S. Eliot</h3>
+            <div style="display: flex; gap: 2rem; align-items: flex-start;">
+                <div style="flex: 1;">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/The_Sacred_Wood.jpg/330px-The_Sacred_Wood.jpg"
+                         alt="Cover of The Sacred Wood"
+                         class="author-image"
+                         style="max-width: 250px;">
+                    <div class="image-credit">
+                        First edition cover, 1920<br>
+                        Public Domain via Wikimedia Commons
+                    </div>
+                </div>
+                <div style="flex: 2;">
+                    <div class="example-box" style="max-height: 250px; overflow-y: auto;">
+<pre>INTRODUCTION
+THE PERFECT CRITIC
+IMPERFECT CRITICS
+ - SWINBURNE AS CRITIC
+ - A ROMANTIC ARISTOCRAT
+ - THE LOCAL FLAVOUR
+ - A NOTE ON THE AMERICAN CRITIC
+ - THE FRENCH INTELLIGENCE
+TRADITION AND THE INDIVIDUAL TALENT
+EURIPIDES AND PROFESSOR MURRAY
+RHETORIC AND POETIC DRAMA
+HAMLET AND HIS PROBLEMS
+BEN JONSON
+BLAKE
+DANTE</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Future Plans - Part 1 -->
+        <div class="slide">
+            <h1>🚀 Future Plans</h1>
+            <h2>Where ToCoE is Heading</h2>
+            <p>Based on our TODO list, here are the planned enhancements and their expected contributions:</p>
+
+            <div class="workflow-step">
+                <h3>📤 Export Capabilities</h3>
+                <ul>
+                    <li><strong>Markdown Export:</strong> Clean, human-readable format for documentation and sharing</li>
+                    <li><strong>XML Export (MARCXML):</strong> Library-standard format for integration with catalog systems</li>
+                    <li><strong>Additional formats:</strong> JSON, CSV for data analysis and mashups</li>
+                </ul>
+                <p style="margin-top: 1rem;"><em>Expected Impact:</em> Libraries and researchers can import ToCoE data directly into their systems. MARCXML is the standard used by library catalogs worldwide.</p>
+            </div>
+
+            <div class="definition">
+                <strong>MARCXML:</strong> MARC (Machine-Readable Cataloging) is the international standard for library catalog records. MARCXML is the XML version, making it easy to exchange bibliographic data between library systems.
+            </div>
+        </div>
+
+        <!-- Slide 12: Future Plans - Part 2 -->
+        <div class="slide">
+            <h1>🚀 Future Plans</h1>
+            <h2>Enhanced Features Coming Soon</h2>
+
+            <div class="workflow-step">
+                <h3>⚖️ Escalation System for Difficult Cases</h3>
+                <ul>
+                    <li><strong>User-initiated escalation:</strong> Any contributor can flag a ToC as "committee review" if unsure how to handle it</li>
+                    <li><strong>Committee membership:</strong> Admins designate trusted experts to review edge cases</li>
+                    <li><strong>Resolution workflow:</strong> Committee members can make decisions and provide guidance</li>
+                </ul>
+                <p style="margin-top: 1rem;"><em>Expected Impact:</em> Handles complex bibliographic situations (multi-volume works, partial ToCs, ambiguous attributions) without slowing down regular contributors. Ensures quality on challenging materials.</p>
+            </div>
+
+            <div class="workflow-step">
+                <h3>🔌 Public API</h3>
+                <ul>
+                    <li><strong>Query by ID:</strong> Open Library ID, Project Gutenberg ID</li>
+                    <li><strong>Search by title:</strong> Substring matching for discovery</li>
+                    <li><strong>Return format:</strong> Status + ToC in multiple formats (markdown, XML, JSON)</li>
+                </ul>
+                <p style="margin-top: 1rem;"><em>Expected Impact:</em> Developers can integrate ToCoE data into apps, websites, and research tools. Enables automated discovery of whether a ToC exists for a given book.</p>
+            </div>
+        </div>
+
+        <!-- Slide 13: The Impact -->
+        <div class="slide">
+            <h1>🌍 The Bigger Picture</h1>
+            <h2>Why This Matters</h2>
+
+            <h3>For Researchers</h3>
+            <ul>
+                <li>Discover essays and articles buried in anthologies and collections</li>
+                <li>Trace the publication history of individual works across different collections</li>
+                <li>Build citation networks and study scholarly influence</li>
+            </ul>
+
+            <h3>For Libraries</h3>
+            <ul>
+                <li>Enhance catalog records with detailed ToC data at no cost</li>
+                <li>Improve discovery of component parts (articles, essays, chapters)</li>
+                <li>Integrate with linked data ecosystems (Wikidata, VIAF, LC authorities)</li>
+            </ul>
+
+            <h3>For the Public</h3>
+            <ul>
+                <li>Better search and discovery of knowledge across book collections</li>
+                <li>Free, unrestricted access to comprehensive bibliographic data</li>
+                <li>Participate in building a public good through volunteer contribution</li>
+            </ul>
+
+            <div class="workflow-step">
+                <h3>The Public Domain Philosophy</h3>
+                <p>By dedicating all ToCoE data to CC0, we ensure that this knowledge infrastructure belongs to everyone, forever. No paywalls, no restrictions, no gatekeepers — just open data for the common good.</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Get Involved -->
+        <div class="slide">
+            <h1>🤝 Get Involved</h1>
+            <h2>Join the Community</h2>
+
+            <img src="/presentation-screenshots/homepage.png" alt="ToCoE homepage" class="screenshot" onclick="window.open(this.src, '_blank')" style="max-height: 400px; width: auto; display: block; margin: 1rem auto;">
+            <p style="text-align: center; color: #718096; font-size: 1rem; margin-top: 0.5rem;">
+                <em>Click to view full size • ToCoE platform homepage</em>
+            </p>
+
+            <h3>How to Contribute</h3>
+            <ol style="font-size: 1.4rem;">
+                <li>Create a free account on the ToCoE platform</li>
+                <li>Search for a book from Open Library or Gutenberg that interests you</li>
+                <li>Mark ToC pages or transcribe the table of contents</li>
+                <li>Review and verify others' contributions</li>
+                <li>See your work immediately published as CC0 public domain data</li>
+            </ol>
+
+            <h3>Skills Needed</h3>
+            <p style="font-size: 1.3rem;">None! If you can read a table of contents and type it into a form, you can contribute. The platform handles all the complex bibliographic modeling automatically.</p>
+
+            <h3>Time Commitment</h3>
+            <p style="font-size: 1.3rem;">Transcribing a typical ToC takes 5-15 minutes. Contribute as much or as little as you like — every ToC helps build this public resource.</p>
+
+            <div class="cc0-badge" style="font-size: 1.3rem; margin-top: 2rem;">
+                🌍 All contributions are released as CC0 Public Domain
+            </div>
+
+            <p style="margin-top: 2rem; font-size: 1.5rem; text-align: center; font-weight: 600;">
+                Together, we're building the Table of Contents of Everything.
+            </p>
+        </div>
+
+        <!-- Slide 15: Thank You -->
+        <div class="slide">
+            <div style="text-align: center; padding-top: 10vh;">
+                <h1 style="font-size: 5rem;">Thank You! 📚</h1>
+                <br><br>
+                <p style="font-size: 2rem; color: #667eea; font-weight: 600;">Questions?</p>
+                <br><br>
+                <div class="cc0-badge" style="font-size: 1.5rem;">
+                    This presentation and all ToCoE data: CC0 Public Domain
+                </div>
+                <br><br><br>
+                <p style="font-size: 1.5rem; color: #718096;">
+                    ToCoE: Building the world's largest free and open collection<br>
+                    of structured tables of contents
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-number">
+        <span id="current-slide">1</span> / <span id="total-slides">15</span>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="prev-btn" onclick="previousSlide()">← Previous</button>
+        <button class="btn" id="next-btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+
+            // Update button states
+            document.getElementById('prev-btn').disabled = currentSlide === 0;
+            document.getElementById('next-btn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                previousSlide();
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

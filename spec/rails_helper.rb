@@ -79,10 +79,13 @@ end
 # Capybara and JS driver configuration for feature specs
 begin
   require 'capybara/rspec'
-  require 'webdrivers'
+  # Note: webdrivers gem is not installed. Selenium WebDriver 4.x+ uses Selenium Manager
+  # for automatic driver management, so webdrivers is no longer needed.
   require 'database_cleaner'
 
   Capybara.server = :puma, { Silent: true }
+  # Configure Capybara to use headless Chrome for all JavaScript tests (specs with js: true)
+  # This uses Selenium WebDriver 4.x which includes Selenium Manager for automatic driver management
   Capybara.javascript_driver = :selenium_chrome_headless
 
   RSpec.configure do |config|

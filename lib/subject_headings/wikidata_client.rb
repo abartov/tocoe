@@ -8,6 +8,7 @@ require 'uri'
 module SubjectHeadings
   class WikidataClient
     API_URL = 'https://www.wikidata.org/w/api.php'
+    SPARQL_ENDPOINT = 'https://query.wikidata.org/sparql'
 
     def initialize
     end
@@ -28,6 +29,56 @@ module SubjectHeadings
         claims.first&.dig('mainsnak', 'datavalue', 'value')
       rescue StandardError => e
         Rails.logger.error("Wikidata API error fetching P244: #{e.message}")
+        nil
+      end
+    end
+
+    # Find Wikidata entity by Library of Congress Authority ID (reverse lookup)
+    # @param lc_id [String] The LC authority ID (e.g., "sh85082139")
+    # @return [Hash, nil] Hash with :entity_id and :label, or nil if not found
+    def find_entity_by_library_of_congress_id(lc_id)
+      return nil if lc_id.blank?
+
+      begin
+        # Use SPARQL query to find entities with this P244 value
+        sparql_query = <<~SPARQL
+          SELECT ?item ?itemLabel WHERE {
+            ?item wdt:P244 "#{lc_id.gsub('"', '\\"')}" .
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+          }
+          LIMIT 1
+        SPARQL
+
+        params = {
+          query: sparql_query,
+          format: 'json'
+        }
+
+        query_string = URI.encode_www_form(params)
+        url = "#{SPARQL_ENDPOINT}?#{query_string}"
+
+        resp = Net::HTTP.get_response(URI.parse(url))
+        return nil unless resp.is_a?(Net::HTTPSuccess)
+
+        data = JSON.parse(resp.body)
+        bindings = data.dig('results', 'bindings') || []
+        return nil if bindings.empty?
+
+        first_result = bindings.first
+        item_uri = first_result.dig('item', 'value')
+        label = first_result.dig('itemLabel', 'value')
+
+        return nil unless item_uri
+
+        # Extract entity ID from URI (e.g., "Q395" from "http://www.wikidata.org/entity/Q395")
+        entity_id = item_uri.split('/').last
+
+        {
+          entity_id: entity_id,
+          label: label || entity_id
+        }
+      rescue StandardError => e
+        Rails.logger.error("Wikidata SPARQL error searching for P244=#{lc_id}: #{e.message}")
         nil
       end
     end

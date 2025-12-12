@@ -276,4 +276,104 @@ RSpec.describe SubjectHeadings::WikidataClient do
       end
     end
   end
+
+  describe '#find_entity_by_library_of_congress_id' do
+    context 'with a valid LC authority ID that exists in Wikidata' do
+      it 'returns the Wikidata entity ID and label', :skip_in_ci do
+        # sh85082139 (mathematics) should map to Q395
+        result = client.find_entity_by_library_of_congress_id('sh85082139')
+        expect(result).to be_a(Hash)
+        expect(result[:entity_id]).to eq('Q395')
+        expect(result[:label]).to be_present
+      end
+    end
+
+    context 'with stubbed SPARQL response' do
+      let(:mock_sparql_response) do
+        {
+          head: { vars: ['item', 'itemLabel'] },
+          results: {
+            bindings: [
+              {
+                item: { type: 'uri', value: 'http://www.wikidata.org/entity/Q395' },
+                itemLabel: { type: 'literal', value: 'mathematics' }
+              }
+            ]
+          }
+        }.to_json
+      end
+
+      before do
+        allow(Net::HTTP).to receive(:get_response) do |uri|
+          instance_double(Net::HTTPResponse, code: '200', body: mock_sparql_response, is_a?: true)
+        end
+      end
+
+      it 'parses the SPARQL response correctly' do
+        result = client.find_entity_by_library_of_congress_id('sh85082139')
+        expect(result).to eq(
+          entity_id: 'Q395',
+          label: 'mathematics'
+        )
+      end
+    end
+
+    context 'when no entity is found with the LC ID' do
+      let(:mock_empty_response) do
+        {
+          head: { vars: ['item', 'itemLabel'] },
+          results: {
+            bindings: []
+          }
+        }.to_json
+      end
+
+      before do
+        allow(Net::HTTP).to receive(:get_response) do |uri|
+          instance_double(Net::HTTPResponse, code: '200', body: mock_empty_response, is_a?: true)
+        end
+      end
+
+      it 'returns nil' do
+        result = client.find_entity_by_library_of_congress_id('sh99999999')
+        expect(result).to be_nil
+      end
+    end
+
+    context 'with an empty LC ID' do
+      it 'returns nil for blank string' do
+        result = client.find_entity_by_library_of_congress_id('')
+        expect(result).to be_nil
+      end
+
+      it 'returns nil for nil' do
+        result = client.find_entity_by_library_of_congress_id(nil)
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when SPARQL endpoint returns an error' do
+      before do
+        allow(Net::HTTP).to receive(:get_response).and_raise(StandardError.new('Network error'))
+      end
+
+      it 'logs the error and returns nil' do
+        expect(Rails.logger).to receive(:error).with(/Wikidata SPARQL error/)
+        result = client.find_entity_by_library_of_congress_id('sh85082139')
+        expect(result).to be_nil
+      end
+    end
+
+    context 'when SPARQL endpoint returns non-200 status' do
+      before do
+        response = instance_double(Net::HTTPResponse, code: '500', body: '', is_a?: false)
+        allow(Net::HTTP).to receive(:get_response).and_return(response)
+      end
+
+      it 'returns nil' do
+        result = client.find_entity_by_library_of_congress_id('sh85082139')
+        expect(result).to be_nil
+      end
+    end
+  end
 end

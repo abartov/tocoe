@@ -94,6 +94,13 @@ RSpec.describe AboutnessesController, type: :controller do
         }
       end
 
+      before do
+        # Stub WikidataClient to prevent SPARQL queries in these basic tests
+        wikidata_client = instance_double(SubjectHeadings::WikidataClient)
+        allow(SubjectHeadings::WikidataClient).to receive(:new).and_return(wikidata_client)
+        allow(wikidata_client).to receive(:find_entity_by_library_of_congress_id).and_return(nil)
+      end
+
       it 'creates a new aboutness' do
         expect {
           post :create, params: valid_params
@@ -246,6 +253,138 @@ RSpec.describe AboutnessesController, type: :controller do
         it 'logs the error' do
           expect(Rails.logger).to receive(:error).with(/Error auto-adding LC subject heading/)
           post :create, params: wikidata_params
+        end
+      end
+    end
+
+    context 'when creating an LCSH aboutness with matching Wikidata entity' do
+      let(:lcsh_params) do
+        {
+          embodiment_id: embodiment.id,
+          aboutness: {
+            subject_heading_uri: 'https://id.loc.gov/authorities/subjects/sh85082139',
+            source_name: 'LCSH',
+            subject_heading_label: 'Mathematics'
+          }
+        }
+      end
+
+      let(:wikidata_client) { instance_double(SubjectHeadings::WikidataClient) }
+
+      before do
+        allow(SubjectHeadings::WikidataClient).to receive(:new).and_return(wikidata_client)
+      end
+
+      context 'when Wikidata has an entity with this P244 value' do
+        before do
+          allow(wikidata_client).to receive(:find_entity_by_library_of_congress_id)
+            .with('sh85082139')
+            .and_return({ entity_id: 'Q395', label: 'mathematics' })
+        end
+
+        it 'creates both LCSH and Wikidata aboutnesses' do
+          expect {
+            post :create, params: lcsh_params
+          }.to change(Aboutness, :count).by(2)
+        end
+
+        it 'creates a Wikidata aboutness with the correct URI' do
+          post :create, params: lcsh_params
+
+          wikidata_aboutness = Aboutness.find_by(source_name: 'Wikidata')
+          expect(wikidata_aboutness).to be_present
+          expect(wikidata_aboutness.subject_heading_uri).to eq('http://www.wikidata.org/entity/Q395')
+        end
+
+        it 'uses the label from Wikidata' do
+          post :create, params: lcsh_params
+
+          wikidata_aboutness = Aboutness.find_by(source_name: 'Wikidata')
+          expect(wikidata_aboutness.subject_heading_label).to eq('mathematics')
+        end
+
+        it 'sets the same status for both aboutnesses' do
+          post :create, params: lcsh_params
+
+          lcsh_aboutness = Aboutness.find_by(source_name: 'LCSH')
+          wikidata_aboutness = Aboutness.find_by(source_name: 'Wikidata')
+          expect(lcsh_aboutness.status).to eq('proposed')
+          expect(wikidata_aboutness.status).to eq('proposed')
+        end
+
+        it 'sets the same contributor for both aboutnesses' do
+          post :create, params: lcsh_params
+
+          lcsh_aboutness = Aboutness.find_by(source_name: 'LCSH')
+          wikidata_aboutness = Aboutness.find_by(source_name: 'Wikidata')
+          expect(lcsh_aboutness.contributor_id).to eq(user.id)
+          expect(wikidata_aboutness.contributor_id).to eq(user.id)
+        end
+
+        context 'when Wikidata aboutness already exists' do
+          before do
+            Aboutness.create!(
+              embodiment: embodiment,
+              subject_heading_uri: 'http://www.wikidata.org/entity/Q395',
+              source_name: 'Wikidata',
+              subject_heading_label: 'mathematics'
+            )
+          end
+
+          it 'only creates the LCSH aboutness' do
+            expect {
+              post :create, params: lcsh_params
+            }.to change(Aboutness, :count).by(1)
+          end
+
+          it 'does not create a duplicate Wikidata aboutness' do
+            post :create, params: lcsh_params
+
+            wikidata_aboutnesses = Aboutness.where(
+              embodiment: embodiment,
+              subject_heading_uri: 'http://www.wikidata.org/entity/Q395'
+            )
+            expect(wikidata_aboutnesses.count).to eq(1)
+          end
+        end
+      end
+
+      context 'when Wikidata does not have an entity with this P244 value' do
+        before do
+          allow(wikidata_client).to receive(:find_entity_by_library_of_congress_id)
+            .with('sh85082139')
+            .and_return(nil)
+        end
+
+        it 'only creates the LCSH aboutness' do
+          expect {
+            post :create, params: lcsh_params
+          }.to change(Aboutness, :count).by(1)
+        end
+
+        it 'does not create a Wikidata aboutness' do
+          post :create, params: lcsh_params
+
+          wikidata_aboutness = Aboutness.find_by(source_name: 'Wikidata')
+          expect(wikidata_aboutness).to be_nil
+        end
+      end
+
+      context 'when there is an error searching Wikidata' do
+        before do
+          allow(wikidata_client).to receive(:find_entity_by_library_of_congress_id)
+            .and_raise(StandardError.new('SPARQL error'))
+        end
+
+        it 'still creates the LCSH aboutness' do
+          expect {
+            post :create, params: lcsh_params
+          }.to change(Aboutness, :count).by(1)
+        end
+
+        it 'logs the error' do
+          expect(Rails.logger).to receive(:error).with(/Error auto-adding Wikidata heading/)
+          post :create, params: lcsh_params
         end
       end
     end

@@ -19,7 +19,7 @@ module ApplicationHelper
         crumbs << { name: @toc.title, path: toc_path(@toc) }
         crumbs << { name: t('tocs.browse_scans.title', default: 'Browse Scans'), path: nil }
       elsif action_name == 'new'
-        crumbs << { name: t('tocs.new.title', default: 'New TOC'), path: nil }
+        crumbs << { name: t('tocs.new.title', book_title: @toc.title, authors: @authors.map{|a| a['name']}.join(','), default: 'New TOC'), path: nil }
       end
 
     when 'publications'

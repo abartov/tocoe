@@ -36,4 +36,29 @@ RSpec.describe "aboutnesses/new.html.haml", type: :view do
     expect(rendered).to have_selector('#selected_source', visible: :hidden)
     expect(rendered).to have_selector('#selected_label', visible: :hidden)
   end
+
+  context "when manifestation has a TOC" do
+    let(:toc) { Toc.create!(title: "Test Publication", manifestation: embodiment.manifestation) }
+
+    before do
+      # Associate the TOC with the manifestation
+      toc
+      embodiment.manifestation.reload
+    end
+
+    it "displays the publication label and link" do
+      render
+
+      expect(rendered).to have_content(I18n.t('aboutnesses.new.publication_label'))
+      expect(rendered).to have_link("Test Publication", href: toc_path(toc))
+    end
+  end
+
+  context "when manifestation has no TOC" do
+    it "does not display the publication section" do
+      render
+
+      expect(rendered).not_to have_content(I18n.t('aboutnesses.new.publication_label'))
+    end
+  end
 end

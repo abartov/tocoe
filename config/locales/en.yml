@@ -366,6 +366,7 @@ en:
       instructions: "Search for and select a subject heading to associate with: %{title}"
       untitled_work: "Untitled Work"
       work_label: "Work:"
+      publication_label: "From publication:"
       existing_subjects: "Existing subjects:"
 
   # Help page

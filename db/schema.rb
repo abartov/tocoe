@@ -10,16 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_12_233403) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_13_112457) do
   create_table "aboutnesses", force: :cascade do |t|
-    t.integer "embodiment_id"
+    t.bigint "embodiment_id"
     t.string "subject_heading_uri"
     t.string "source_name"
     t.string "subject_heading_label"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "contributor_id"
-    t.integer "reviewer_id"
+    t.bigint "contributor_id"
+    t.bigint "reviewer_id"
     t.string "status", default: "verified"
     t.index ["contributor_id"], name: "index_aboutnesses_on_contributor_id"
     t.index ["embodiment_id"], name: "index_aboutnesses_on_embodiment_id"
@@ -29,8 +29,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_233403) do
   end
 
   create_table "embodiments", force: :cascade do |t|
-    t.integer "expression_id"
-    t.integer "manifestation_id"
+    t.bigint "expression_id"
+    t.bigint "manifestation_id"
     t.string "reltype"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -40,11 +40,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_233403) do
   end
 
   create_table "expression_relationships", force: :cascade do |t|
-    t.integer "exp1_id"
-    t.integer "exp2_id"
+    t.bigint "exp1_id"
+    t.bigint "exp2_id"
     t.string "reltype"
-    t.integer "creator_id"
-    t.integer "reviewer_id"
+    t.bigint "creator_id"
+    t.bigint "reviewer_id"
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -101,8 +101,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_233403) do
   end
 
   create_table "people_tocs", force: :cascade do |t|
-    t.integer "person_id", null: false
-    t.integer "toc_id", null: false
+    t.bigint "person_id"
+    t.bigint "toc_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["person_id", "toc_id"], name: "index_people_tocs_on_person_id_and_toc_id", unique: true
@@ -111,8 +111,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_233403) do
   end
 
   create_table "people_works", force: :cascade do |t|
-    t.integer "person_id"
-    t.integer "work_id"
+    t.bigint "person_id"
+    t.bigint "work_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["person_id"], name: "index_people_works_on_person_id"
@@ -120,8 +120,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_233403) do
   end
 
   create_table "realizations", force: :cascade do |t|
-    t.integer "realizer_id"
-    t.integer "expression_id"
+    t.bigint "realizer_id"
+    t.bigint "expression_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["expression_id"], name: "index_realizations_on_expression_id"
@@ -129,8 +129,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_233403) do
   end
 
   create_table "reifications", force: :cascade do |t|
-    t.integer "work_id"
-    t.integer "expression_id"
+    t.bigint "work_id"
+    t.bigint "expression_id"
     t.string "reltype"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -142,12 +142,12 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_233403) do
     t.string "book_uri"
     t.text "toc_body"
     t.string "status", default: "empty"
-    t.integer "contributor_id"
-    t.integer "reviewer_id"
+    t.bigint "contributor_id"
+    t.bigint "reviewer_id"
     t.text "comments"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "manifestation_id"
+    t.bigint "manifestation_id"
     t.string "title"
     t.text "toc_page_urls"
     t.boolean "no_explicit_toc", default: false, null: false
@@ -182,11 +182,11 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_233403) do
   end
 
   create_table "work_relationships", force: :cascade do |t|
-    t.integer "work1_id"
-    t.integer "work2_id"
+    t.bigint "work1_id"
+    t.bigint "work2_id"
     t.string "reltype"
-    t.integer "creator_id"
-    t.integer "reviewer_id"
+    t.bigint "creator_id"
+    t.bigint "reviewer_id"
     t.string "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -202,7 +202,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_233403) do
     t.string "creation_date"
     t.text "comment"
     t.string "status"
-    t.integer "superseded_by"
+    t.bigint "superseded_by"
     t.integer "wikidata_q"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

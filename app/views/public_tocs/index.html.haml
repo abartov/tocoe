@@ -1,0 +1,80 @@
+.public-header{style: 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 3rem 2rem; margin: -2rem 0 2rem 0; text-align: center;'}
+  %h1{style: 'font-size: 2.5rem; margin: 0 0 0.5rem 0; font-weight: 700;'}= t('public_tocs.index.title')
+  %p{style: 'font-size: 1.2rem; margin: 0; opacity: 0.9;'}= t('public_tocs.index.subtitle')
+
+.contribute-banner{style: 'background: #f7fafc; border: 2px solid #667eea; border-radius: 8px; padding: 1.5rem 2rem; margin: 0 2rem 2rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;'}
+  .banner-text{style: 'flex: 1; min-width: 250px;'}
+    %p{style: 'margin: 0; font-size: 1.1rem; color: #2d3748; font-weight: 500;'}
+      = t('public_tocs.index.contribute_banner')
+  .banner-action
+    = link_to t('public_tocs.index.sign_in_to_contribute'), user_google_oauth2_omniauth_authorize_path, class: 'btn btn-primary btn-lg', method: :post, style: 'background: #667eea; border-color: #667eea;'
+
+.filter-bar{style: 'background: white; border-bottom: 2px solid #e2e8f0; padding: 1.5rem 2rem; margin: 0 0 2rem 0;'}
+  .filter-header{style: 'display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;'}
+    .showing-count{style: 'color: #4a5568; font-size: 1.1rem;'}
+      = t('public_tocs.index.showing_count', count: @tocs.count)
+
+    .sort-controls{style: 'display: flex; align-items: center; gap: 0.75rem;'}
+      %span{style: 'color: #4a5568; font-weight: 500; font-size: 0.9rem;'}
+        = t('public_tocs.index.sort_by')
+      .dropdown
+        %button.btn.btn-default.dropdown-toggle{type: 'button', 'data-toggle' => 'dropdown', 'aria-haspopup' => 'true', 'aria-expanded' => 'false', style: 'background: white; border: 2px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500; color: #2d3748;'}
+          - current_sort = params[:sort] || 'created_at'
+          - sort_labels = { 'title' => '📖 ' + t('public_tocs.index.sort_title'), 'created_at' => '📅 ' + t('public_tocs.index.sort_created') }
+          = sort_labels[current_sort] || ('📅 ' + t('public_tocs.index.sort_created'))
+          - if params[:sort].present?
+            = params[:direction] == 'asc' ? ' ↑' : ' ↓'
+          %span.caret
+        %ul.dropdown-menu{style: 'min-width: 180px;'}
+          %li{class: current_sort == 'title' ? 'active' : ''}
+            = link_to browse_tocs_path(sort: 'title', direction: params[:direction] || 'asc') do
+              📖
+              = t('public_tocs.index.sort_title')
+              = '↑' if current_sort == 'title' && params[:direction] != 'desc'
+              = '↓' if current_sort == 'title' && params[:direction] == 'desc'
+          %li{class: current_sort == 'created_at' ? 'active' : ''}
+            = link_to browse_tocs_path(sort: 'created_at', direction: params[:direction] || 'desc') do
+              📅
+              = t('public_tocs.index.sort_created')
+              = '↑' if current_sort == 'created_at' && params[:direction] != 'desc'
+              = '↓' if current_sort == 'created_at' && params[:direction] == 'desc'
+          %li.divider{role: 'separator'}
+          %li
+            - toggle_direction = params[:direction] == 'asc' ? 'desc' : 'asc'
+            = link_to browse_tocs_path(sort: params[:sort], direction: toggle_direction) do
+              = params[:direction] == 'asc' ? '⬇️ Descending' : '⬆️ Ascending'
+
+.toc-list{style: 'padding: 0 2rem;'}
+  - if @tocs.any?
+    - @tocs.each do |toc|
+      .toc-card{style: 'background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; transition: all 0.2s;', onmouseover: 'this.style.borderColor="#667eea"; this.style.boxShadow="0 4px 12px rgba(102, 126, 234, 0.1)"', onmouseout: 'this.style.borderColor="#e2e8f0"; this.style.boxShadow="none"'}
+        .toc-header{style: 'display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;'}
+          .toc-title{style: 'flex: 1;'}
+            %h3{style: 'font-size: 1.2rem; font-weight: 600; margin-bottom: 0.25rem;'}
+              = link_to toc.title, browse_toc_path(toc), style: 'color: #667eea; text-decoration: none;'
+            %p{style: 'color: #718096; font-size: 1rem; margin: 0;'}= toc.book_uri
+
+          %span.status-badge{style: 'background: #48bb78; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.9rem; font-weight: 600; white-space: nowrap;'}
+            ✅
+            = t('public_tocs.show.verified_badge')
+
+        .toc-meta{style: 'display: flex; gap: 1.5rem; flex-wrap: wrap; color: #4a5568; font-size: 1rem; margin-bottom: 0.75rem;'}
+          %span
+            📅
+            = toc.created_at.strftime('%b %d, %Y')
+          - if toc.source
+            %span
+              📚
+              = toc.source == 'openlibrary' ? 'Open Library' : 'Gutenberg'
+
+        - if toc.toc_body.present?
+          .toc-preview{style: 'color: #718096; font-size: 1rem; line-height: 1.4; padding: 0.75rem; background: #f7fafc; border-radius: 4px; margin-bottom: 0.75rem; overflow: hidden;'}
+            = format_toc_preview(toc.toc_body)
+
+        .toc-actions{style: 'display: flex; gap: 0.5rem;'}
+          = link_to t('public_tocs.index.view_toc'), browse_toc_path(toc), class: 'btn btn-primary btn-sm', style: 'background: #667eea; border-color: #667eea;'
+
+  - else
+    .empty-state{style: 'text-align: center; padding: 3rem 0; color: #718096;'}
+      %p{style: 'font-size: 1.5rem; margin-bottom: 1rem;'} 📚
+      %p{style: 'font-size: 1.2rem;'}= t('public_tocs.index.no_verified_tocs')

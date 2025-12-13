@@ -394,6 +394,35 @@ en:
     show:
       authors_label: "Authors:"
 
+  # Public TOCs (unauthenticated view)
+  public_tocs:
+    index:
+      title: "Browse Verified Tables of Contents"
+      subtitle: "Explore community-contributed, verified tables of contents from the public domain"
+      showing_count:
+        one: "Showing %{count} verified TOC"
+        other: "Showing %{count} verified TOCs"
+      contribute_banner: "Want to contribute? Sign in to add or verify TOCs"
+      sign_in_to_contribute: "Sign in to contribute"
+      sort_by: "Sort by:"
+      sort_title: "Title"
+      sort_created: "Date Added"
+      view_toc: "View TOC"
+      no_verified_tocs: "No verified TOCs available yet. Check back soon!"
+
+    show:
+      title_label: "Title:"
+      book_label: "Book:"
+      authors_label: "Authors:"
+      toc_label: "Table of Contents:"
+      verified_badge: "Verified"
+      view_on_openlibrary: "View on Open Library"
+      view_on_gutenberg: "View on Project Gutenberg"
+      view_fulltext: "Read Full Text"
+      back_to_browse: "Back to Browse"
+      contribute_banner: "Found an error? Sign in to help improve this TOC"
+      sign_in_link: "Sign in"
+
   aboutnesses:
     index:
       subject_headings: "Subject Headings"

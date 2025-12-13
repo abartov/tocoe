@@ -49,6 +49,10 @@ Rails.application.routes.draw do
   # Help page
   get 'help', to: 'help#index'
 
+  # Public (unauthenticated) verified TOCs
+  get 'browse', to: 'public_tocs#index', as: :browse_tocs
+  get 'browse/:id', to: 'public_tocs#show', as: :browse_toc
+
   # Locale switching
   get 'locale/:locale', to: 'application#switch_locale', as: :locale
 

@@ -1,0 +1,87 @@
+.public-contribute-banner{style: 'background: #f7fafc; border: 2px solid #667eea; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;'}
+  .banner-text{style: 'flex: 1; min-width: 250px;'}
+    %p{style: 'margin: 0; font-size: 1rem; color: #2d3748;'}
+      = t('public_tocs.show.contribute_banner')
+      = link_to t('public_tocs.show.sign_in_link'), user_google_oauth2_omniauth_authorize_path, method: :post, style: 'color: #667eea; font-weight: 600; text-decoration: underline;'
+
+.toc-header{style: 'margin-bottom: 2rem;'}
+  %h2{style: 'font-size: 2rem; color: #2d3748; margin-bottom: 0.75rem;'}= @toc.title
+
+  .verified-badge{style: 'display: inline-block; background: #48bb78; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 1rem; font-weight: 600; margin-bottom: 1rem;'}
+    ✅
+    = t('public_tocs.show.verified_badge')
+
+  %p{style: 'color: #4a5568; margin-bottom: 0.5rem;'}
+    %strong{style: 'color: #2d3748;'}= t('public_tocs.show.book_label')
+    = @toc.book_uri
+
+  - if @toc.authors.any?
+    %p{style: 'color: #4a5568; margin-bottom: 0.5rem;'}
+      %strong{style: 'color: #2d3748;'}= t('public_tocs.show.authors_label')
+      = @toc.authors.map(&:name).join(', ')
+
+.mb-3
+  = link_to t('public_tocs.show.back_to_browse'), browse_tocs_path, class: 'btn btn-secondary'
+
+  - if @toc.book_uri.include?('openlibrary.org')
+    = link_to t('public_tocs.show.view_on_openlibrary'), @toc.book_uri, class: 'btn btn-info', target: '_blank', style: 'background: #3182ce; border-color: #3182ce;'
+  - elsif @toc.book_uri.include?('gutenberg.org')
+    = link_to t('public_tocs.show.view_on_gutenberg'), @toc.book_uri, class: 'btn btn-info', target: '_blank', style: 'background: #3182ce; border-color: #3182ce;'
+
+.row{style: 'margin-top: 2rem;'}
+  - if @is_gutenberg && @fulltext_url.present?
+    .col-md-6
+      - if @toc.toc_body.present?
+        %h4{style: 'font-size: 1.3rem; color: #2d3748; margin-bottom: 1rem;'}= t('public_tocs.show.toc_label')
+        .toc-preview
+          = toc_markdown_to_html_preview(@toc.toc_body)
+    .col-md-6
+      %h4{style: 'font-size: 1.3rem; color: #2d3748; margin-bottom: 1rem;'}= t('public_tocs.show.view_fulltext')
+      .fulltext-viewer
+        %iframe{src: @fulltext_url, style: 'width: 100%; height: 600px; border: 1px solid #dee2e6; border-radius: 4px;'}
+  - else
+    .col-md-12
+      - if @toc.toc_body.present?
+        %h4{style: 'font-size: 1.3rem; color: #2d3748; margin-bottom: 1rem;'}= t('public_tocs.show.toc_label')
+        .toc-preview
+          = toc_markdown_to_html_preview(@toc.toc_body)
+
+%hr{style: 'margin: 2rem 0; border-color: #e2e8f0;'}
+
+- if @manifestation
+  .manifestation-section{style: 'margin-top: 2rem;'}
+    = render partial: 'manifestations/show', locals: { manifestation: @manifestation }
+
+:css
+  .toc-preview {
+    border: 1px solid #dee2e6;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  .toc-preview h1 {
+    font-size: 1.5em;
+    margin: 10px 0;
+    font-weight: bold;
+    color: #2d3748;
+  }
+  .toc-preview h2 {
+    font-size: 1.2em;
+    margin: 8px 0 8px 20px;
+    font-weight: 600;
+    color: #4a5568;
+  }
+  .toc-preview .toc-section {
+    font-style: italic;
+    color: #718096;
+  }
+  .toc-preview .toc-author {
+    color: #718096;
+    font-size: 0.9em;
+    font-style: italic;
+    margin-left: 8px;
+  }
+  .toc-preview .toc-author::before {
+    content: "— ";
+  }

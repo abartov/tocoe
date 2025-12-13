@@ -50,6 +50,8 @@ en:
       help: "Help"
       help_tooltip: "Get help using ToCoE"
       quick_search: "Quick search..."
+    languages:
+      en: "English"
 
   # Dashboard view
   dashboard:

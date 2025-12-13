@@ -1,0 +1,155 @@
+!!! 5
+%html
+  %head
+    %title Tocoe
+    = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true
+    = javascript_include_tag 'application', 'data-turbolinks-track' => true
+    = csrf_meta_tags
+  %body
+    #main-container.container-fluid
+      %nav.tocoe-navbar
+        .navbar-container
+          .navbar-brand
+            = link_to root_path, class: 'tocoe-logo-link' do
+              = image_tag 'tocoe-logo.svg', alt: 'ToCoE', class: 'tocoe-logo'
+
+          - if user_signed_in?
+            %ul.navbar-menu
+              %li= link_to '🏠 ' + t('common.nav.dashboard', default: 'Dashboard'), root_path, class: nav_link_class(root_path)
+              %li= link_to '🔍 ' + t('common.nav.search', default: 'Search'), publications_search_path, class: nav_link_class(publications_search_path)
+              %li= link_to '📚 ' + t('common.nav.tocs', default: 'TOCs'), tocs_path, class: nav_link_class(tocs_path)
+              %li= link_to '🏷️ ' + t('common.nav.subjects', default: 'Subject Headings'), dashboard_aboutness_path, class: nav_link_class(dashboard_aboutness_path)
+              %li= link_to raw('<i class="glyphicon glyphicon-question-sign"></i> ' + t('common.nav.help', default: 'Help')), help_path, class: nav_link_class(help_path), title: t('common.nav.help_tooltip', default: 'Get help using ToCoE')
+
+          - if user_signed_in?
+            .navbar-search
+              = form_tag search_tocs_path, method: :get, class: 'navbar-search-form' do
+                = text_field_tag :search, params[:search], placeholder: t('common.nav.quick_search', default: 'Quick search...'), class: 'navbar-search-input'
+                = button_tag type: 'submit', class: 'navbar-search-button' do
+                  %i.glyphicon.glyphicon-search
+
+          .navbar-user
+            - if user_signed_in?
+              .language-selector
+                %button.language-button{onclick: 'toggleLanguageMenu(event)'}
+                  %span.language-icon 🌐
+                  %span.language-code= I18n.locale.to_s.upcase
+                  %span.dropdown-arrow ▾
+                .language-dropdown#languageDropdown
+                  - I18n.available_locales.each do |locale|
+                    = link_to locale_path(locale: locale), class: "dropdown-item #{'active' if I18n.locale == locale}" do
+                      %span.language-name= t("common.languages.#{locale}", default: locale.to_s.upcase)
+                      - if I18n.locale == locale
+                        %span.checkmark ✓
+
+              .user-menu-wrapper
+                %button.user-menu-button{onclick: 'toggleUserMenu(event)'}
+                  .user-avatar= current_user.email[0].upcase
+                  %span.user-email= current_user.email
+                  %span.dropdown-arrow ▾
+                .user-dropdown#userDropdown
+                  = link_to t('common.nav.my_tocs', default: 'My TOCs'), tocs_path, class: 'dropdown-item'
+                  = link_to t('common.nav.sign_out', default: 'Sign Out'), destroy_user_session_path, method: :delete, class: 'dropdown-item'
+            - elsif Devise.omniauth_configs[:google_oauth2]
+              = link_to t('home.index.sign_in_button', default: 'Sign in with Google'), user_google_oauth2_omniauth_authorize_path, method: :post, class: 'btn btn-primary'
+
+      = render_breadcrumbs
+
+      = render 'shared/flash_messages'
+
+      .main-content
+        = yield
+
+      -# Global loading overlay
+      #global-loading-overlay.loading-overlay{style: 'display: none; position: fixed;'}
+        .loading-spinner
+          .spinner.spinner-lg
+          %span.loading-text= t('common.loading', default: 'Loading...')
+
+      %footer.tocoe-footer
+        .footer-content
+          .footer-section
+            %h4= t('footer.about_title', default: 'About ToCoE')
+            %p= t('footer.about_description', default: 'Table of Contents of Everything - Creating CC0 public domain tables of contents through volunteer labor and linked open data.')
+
+          .footer-section
+            %h4= t('footer.links_title', default: 'Links')
+            %ul.footer-links
+              %li
+                %a{href: 'https://github.com/abartov/tocoe', target: '_blank', rel: 'noopener'}
+                  = t('footer.github', default: 'GitHub Repository')
+                  →
+              %li
+                %a{href: 'https://creativecommons.org/publicdomain/zero/1.0/', target: '_blank', rel: 'noopener'}
+                  = t('footer.license', default: 'CC0 1.0 Universal')
+                  →
+              %li= link_to t('footer.help', default: 'Help & Documentation'), help_path
+
+          .footer-section
+            %h4= t('footer.contact_title', default: 'Contact')
+            %p= t('footer.contact_description', default: 'Questions or feedback?')
+            %p
+              %a{href: 'https://github.com/abartov/tocoe/issues', target: '_blank', rel: 'noopener'}
+                = t('footer.report_issue', default: 'Report an Issue')
+                →
+
+        .footer-bottom
+          %p
+            &copy; #{Time.current.year} ToCoE.
+            = t('footer.cc0_notice', default: 'All content released under CC0 1.0 Universal.')
+
+    :javascript
+      function toggleUserMenu(event) {
+        event.stopPropagation();
+        var dropdown = document.getElementById('userDropdown');
+        dropdown.classList.toggle('show');
+        // Close language dropdown if open
+        var langDropdown = document.getElementById('languageDropdown');
+        if (langDropdown && langDropdown.classList.contains('show')) {
+          langDropdown.classList.remove('show');
+        }
+      }
+
+      function toggleLanguageMenu(event) {
+        event.stopPropagation();
+        var dropdown = document.getElementById('languageDropdown');
+        dropdown.classList.toggle('show');
+        // Close user dropdown if open
+        var userDropdown = document.getElementById('userDropdown');
+        if (userDropdown && userDropdown.classList.contains('show')) {
+          userDropdown.classList.remove('show');
+        }
+      }
+
+      // Close dropdowns when clicking outside
+      document.addEventListener('click', function() {
+        var userDropdown = document.getElementById('userDropdown');
+        if (userDropdown && userDropdown.classList.contains('show')) {
+          userDropdown.classList.remove('show');
+        }
+        var langDropdown = document.getElementById('languageDropdown');
+        if (langDropdown && langDropdown.classList.contains('show')) {
+          langDropdown.classList.remove('show');
+        }
+      });
+
+      // Show loading overlay for Browse Scans links
+      document.addEventListener('DOMContentLoaded', function() {
+        // Find all links that go to browse_scans paths
+        var browseScansLinks = document.querySelectorAll('a[href*="/browse_scans"]');
+
+        browseScansLinks.forEach(function(link) {
+          link.addEventListener('click', function(e) {
+            // Don't show loading for links that open in new tabs
+            if (link.target === '_blank') {
+              return;
+            }
+
+            // Show the loading overlay
+            var overlay = document.getElementById('global-loading-overlay');
+            if (overlay) {
+              overlay.style.display = 'flex';
+            }
+          });
+        });
+      });

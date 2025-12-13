@@ -49,6 +49,9 @@ Rails.application.routes.draw do
   # Help page
   get 'help', to: 'help#index'
 
+  # Locale switching
+  get 'locale/:locale', to: 'application#switch_locale', as: :locale
+
   # People (authors/creators) management
   resources :people, only: [:index, :show, :new, :create, :edit, :update] do
     collection do

@@ -1,32 +1,77 @@
 .filter-bar{style: 'background: #f7fafc; border-bottom: 2px solid #e2e8f0; padding: 1.5rem 2rem; margin: -2rem 0 2rem 0;'}
-  %h1{style: 'font-size: 1.8rem; margin-bottom: 1rem; color: #2d3748;'}= t('tocs.index.title')
+  .filter-header{style: 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;'}
+    %h1{style: 'font-size: 1.8rem; margin: 0; color: #2d3748;'}= t('tocs.index.title')
+
+    .sort-controls{style: 'display: flex; align-items: center; gap: 0.75rem;'}
+      %span{style: 'color: #4a5568; font-weight: 500; font-size: 0.9rem;'}
+        = t('tocs.index.sort_by', default: 'Sort by:')
+      .dropdown
+        %button.btn.btn-default.dropdown-toggle{type: 'button', 'data-toggle' => 'dropdown', 'aria-haspopup' => 'true', 'aria-expanded' => 'false', style: 'background: white; border: 2px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 500; color: #2d3748;'}
+          - current_sort = params[:sort] || 'updated_at'
+          - sort_labels = { 'title' => '📖 Title', 'status' => '📊 Status', 'created_at' => '📅 Created', 'updated_at' => '🕐 Updated', 'contributor_id' => '👤 Contributor' }
+          = sort_labels[current_sort] || '🕐 Updated'
+          - if params[:sort].present?
+            = params[:direction] == 'asc' ? ' ↑' : ' ↓'
+          %span.caret
+        %ul.dropdown-menu{style: 'min-width: 180px;'}
+          %li{class: current_sort == 'title' ? 'active' : ''}
+            = link_to tocs_path(sort: 'title', direction: params[:direction] || 'asc', status: params[:status], show_all: params[:show_all]) do
+              📖 #{t('tocs.index.sort_title', default: 'Title')}
+              = '↑' if current_sort == 'title' && params[:direction] != 'desc'
+              = '↓' if current_sort == 'title' && params[:direction] == 'desc'
+          %li{class: current_sort == 'status' ? 'active' : ''}
+            = link_to tocs_path(sort: 'status', direction: params[:direction] || 'asc', status: params[:status], show_all: params[:show_all]) do
+              📊 #{t('tocs.index.sort_status', default: 'Status')}
+              = '↑' if current_sort == 'status' && params[:direction] != 'desc'
+              = '↓' if current_sort == 'status' && params[:direction] == 'desc'
+          %li{class: current_sort == 'created_at' ? 'active' : ''}
+            = link_to tocs_path(sort: 'created_at', direction: params[:direction] || 'desc', status: params[:status], show_all: params[:show_all]) do
+              📅 #{t('tocs.index.sort_created', default: 'Created Date')}
+              = '↑' if current_sort == 'created_at' && params[:direction] != 'desc'
+              = '↓' if current_sort == 'created_at' && params[:direction] == 'desc'
+          %li{class: current_sort == 'updated_at' ? 'active' : ''}
+            = link_to tocs_path(sort: 'updated_at', direction: params[:direction] || 'desc', status: params[:status], show_all: params[:show_all]) do
+              🕐 #{t('tocs.index.sort_updated', default: 'Updated Date')}
+              = '↑' if current_sort == 'updated_at' && params[:direction] != 'desc'
+              = '↓' if current_sort == 'updated_at' && params[:direction] == 'desc'
+          - if current_user&.admin?
+            %li{class: current_sort == 'contributor_id' ? 'active' : ''}
+              = link_to tocs_path(sort: 'contributor_id', direction: params[:direction] || 'asc', status: params[:status], show_all: params[:show_all]) do
+                👤 #{t('tocs.index.sort_contributor', default: 'Contributor')}
+                = '↑' if current_sort == 'contributor_id' && params[:direction] != 'desc'
+                = '↓' if current_sort == 'contributor_id' && params[:direction] == 'desc'
+          %li.divider{role: 'separator'}
+          %li
+            - toggle_direction = params[:direction] == 'asc' ? 'desc' : 'asc'
+            = link_to tocs_path(sort: params[:sort], direction: toggle_direction, status: params[:status], show_all: params[:show_all]) do
+              = params[:direction] == 'asc' ? '⬇️ Descending' : '⬆️ Ascending'
 
   .filter-tabs{style: 'display: flex; gap: 0.5rem; flex-wrap: wrap;'}
     - status_counts = { needs_work: @tocs.count, empty: Toc.where(status: :empty).count, pages_marked: Toc.where(status: :pages_marked).count, transcribed: Toc.where(status: :transcribed).count, verified: Toc.where(status: :verified).count, all: Toc.count }
 
     - current_filter = params[:status] || (params[:show_all] == 'true' ? 'all' : 'needs_work')
 
-    = link_to tocs_path, class: "filter-tab #{current_filter == 'needs_work' ? 'active' : ''}", style: filter_tab_style(current_filter == 'needs_work') do
+    = link_to tocs_path(sort: params[:sort], direction: params[:direction]), class: "filter-tab #{current_filter == 'needs_work' ? 'active' : ''}", style: filter_tab_style(current_filter == 'needs_work') do
       = t('tocs.index.filter_needs_work', default: 'Needs Work')
       %span.count= "(#{status_counts[:needs_work]})"
 
-    = link_to tocs_path(status: 'empty'), class: "filter-tab #{current_filter == 'empty' ? 'active' : ''}", style: filter_tab_style(current_filter == 'empty') do
+    = link_to tocs_path(status: 'empty', sort: params[:sort], direction: params[:direction]), class: "filter-tab #{current_filter == 'empty' ? 'active' : ''}", style: filter_tab_style(current_filter == 'empty') do
       = t('tocs.index.filter_empty', default: 'Empty')
       %span.count= "(#{status_counts[:empty]})"
 
-    = link_to tocs_path(status: 'pages_marked'), class: "filter-tab #{current_filter == 'pages_marked' ? 'active' : ''}", style: filter_tab_style(current_filter == 'pages_marked') do
+    = link_to tocs_path(status: 'pages_marked', sort: params[:sort], direction: params[:direction]), class: "filter-tab #{current_filter == 'pages_marked' ? 'active' : ''}", style: filter_tab_style(current_filter == 'pages_marked') do
       = t('tocs.index.filter_pages_marked', default: 'Pages Marked')
       %span.count= "(#{status_counts[:pages_marked]})"
 
-    = link_to tocs_path(status: 'transcribed'), class: "filter-tab #{current_filter == 'transcribed' ? 'active' : ''}", style: filter_tab_style(current_filter == 'transcribed') do
+    = link_to tocs_path(status: 'transcribed', sort: params[:sort], direction: params[:direction]), class: "filter-tab #{current_filter == 'transcribed' ? 'active' : ''}", style: filter_tab_style(current_filter == 'transcribed') do
       = t('tocs.index.filter_transcribed', default: 'Transcribed')
       %span.count= "(#{status_counts[:transcribed]})"
 
-    = link_to tocs_path(status: 'verified'), class: "filter-tab #{current_filter == 'verified' ? 'active' : ''}", style: filter_tab_style(current_filter == 'verified') do
+    = link_to tocs_path(status: 'verified', sort: params[:sort], direction: params[:direction]), class: "filter-tab #{current_filter == 'verified' ? 'active' : ''}", style: filter_tab_style(current_filter == 'verified') do
       = t('tocs.index.filter_verified', default: 'Verified')
       %span.count= "(#{status_counts[:verified]})"
 
-    = link_to tocs_path(show_all: true), class: "filter-tab #{current_filter == 'all' ? 'active' : ''}", style: filter_tab_style(current_filter == 'all') do
+    = link_to tocs_path(show_all: true, sort: params[:sort], direction: params[:direction]), class: "filter-tab #{current_filter == 'all' ? 'active' : ''}", style: filter_tab_style(current_filter == 'all') do
       = t('tocs.index.filter_all', default: 'All')
       %span.count= "(#{status_counts[:all]})"
 

@@ -94,11 +94,17 @@ RSpec.describe SubjectHeadings::LcshClient do
         expect(results.length).to eq(2)
         expect(results[0]).to eq(
           uri: 'http://id.loc.gov/authorities/subjects/sh85146352',
-          label: 'Whales'
+          label: 'Whales',
+          alt_labels: [],
+          broader: [],
+          lc_id: 'sh85146352'
         )
         expect(results[1]).to eq(
           uri: 'http://id.loc.gov/authorities/subjects/sh85146353',
-          label: 'Whales--Anatomy'
+          label: 'Whales--Anatomy',
+          alt_labels: [],
+          broader: [],
+          lc_id: 'sh85146353'
         )
       end
     end

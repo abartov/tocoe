@@ -80,14 +80,42 @@
           if (data.length === 0) {
             $('#search_results').html('<p class="text-muted">No results found.</p>');
           } else {
-            var html = '<h3>Search Results</h3><div class="list-group">';
+            var html = '<h3>Search Results <span class="badge">' + data.length + '</span></h3><div class="list-group">';
             $.each(data, function(index, result) {
-              html += '<a href="#" class="list-group-item result-item" data-uri="' + result.uri + '" data-label="' + result.label + '" data-source="' + source + '">';
-              html += '<h4 class="list-group-item-heading">' + result.label + '</h4>';
-              if (result.instance_of && result.instance_of.length > 0) {
-                html += '<p class="list-group-item-text"><small>Instance of: ' + result.instance_of.join(', ') + '</small></p>';
+              html += '<a href="#" class="list-group-item result-item" data-uri="' + result.uri + '" data-label="' + result.label + '" data-source="' + source + '" style="margin-bottom: 0.5rem; border-radius: 8px; transition: all 0.2s;">';
+              html += '<h4 class="list-group-item-heading" style="color: #667eea; font-weight: 600; margin-bottom: 0.5rem;">' + result.label + '</h4>';
+
+              // Show description (Wikidata)
+              if (result.description) {
+                html += '<p class="list-group-item-text" style="color: #4a5568; margin-bottom: 0.5rem;"><em>' + result.description + '</em></p>';
               }
-              html += '<p class="list-group-item-text"><small><a href="' + result.uri + '" target="_blank">' + result.uri + '</a></small></p>';
+
+              // Show instance_of (Wikidata)
+              if (result.instance_of && result.instance_of.length > 0) {
+                html += '<p class="list-group-item-text" style="margin-bottom: 0.25rem;"><small style="color: #718096;"><strong>Instance of:</strong> ' + result.instance_of.join(', ') + '</small></p>';
+              }
+
+              // Show entity ID (Wikidata)
+              if (result.entity_id) {
+                html += '<p class="list-group-item-text" style="margin-bottom: 0.25rem;"><small style="color: #718096;"><strong>Entity ID:</strong> ' + result.entity_id + '</small></p>';
+              }
+
+              // Show LC ID (LCSH)
+              if (result.lc_id) {
+                html += '<p class="list-group-item-text" style="margin-bottom: 0.25rem;"><small style="color: #718096;"><strong>LC ID:</strong> ' + result.lc_id + '</small></p>';
+              }
+
+              // Show broader terms (LCSH)
+              if (result.broader && result.broader.length > 0) {
+                html += '<p class="list-group-item-text" style="margin-bottom: 0.25rem;"><small style="color: #718096;"><strong>Broader:</strong> ' + result.broader.join(', ') + '</small></p>';
+              }
+
+              // Show alternate labels (LCSH)
+              if (result.alt_labels && result.alt_labels.length > 0) {
+                html += '<p class="list-group-item-text" style="margin-bottom: 0.25rem;"><small style="color: #718096;"><strong>Alt labels:</strong> ' + result.alt_labels.join(', ') + '</small></p>';
+              }
+
+              html += '<p class="list-group-item-text" style="margin-top: 0.5rem;"><small><a href="' + result.uri + '" target="_blank" style="color: #667eea;">' + result.uri + ' →</a></small></p>';
               html += '</a>';
             });
             html += '</div>';

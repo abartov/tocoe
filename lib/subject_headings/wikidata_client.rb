@@ -121,6 +121,9 @@ module SubjectHeadings
         instance_value_ids = instance_ids_by_entity.values.flatten.uniq
         instance_labels = fetch_labels(instance_value_ids)
 
+        # Fetch descriptions for search results
+        descriptions = fetch_descriptions(entity_ids)
+
         results.map do |result|
           entity_id = result['id']
           instance_labels_for_entity = instance_ids_by_entity.fetch(entity_id, []).map do |value_id|
@@ -130,7 +133,9 @@ module SubjectHeadings
           {
             uri: "http://www.wikidata.org/entity/#{entity_id}",
             label: result['label'] || result['id'],
-            instance_of: instance_labels_for_entity
+            description: result['description'] || descriptions[entity_id],
+            instance_of: instance_labels_for_entity,
+            entity_id: entity_id
           }
         end
       rescue StandardError => e
@@ -180,6 +185,24 @@ module SubjectHeadings
       (data['entities'] || {}).each_with_object({}) do |(id, entity), memo|
         label = entity.dig('labels', 'en', 'value')
         memo[id] = label if label
+      end
+    end
+
+    def fetch_descriptions(ids)
+      return {} if ids.empty?
+
+      params = {
+        action: 'wbgetentities',
+        ids: ids.join('|'),
+        props: 'descriptions',
+        languages: 'en',
+        format: 'json'
+      }
+
+      data = fetch_json(params)
+      (data['entities'] || {}).each_with_object({}) do |(id, entity), memo|
+        description = entity.dig('descriptions', 'en', 'value')
+        memo[id] = description if description
       end
     end
 

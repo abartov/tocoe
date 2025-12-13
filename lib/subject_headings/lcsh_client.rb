@@ -36,7 +36,12 @@ module SubjectHeadings
         hits.map do |hit|
           {
             uri: hit['uri'],
-            label: hit['suggestLabel'] || hit['aLabel']
+            label: hit['suggestLabel'] || hit['aLabel'],
+            # Add additional context from the hit
+            alt_labels: [hit['aLabel'], hit['suggestLabel']].compact.uniq.reject { |l| l == (hit['suggestLabel'] || hit['aLabel']) },
+            broader: hit['broader'] ? [hit['broader']].flatten : [],
+            # LCSH IDs are embedded in the URI (e.g., "sh85082139" from "https://id.loc.gov/authorities/subjects/sh85082139")
+            lc_id: hit['uri']&.split('/')&.last
           }
         end
       rescue StandardError => e

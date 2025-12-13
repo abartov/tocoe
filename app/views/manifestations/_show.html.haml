@@ -22,8 +22,9 @@
                 = link_to aboutness.subject_heading_uri, aboutness.subject_heading_uri, target: '_blank'
       - else
         %p.text-muted No subject headings assigned yet.
-      %p
-        = link_to 'Manage Subject Headings', embodiment_aboutnesses_path(main_embodiment), class: 'btn btn-sm btn-primary'
+      - if current_user
+        %p
+          = link_to 'Manage Subject Headings', embodiment_aboutnesses_path(main_embodiment), class: 'btn btn-sm btn-primary'
 
 %h2 Table of Contents
 %ol
@@ -52,6 +53,7 @@
                     = link_to aboutness.subject_heading_uri, aboutness.subject_heading_uri, target: '_blank'
           - else
             %p.text-muted No subject headings assigned yet for this work.
-          %p
-            = link_to 'Manage Subject Headings for this work', embodiment_aboutnesses_path(emb), class: 'btn btn-sm btn-primary'
+          - if current_user
+            %p
+              = link_to 'Manage Subject Headings for this work', embodiment_aboutnesses_path(emb), class: 'btn btn-sm btn-primary'
 

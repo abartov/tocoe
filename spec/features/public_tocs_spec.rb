@@ -55,6 +55,32 @@ RSpec.feature 'Public TOCs browsing', type: :feature do
     expect(page).not_to have_button('Delete')
   end
 
+  scenario 'unauthenticated user cannot see manage subject headings buttons' do
+    # Create manifestation with embodiment
+    manifestation = Manifestation.create!(title: 'Test Manifestation')
+    work = Work.create!(title: 'Test Work')
+    expression = Expression.create!(title: 'Test Expression')
+    work.expressions << expression
+    embodiment = Embodiment.create!(
+      expression: expression,
+      manifestation: manifestation,
+      sequence_number: nil
+    )
+
+    verified_toc = Toc.create!(
+      book_uri: 'http://openlibrary.org/books/OL1M',
+      title: 'Test Book',
+      status: :verified,
+      toc_body: "# Chapter 1",
+      manifestation: manifestation
+    )
+
+    visit "/browse/#{verified_toc.id}"
+
+    expect(page).not_to have_link('Manage Subject Headings')
+    expect(page).not_to have_link('Manage Subject Headings for this work')
+  end
+
   scenario 'sorting controls work on browse page' do
     toc_a = Toc.create!(
       book_uri: 'http://openlibrary.org/books/OL1M',

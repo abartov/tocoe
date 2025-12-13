@@ -1,4 +1,4 @@
-class CreateWorkRelationships < ActiveRecord::Migration
+class CreateWorkRelationships < ActiveRecord::Migration[7.1]
   def change
     create_table :work_relationships do |t|
       t.references :work1, index: true, foreign_key: true, null: false

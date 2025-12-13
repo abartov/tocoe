@@ -1,4 +1,4 @@
-class CreateEmbodiments < ActiveRecord::Migration
+class CreateEmbodiments < ActiveRecord::Migration[7.1]
   def change
     create_table :embodiments do |t|
       t.integer :expression_id

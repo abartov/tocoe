@@ -1,4 +1,4 @@
-class CreateExpressionRelationships < ActiveRecord::Migration
+class CreateExpressionRelationships < ActiveRecord::Migration[7.1]
   def change
     create_table :expression_relationships do |t|
       t.references :exp1, index: true, foreign_key: true

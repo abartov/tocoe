@@ -3,6 +3,11 @@ require 'rails_helper'
 RSpec.describe 'manifestations/_show.html.haml', type: :view do
   let(:manifestation) { Manifestation.create!(title: "Test Publication") }
 
+  before do
+    # Stub current_user for view specs (Devise/Warden not available in view specs)
+    allow(view).to receive(:current_user).and_return(nil)
+  end
+
   describe 'displaying publication authors' do
     context 'when the publication has authors' do
       it 'displays the authors' do

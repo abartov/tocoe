@@ -1,4 +1,4 @@
-class CreateManifestations < ActiveRecord::Migration
+class CreateManifestations < ActiveRecord::Migration[7.1]
   def change
     create_table :manifestations do |t|
       t.string :title

@@ -25,7 +25,7 @@ RSpec.describe "aboutnesses/new.html.haml", type: :view do
     render
 
     # Verify the JavaScript includes the link with target="_blank"
-    expect(rendered).to include('<a href="\' + result.uri + \'" target="_blank">\' + result.uri + \'</a>')
+    expect(rendered).to include('<a href="\' + result.uri + \'" target="_blank" style="color: #667eea;">\' + result.uri + \' →</a>')
   end
 
   it "renders the hidden form for submitting selected aboutness" do

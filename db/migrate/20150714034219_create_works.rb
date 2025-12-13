@@ -1,4 +1,4 @@
-class CreateWorks < ActiveRecord::Migration
+class CreateWorks < ActiveRecord::Migration[7.1]
   def change
     create_table :works do |t|
       t.string :title

@@ -1,4 +1,4 @@
-class CreateReifications < ActiveRecord::Migration
+class CreateReifications < ActiveRecord::Migration[7.1]
   def change
     create_table :reifications do |t|
       t.references :work, index: true, foreign_key: true

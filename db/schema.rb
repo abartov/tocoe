@@ -210,6 +210,20 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_13_112457) do
     t.index ["wikidata_q"], name: "index_works_on_wikidata_q"
   end
 
+  add_foreign_key "expression_relationships", "expressions", column: "exp1_id"
+  add_foreign_key "expression_relationships", "expressions", column: "exp2_id"
+  add_foreign_key "expression_relationships", "users", column: "creator_id"
+  add_foreign_key "expression_relationships", "users", column: "reviewer_id"
   add_foreign_key "people_tocs", "people"
   add_foreign_key "people_tocs", "tocs"
+  add_foreign_key "people_works", "people"
+  add_foreign_key "people_works", "works"
+  add_foreign_key "realizations", "expressions"
+  add_foreign_key "realizations", "people", column: "realizer_id"
+  add_foreign_key "reifications", "expressions"
+  add_foreign_key "reifications", "works"
+  add_foreign_key "work_relationships", "users", column: "creator_id"
+  add_foreign_key "work_relationships", "users", column: "reviewer_id"
+  add_foreign_key "work_relationships", "works", column: "work1_id"
+  add_foreign_key "work_relationships", "works", column: "work2_id"
 end

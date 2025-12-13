@@ -28,6 +28,14 @@
   - elsif @toc.book_uri.include?('gutenberg.org')
     = link_to t('public_tocs.show.view_on_gutenberg'), @toc.book_uri, class: 'btn btn-info', target: '_blank', style: 'background: #3182ce; border-color: #3182ce;'
 
+.mb-3{style: 'padding: 1rem; background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px;'}
+  %p{style: 'margin-bottom: 0.75rem; font-weight: 600; color: #2d3748;'}
+    = t('public_tocs.show.downloads.title')
+  .btn-group{role: 'group', 'aria-label': t('public_tocs.show.downloads.title')}
+    = link_to t('public_tocs.show.downloads.plaintext'), download_browse_path(@toc, format: 'plaintext'), class: 'btn btn-outline-primary', title: t('public_tocs.show.downloads.tooltip')
+    = link_to t('public_tocs.show.downloads.markdown'), download_browse_path(@toc, format: 'markdown'), class: 'btn btn-outline-primary', title: t('public_tocs.show.downloads.tooltip')
+    = link_to t('public_tocs.show.downloads.json'), download_browse_path(@toc, format: 'json'), class: 'btn btn-outline-primary', title: t('public_tocs.show.downloads.tooltip')
+
 .row{style: 'margin-top: 2rem;'}
   - if @is_gutenberg && @fulltext_url.present?
     .col-md-6

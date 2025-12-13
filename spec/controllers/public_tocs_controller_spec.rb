@@ -188,4 +188,78 @@ RSpec.describe PublicTocsController, type: :controller do
       end
     end
   end
+
+  describe 'GET #download' do
+    let!(:verified_toc_with_content) do
+      Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Public Sample Book',
+        toc_body: "# Chapter 1\n## Section 1.1\n# Chapter 2 || Jane Smith",
+        status: :verified
+      )
+    end
+
+    let!(:pending_toc) do
+      Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL456M',
+        title: 'Pending Book',
+        toc_body: '# Chapter 1',
+        status: :pages_marked
+      )
+    end
+
+    it 'allows unauthenticated download of verified TOC as plaintext' do
+      get :download, params: { id: verified_toc_with_content.id }
+
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to eq('text/plain')
+      expect(response.headers['Content-Disposition']).to include('attachment')
+      expect(response.headers['Content-Disposition']).to include('public_sample_book.txt')
+      expect(response.body).to include('Public Sample Book')
+      expect(response.body).to include('Chapter 1')
+    end
+
+    it 'allows download as markdown format' do
+      get :download, params: { id: verified_toc_with_content.id, format: 'markdown' }
+
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to eq('text/markdown')
+      expect(response.headers['Content-Disposition']).to include('public_sample_book.md')
+      expect(response.body).to include('# Public Sample Book')
+      expect(response.body).to include('## Table of Contents')
+    end
+
+    it 'allows download as JSON format' do
+      get :download, params: { id: verified_toc_with_content.id, format: 'json' }
+
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to eq('application/json')
+      expect(response.headers['Content-Disposition']).to include('public_sample_book.json')
+
+      json_response = JSON.parse(response.body)
+      expect(json_response['toc']['title']).to eq('Public Sample Book')
+      expect(json_response['toc']['status']).to eq('verified')
+      expect(json_response['toc']['entries'].length).to eq(3)
+    end
+
+    it 'returns 404 for non-verified TOC' do
+      expect {
+        get :download, params: { id: pending_toc.id }
+      }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it 'returns 404 for non-existent TOC' do
+      expect {
+        get :download, params: { id: 999999 }
+      }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it 'defaults to plaintext when invalid format specified' do
+      get :download, params: { id: verified_toc_with_content.id, format: 'invalid' }
+
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to eq('text/plain')
+      expect(response.headers['Content-Disposition']).to include('public_sample_book.txt')
+    end
+  end
 end

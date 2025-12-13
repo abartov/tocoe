@@ -202,6 +202,90 @@ RSpec.describe TocsController, type: :controller do
     end
   end
 
+  describe 'GET #download' do
+    let(:toc_with_content) do
+      Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Sample Book',
+        toc_body: "# Chapter 1\n## Section 1.1\n# Chapter 2 || John Doe",
+        status: :verified
+      )
+    end
+
+    it 'downloads TOC as plaintext by default' do
+      get :download, params: { id: toc_with_content.id }
+
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to eq('text/plain')
+      expect(response.headers['Content-Disposition']).to include('attachment')
+      expect(response.headers['Content-Disposition']).to include('sample_book.txt')
+      expect(response.body).to include('Sample Book')
+      expect(response.body).to include('Chapter 1')
+    end
+
+    it 'downloads TOC as plaintext when format is plaintext' do
+      get :download, params: { id: toc_with_content.id, format: 'plaintext' }
+
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to eq('text/plain')
+      expect(response.headers['Content-Disposition']).to include('sample_book.txt')
+      expect(response.body).to include('Chapter 1')
+      expect(response.body).to include('Chapter 2 (John Doe)')
+    end
+
+    it 'downloads TOC as markdown when format is markdown' do
+      get :download, params: { id: toc_with_content.id, format: 'markdown' }
+
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to eq('text/markdown')
+      expect(response.headers['Content-Disposition']).to include('sample_book.md')
+      expect(response.body).to include('# Sample Book')
+      expect(response.body).to include('## Table of Contents')
+      expect(response.body).to include('# Chapter 1')
+    end
+
+    it 'downloads TOC as JSON when format is json' do
+      get :download, params: { id: toc_with_content.id, format: 'json' }
+
+      expect(response).to have_http_status(:success)
+      expect(response.content_type).to eq('application/json')
+      expect(response.headers['Content-Disposition']).to include('sample_book.json')
+
+      json_response = JSON.parse(response.body)
+      expect(json_response['toc']['title']).to eq('Sample Book')
+      expect(json_response['toc']['entries'].length).to eq(3)
+      expect(json_response['toc']['entries'][0]['title']).to eq('Chapter 1')
+      expect(json_response['toc']['entries'][2]['authors']).to eq(['John Doe'])
+    end
+
+    it 'sanitizes filename from TOC title' do
+      toc_with_special_chars = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL456M',
+        title: 'Book: A Study & Research!',
+        toc_body: '# Chapter 1',
+        status: :verified
+      )
+
+      get :download, params: { id: toc_with_special_chars.id, format: 'plaintext' }
+
+      expect(response.headers['Content-Disposition']).to include('book_a_study_research.txt')
+    end
+
+    it 'handles TOC with no toc_body' do
+      toc_no_body = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL789M',
+        title: 'Empty TOC',
+        status: :empty
+      )
+
+      get :download, params: { id: toc_no_body.id, format: 'plaintext' }
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('Empty TOC')
+      expect(response.body).to include('No table of contents has been transcribed yet')
+    end
+  end
+
   describe 'POST #create_multiple' do
     it 'creates multiple TOCs from book IDs' do
       book_data = { 'title' => 'Test Book' }

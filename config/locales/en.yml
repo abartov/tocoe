@@ -186,6 +186,12 @@ en:
       page_number: "TOC Page %{number}"
       fulltext: "Full Text:"
       browse_scans_link: "Browse Scans"
+      downloads:
+        title: "Download TOC"
+        plaintext: "Plain Text"
+        markdown: "Markdown"
+        json: "JSON"
+        tooltip: "Download this table of contents in different formats"
 
       pages_marked_alert:
         title: "Ready to transcribe:"
@@ -422,6 +428,12 @@ en:
       back_to_browse: "Back to Browse"
       contribute_banner: "Found an error? Sign in to help improve this TOC"
       sign_in_link: "Sign in"
+      downloads:
+        title: "Download TOC"
+        plaintext: "Plain Text"
+        markdown: "Markdown"
+        json: "JSON"
+        tooltip: "Download this table of contents in different formats"
 
   aboutnesses:
     index:

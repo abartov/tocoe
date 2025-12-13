@@ -14,6 +14,7 @@ Rails.application.routes.draw do
     end
     member do
       get :browse_scans
+      get :download
       post :mark_pages
       post :mark_transcribed
       post :verify
@@ -52,6 +53,7 @@ Rails.application.routes.draw do
   # Public (unauthenticated) verified TOCs
   get 'browse', to: 'public_tocs#index', as: :browse_tocs
   get 'browse/:id', to: 'public_tocs#show', as: :browse_toc
+  get 'browse/:id/download', to: 'public_tocs#download', as: :download_browse
 
   # Locale switching
   get 'locale/:locale', to: 'application#switch_locale', as: :locale

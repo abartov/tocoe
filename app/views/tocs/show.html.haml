@@ -21,6 +21,14 @@
   - unless @toc.no_explicit_toc || @is_gutenberg
     = link_to t('tocs.show.browse_scans_link'), browse_scans_toc_path(@toc), class: 'btn btn-info'
 
+.mb-3{style: 'padding: 1rem; background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px;'}
+  %p{style: 'margin-bottom: 0.75rem; font-weight: 600; color: #2d3748;'}
+    = t('tocs.show.downloads.title')
+  .btn-group{role: 'group', 'aria-label': t('tocs.show.downloads.title')}
+    = link_to t('tocs.show.downloads.plaintext'), download_toc_path(@toc, format: 'plaintext'), class: 'btn btn-outline-primary', title: t('tocs.show.downloads.tooltip')
+    = link_to t('tocs.show.downloads.markdown'), download_toc_path(@toc, format: 'markdown'), class: 'btn btn-outline-primary', title: t('tocs.show.downloads.tooltip')
+    = link_to t('tocs.show.downloads.json'), download_toc_path(@toc, format: 'json'), class: 'btn btn-outline-primary', title: t('tocs.show.downloads.tooltip')
+
 - if @toc.pages_marked?
   .alert.alert-info.status-alert{style: 'border-left: 4px solid #3182ce; background: #ebf8ff; border-radius: 8px; padding: 1.5rem;'}
     .d-flex.align-items-start

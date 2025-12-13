@@ -5,7 +5,7 @@ require 'rest-client'
 # Tables of Contents controller
 # rubocop:disable ClassLength
 class TocsController < ApplicationController
-  before_action :set_toc, only: [:show, :edit, :update, :destroy, :browse_scans, :mark_pages, :mark_transcribed, :verify, :auto_match_subjects]
+  before_action :set_toc, only: [:show, :download, :edit, :update, :destroy, :browse_scans, :mark_pages, :mark_transcribed, :verify, :auto_match_subjects]
 
   # GET /tocs
   # GET /tocs.json
@@ -64,6 +64,39 @@ class TocsController < ApplicationController
     else
       @is_gutenberg = false
     end
+  end
+
+  # GET /tocs/1/download?format=plaintext|markdown|json
+  def download
+    format = params[:format] || 'plaintext'
+
+    # Generate filename from TOC title (sanitized)
+    base_filename = @toc.title.parameterize(separator: '_')
+
+    case format
+    when 'plaintext'
+      content = helpers.export_toc_as_plaintext(@toc)
+      filename = "#{base_filename}.txt"
+      content_type = 'text/plain'
+    when 'markdown'
+      content = helpers.export_toc_as_markdown(@toc)
+      filename = "#{base_filename}.md"
+      content_type = 'text/markdown'
+    when 'json'
+      content = helpers.export_toc_as_json(@toc)
+      filename = "#{base_filename}.json"
+      content_type = 'application/json'
+    else
+      # Default to plaintext if unknown format
+      content = helpers.export_toc_as_plaintext(@toc)
+      filename = "#{base_filename}.txt"
+      content_type = 'text/plain'
+    end
+
+    send_data content,
+              filename: filename,
+              type: content_type,
+              disposition: 'attachment'
   end
 
   # GET /tocs/new

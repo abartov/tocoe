@@ -43,11 +43,21 @@
   .form-row{style: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;'}
     .form-group
       = f.label :viaf_id, t('people.form.viaf_id_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
-      = f.number_field :viaf_id, placeholder: t('people.form.viaf_id_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;'
+      .search-field-wrapper{style: 'display: flex; gap: 0.5rem; align-items: start;'}
+        = f.number_field :viaf_id, placeholder: t('people.form.viaf_id_placeholder'), style: 'flex: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;', id: 'person_viaf_id'
+        %button.btn.btn-sm.btn-default{type: 'button', id: 'search-viaf-button', style: 'white-space: nowrap;'}
+          %span.glyphicon.glyphicon-search
+          = t('people.form.search_button')
+      #viaf-search-results{style: 'margin-top: 0.5rem;'}
 
     .form-group
       = f.label :wikidata_q, t('people.form.wikidata_q_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
-      = f.number_field :wikidata_q, placeholder: t('people.form.wikidata_q_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;'
+      .search-field-wrapper{style: 'display: flex; gap: 0.5rem; align-items: start;'}
+        = f.number_field :wikidata_q, placeholder: t('people.form.wikidata_q_placeholder'), style: 'flex: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;', id: 'person_wikidata_q'
+        %button.btn.btn-sm.btn-default{type: 'button', id: 'search-wikidata-button', style: 'white-space: nowrap;'}
+          %span.glyphicon.glyphicon-search
+          = t('people.form.search_button')
+      #wikidata-search-results{style: 'margin-top: 0.5rem;'}
 
   .form-row{style: 'display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;'}
     .form-group
@@ -56,7 +66,12 @@
 
     .form-group
       = f.label :loc_id, t('people.form.loc_id_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
-      = f.text_field :loc_id, placeholder: t('people.form.loc_id_placeholder'), style: 'width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;'
+      .search-field-wrapper{style: 'display: flex; gap: 0.5rem; align-items: start;'}
+        = f.text_field :loc_id, placeholder: t('people.form.loc_id_placeholder'), style: 'flex: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 4px; font-size: 1rem;', id: 'person_loc_id'
+        %button.btn.btn-sm.btn-default{type: 'button', id: 'search-loc-button', style: 'white-space: nowrap;'}
+          %span.glyphicon.glyphicon-search
+          = t('people.form.search_button')
+      #loc-search-results{style: 'margin-top: 0.5rem;'}
 
   .form-group{style: 'margin-bottom: 2rem;'}
     = f.label :gutenberg_id, t('people.form.gutenberg_id_label'), style: 'display: block; font-weight: 600; color: #4a5568; margin-bottom: 0.5rem;'
@@ -65,3 +80,121 @@
   .form-actions{style: 'display: flex; gap: 0.5rem; border-top: 2px solid #e2e8f0; padding-top: 1.5rem;'}
     = f.submit t('common.actions.save'), class: 'btn btn-primary'
     = link_to t('common.actions.cancel'), people_path, class: 'btn btn-secondary'
+
+:javascript
+  $(document).on('turbolinks:load', function() {
+    // Shared function to perform authority search
+    function performAuthoritySearch(authority, query, resultsSelector, fieldId) {
+      if (!query || query.trim() === '') {
+        alert('#{t('people.form.search_alert_empty')}');
+        return;
+      }
+
+      var searchUrl;
+      if (authority === 'viaf') {
+        searchUrl = '#{search_viaf_people_path}';
+      } else if (authority === 'wikidata') {
+        searchUrl = '#{search_wikidata_people_path}';
+      } else if (authority === 'loc') {
+        searchUrl = '#{search_loc_people_path}';
+      }
+
+      $.ajax({
+        url: searchUrl,
+        type: 'POST',
+        data: { query: query },
+        dataType: 'json',
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+          $(resultsSelector).html('<div style="padding: 1rem; text-align: center;"><span>#{t('common.loading')}</span></div>');
+        },
+        success: function(data) {
+          if (data.length === 0) {
+            $(resultsSelector).html('<p class="text-muted" style="padding: 0.5rem;">#{t('people.form.search_no_results')}</p>');
+          } else {
+            renderResults(data, resultsSelector, fieldId, authority);
+          }
+        },
+        error: function() {
+          $(resultsSelector).html('<p class="text-danger" style="padding: 0.5rem;">#{t('people.form.search_error')}</p>');
+        }
+      });
+    }
+
+    // Render search results
+    function renderResults(data, resultsSelector, fieldId, authority) {
+      var html = '<div class="list-group" style="max-height: 300px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 4px;">';
+      $.each(data, function(index, result) {
+        var idValue, label;
+        if (authority === 'viaf') {
+          idValue = result.viaf_id;
+          label = result.label;
+        } else if (authority === 'wikidata') {
+          idValue = result.wikidata_q;
+          label = result.label;
+        } else if (authority === 'loc') {
+          idValue = result.loc_id;
+          label = result.label;
+        }
+
+        html += '<a href="#" class="list-group-item list-group-item-action authority-result-item" data-id="' + idValue + '" data-field="' + fieldId + '" style="cursor: pointer;">';
+        html += '<h4 class="list-group-item-heading" style="font-size: 0.95rem; margin-bottom: 0.25rem; font-weight: 600;">' + escapeHtml(label) + '</h4>';
+        html += '<p class="list-group-item-text" style="font-size: 0.85rem; color: #666; margin: 0;"><small>ID: ' + escapeHtml(String(idValue)) + '</small></p>';
+        html += '</a>';
+      });
+      html += '</div>';
+      $(resultsSelector).html(html);
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+      var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+
+    // VIAF search
+    $('#search-viaf-button').click(function(e) {
+      e.preventDefault();
+      var query = $('#person_name').val();
+      performAuthoritySearch('viaf', query, '#viaf-search-results', 'person_viaf_id');
+    });
+
+    // Wikidata search
+    $('#search-wikidata-button').click(function(e) {
+      e.preventDefault();
+      var query = $('#person_name').val();
+      performAuthoritySearch('wikidata', query, '#wikidata-search-results', 'person_wikidata_q');
+    });
+
+    // Library of Congress search
+    $('#search-loc-button').click(function(e) {
+      e.preventDefault();
+      var query = $('#person_name').val();
+      performAuthoritySearch('loc', query, '#loc-search-results', 'person_loc_id');
+    });
+
+    // Handle result selection (event delegation for dynamically created elements)
+    $(document).on('click', '.authority-result-item', function(e) {
+      e.preventDefault();
+      var id = $(this).data('id');
+      var fieldId = $(this).data('field');
+
+      $('#' + fieldId).val(id);
+
+      // Visual feedback
+      $(this).closest('.list-group').find('.authority-result-item').removeClass('active');
+      $(this).addClass('active');
+
+      // Clear results after a delay
+      var resultsContainer = $(this).closest('[id$="-search-results"]');
+      setTimeout(function() {
+        resultsContainer.html('');
+      }, 1000);
+    });
+  });

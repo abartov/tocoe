@@ -50,7 +50,13 @@ Rails.application.routes.draw do
   get 'help', to: 'help#index'
 
   # People (authors/creators) management
-  resources :people, only: [:index, :show, :new, :create, :edit, :update]
+  resources :people, only: [:index, :show, :new, :create, :edit, :update] do
+    collection do
+      post :search_viaf
+      post :search_wikidata
+      post :search_loc
+    end
+  end
 
   root 'home#index'
 end

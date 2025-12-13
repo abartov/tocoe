@@ -577,6 +577,10 @@ en:
       loc_id_placeholder: "e.g., n79021164"
       gutenberg_id_label: "Project Gutenberg Author ID"
       gutenberg_id_placeholder: "e.g., 4527"
+      search_button: "Search"
+      search_alert_empty: "Please enter a name to search"
+      search_no_results: "No results found"
+      search_error: "Error performing search. Please try again."
     new:
       title: "New Person"
     edit:

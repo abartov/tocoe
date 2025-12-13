@@ -272,10 +272,8 @@ module TocsHelper
         entries: entries,
         metadata: {
           created_at: toc.created_at,
-          updated_at: toc.updated_at,
-          contributor: toc.contributor&.email,
-          reviewer: toc.reviewer&.email
-        }.compact
+          updated_at: toc.updated_at
+        }
       }
     }.to_json
   end

@@ -4,8 +4,8 @@ class CreateTocs < ActiveRecord::Migration[7.1]
       t.string :book_uri
       t.text :toc_body
       t.string :status
-      t.integer :contributor_id
-      t.integer :reviewer_id
+      t.bigint :contributor_id
+      t.bigint :reviewer_id
       t.text :comments
 
       t.timestamps null: false

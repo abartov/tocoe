@@ -1,7 +1,7 @@
 class AddVerificationToAboutnesses < ActiveRecord::Migration[7.2]
   def change
-    add_column :aboutnesses, :contributor_id, :integer
-    add_column :aboutnesses, :reviewer_id, :integer
+    add_column :aboutnesses, :contributor_id, :bigint
+    add_column :aboutnesses, :reviewer_id, :bigint
     add_column :aboutnesses, :status, :string, default: 'verified'
 
     add_index :aboutnesses, :contributor_id

@@ -1,8 +1,8 @@
 class CreateEmbodiments < ActiveRecord::Migration[7.1]
   def change
     create_table :embodiments do |t|
-      t.integer :expression_id
-      t.integer :manifestation_id
+      t.bigint :expression_id
+      t.bigint :manifestation_id
       t.string :reltype
 
       t.timestamps null: false

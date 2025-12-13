@@ -1455,4 +1455,275 @@ RSpec.describe TocsController, type: :controller do
       end
     end
   end
+
+  describe '#parse_toc_authors' do
+    it 'parses single author' do
+      title, authors = controller.send(:parse_toc_authors, 'Title || Author')
+      expect(title).to eq('Title')
+      expect(authors).to eq(['Author'])
+    end
+
+    it 'parses multiple authors separated by semicolon' do
+      title, authors = controller.send(:parse_toc_authors, 'Title || Author1; Author2')
+      expect(title).to eq('Title')
+      expect(authors).to eq(['Author1', 'Author2'])
+    end
+
+    it 'handles three or more authors' do
+      title, authors = controller.send(:parse_toc_authors, 'Title || Author1; Author2; Author3')
+      expect(title).to eq('Title')
+      expect(authors).to eq(['Author1', 'Author2', 'Author3'])
+    end
+
+    it 'handles no author' do
+      title, authors = controller.send(:parse_toc_authors, 'Title')
+      expect(title).to eq('Title')
+      expect(authors).to eq([])
+    end
+
+    it 'strips whitespace from title and author names' do
+      title, authors = controller.send(:parse_toc_authors, '  Title  ||  Author1  ;  Author2  ')
+      expect(title).to eq('Title')
+      expect(authors).to eq(['Author1', 'Author2'])
+    end
+
+    it 'filters out empty author names' do
+      title, authors = controller.send(:parse_toc_authors, 'Title || Author1; ; Author2')
+      expect(title).to eq('Title')
+      expect(authors).to eq(['Author1', 'Author2'])
+    end
+
+    it 'handles empty author string after ||' do
+      title, authors = controller.send(:parse_toc_authors, 'Title || ')
+      expect(title).to eq('Title')
+      expect(authors).to eq([])
+    end
+  end
+
+  describe '#find_or_create_persons' do
+    it 'creates new Person records for names that do not exist' do
+      expect {
+        persons = controller.send(:find_or_create_persons, ['New Author'])
+        expect(persons.length).to eq(1)
+        expect(persons.first.name).to eq('New Author')
+      }.to change(Person, :count).by(1)
+    end
+
+    it 'reuses existing Person records for names that already exist' do
+      existing_person = Person.create!(name: 'Existing Author')
+
+      expect {
+        persons = controller.send(:find_or_create_persons, ['Existing Author'])
+        expect(persons.length).to eq(1)
+        expect(persons.first).to eq(existing_person)
+      }.not_to change(Person, :count)
+    end
+
+    it 'handles mix of new and existing authors' do
+      existing_person = Person.create!(name: 'Existing')
+
+      expect {
+        persons = controller.send(:find_or_create_persons, ['Existing', 'New'])
+        expect(persons.length).to eq(2)
+        expect(persons.first).to eq(existing_person)
+        expect(persons.last.name).to eq('New')
+      }.to change(Person, :count).by(1)
+    end
+
+    it 'returns empty array for empty author names' do
+      expect {
+        persons = controller.send(:find_or_create_persons, [])
+        expect(persons).to eq([])
+      }.not_to change(Person, :count)
+    end
+  end
+
+  describe '#link_authors_to_work' do
+    it 'creates PeopleWork associations' do
+      work = Work.create!(title: 'Test Work')
+      person = Person.create!(name: 'Author')
+
+      expect {
+        controller.send(:link_authors_to_work, work, [person])
+      }.to change(PeopleWork, :count).by(1)
+
+      expect(work.creators).to include(person)
+    end
+
+    it 'links multiple persons to a work' do
+      work = Work.create!(title: 'Test Work')
+      person1 = Person.create!(name: 'Author1')
+      person2 = Person.create!(name: 'Author2')
+
+      expect {
+        controller.send(:link_authors_to_work, work, [person1, person2])
+      }.to change(PeopleWork, :count).by(2)
+
+      expect(work.creators).to include(person1, person2)
+    end
+
+    it 'handles empty persons array gracefully' do
+      work = Work.create!(title: 'Test Work')
+
+      expect {
+        controller.send(:link_authors_to_work, work, [])
+      }.not_to change(PeopleWork, :count)
+    end
+  end
+
+  describe '#process_toc with author associations' do
+    let(:test_toc) { Toc.create!(book_uri: 'http://example.com/book', title: 'Test Collection') }
+
+    before do
+      controller.instance_variable_set(:@toc, test_toc)
+    end
+
+    context 'with explicit authors in TOC markdown' do
+      it 'creates Person records and links to Works for single author' do
+        markdown = "# Work 1 || Shakespeare"
+
+        expect {
+          controller.send(:process_toc, markdown)
+        }.to change(Person, :count).by(1).and change(PeopleWork, :count).by(1)
+
+        work = Work.find_by(title: 'Work 1')
+        expect(work).not_to be_nil
+        expect(work.creators.map(&:name)).to eq(['Shakespeare'])
+      end
+
+      it 'creates Person records and links to Works for multiple authors' do
+        markdown = "# Work 1 || Author1; Author2"
+
+        expect {
+          controller.send(:process_toc, markdown)
+        }.to change(Person, :count).by(2).and change(PeopleWork, :count).by(2)
+
+        work = Work.find_by(title: 'Work 1')
+        expect(work.creators.map(&:name)).to match_array(['Author1', 'Author2'])
+      end
+
+      it 'stores clean titles without author suffix' do
+        markdown = "# Work Title || Author Name"
+
+        controller.send(:process_toc, markdown)
+
+        work = Work.find_by(title: 'Work Title')
+        expect(work).not_to be_nil
+        expect(work.title).to eq('Work Title')
+        expect(work.title).not_to include('||')
+      end
+
+      it 'handles multiple works with different authors' do
+        markdown = "# Work 1 || Author1\n# Work 2 || Author2"
+
+        expect {
+          controller.send(:process_toc, markdown)
+        }.to change(Person, :count).by(2).and change(Work, :count).by(3) # 2 works + 1 aggregating
+
+        work1 = Work.find_by(title: 'Work 1')
+        work2 = Work.find_by(title: 'Work 2')
+        expect(work1.creators.map(&:name)).to eq(['Author1'])
+        expect(work2.creators.map(&:name)).to eq(['Author2'])
+      end
+
+      it 'reuses existing Person records with same name' do
+        existing_person = Person.create!(name: 'Shared Author')
+        markdown = "# Work 1 || Shared Author\n# Work 2 || Shared Author"
+
+        expect {
+          controller.send(:process_toc, markdown)
+        }.to change(Person, :count).by(0).and change(PeopleWork, :count).by(2)
+
+        work1 = Work.find_by(title: 'Work 1')
+        work2 = Work.find_by(title: 'Work 2')
+        expect(work1.creators.first).to eq(existing_person)
+        expect(work2.creators.first).to eq(existing_person)
+      end
+    end
+
+    context 'with fallback to book authors' do
+      let(:book_author) { Person.create!(name: 'Book Author') }
+
+      before do
+        test_toc.authors << book_author
+      end
+
+      it 'links book authors to Works without explicit authors' do
+        markdown = "# Work 1\n# Work 2"
+
+        expect {
+          controller.send(:process_toc, markdown)
+        }.to change(PeopleWork, :count).by(2)
+
+        work1 = Work.find_by(title: 'Work 1')
+        work2 = Work.find_by(title: 'Work 2')
+        expect(work1.creators).to include(book_author)
+        expect(work2.creators).to include(book_author)
+      end
+
+      it 'uses explicit authors when present, book authors otherwise' do
+        markdown = "# Work 1 || Explicit Author\n# Work 2"
+
+        expect {
+          controller.send(:process_toc, markdown)
+        }.to change(Person, :count).by(1)
+
+        work1 = Work.find_by(title: 'Work 1')
+        work2 = Work.find_by(title: 'Work 2')
+        expect(work1.creators.map(&:name)).to eq(['Explicit Author'])
+        expect(work2.creators).to include(book_author)
+      end
+    end
+
+    context 'with section headings' do
+      it 'skips section headings ending with /' do
+        markdown = "# Section Name /\n# Work 1 || Author"
+
+        controller.send(:process_toc, markdown)
+
+        # Should not create a Work for the section heading
+        expect(Work.where(title: 'Section Name').count).to eq(0)
+        expect(Work.where(title: 'Section Name /').count).to eq(0)
+
+        # Should create Work for the actual entry
+        work = Work.find_by(title: 'Work 1')
+        expect(work).not_to be_nil
+        expect(work.creators.map(&:name)).to eq(['Author'])
+      end
+
+      it 'handles multiple section headings' do
+        markdown = "# Section 1 /\n# Work 1 || Author1\n# Section 2 /\n# Work 2 || Author2"
+
+        controller.send(:process_toc, markdown)
+
+        expect(Work.where('title LIKE ?', '%Section%').count).to eq(0)
+        expect(Work.where(title: ['Work 1', 'Work 2']).count).to eq(2)
+      end
+    end
+
+    context 'with nested works' do
+      it 'assigns authors independently to nested works' do
+        markdown = "# Work 1 || Author1\n## Nested Work || Author2"
+
+        controller.send(:process_toc, markdown)
+
+        work1 = Work.find_by(title: 'Work 1')
+        nested_work = Work.find_by(title: 'Nested Work')
+        expect(work1.creators.map(&:name)).to eq(['Author1'])
+        expect(nested_work.creators.map(&:name)).to eq(['Author2'])
+      end
+    end
+
+    context 'with no authors' do
+      it 'creates Work with no creators when no explicit author and no book authors' do
+        markdown = "# Work 1"
+
+        controller.send(:process_toc, markdown)
+
+        work = Work.find_by(title: 'Work 1')
+        expect(work).not_to be_nil
+        expect(work.creators).to be_empty
+      end
+    end
+  end
 end

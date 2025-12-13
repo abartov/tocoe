@@ -592,9 +592,26 @@ class TocsController < ApplicationController
       # TODO: handle metadata lines
       next unless line.strip =~ /^#+/ # not expecting any other kind of line
       new_level = $&.length
-      title = $'.strip
+      line_content = $'.strip
+      next if line_content.end_with?('/') # Skip section headings
+
+      # Parse title and authors from TOC line
+      title, author_names = parse_toc_authors(line_content)
+
+      # Create Work with clean title (no author string)
       w = Work.new(title: title) # TODO: add other details if specified in metadata
       w.save!
+
+      # Create/find Person records and link to Work
+      if author_names.any?
+        # Explicit authors in TOC line
+        persons = find_or_create_persons(author_names)
+        link_authors_to_work(w, persons)
+      elsif @toc.authors.present?
+        # Fallback: use book's principal authors
+        link_authors_to_work(w, @toc.authors)
+      end
+
       e = Expression.new(title: title) # TODO: likewise
       e.save!
       w.expressions << e
@@ -771,6 +788,33 @@ class TocsController < ApplicationController
     return nil if subjects.empty?
 
     subjects.join("\n")
+  end
+
+  # Parse author names from TOC line
+  # Returns: [title_without_authors, [author_name1, author_name2, ...]]
+  def parse_toc_authors(line)
+    if line.include?('||')
+      title, author_string = line.split('||', 2)
+      author_names = author_string.split(';').map(&:strip).reject(&:empty?)
+      [title.strip, author_names]
+    else
+      [line, []]
+    end
+  end
+
+  # Find or create Person records for author names
+  # Returns: [Person, Person, ...]
+  def find_or_create_persons(author_names)
+    author_names.map do |name|
+      Person.find_by(name: name) || Person.create!(name: name)
+    end
+  end
+
+  # Link Person records to Work as creators
+  def link_authors_to_work(work, persons)
+    persons.each do |person|
+      PeopleWork.create!(person: person, work: work)
+    end
   end
 end
 

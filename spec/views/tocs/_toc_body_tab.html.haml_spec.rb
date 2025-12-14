@@ -140,7 +140,10 @@ RSpec.describe "tocs/_toc_body_tab.html.haml", type: :view do
     end
 
     it 'displays fulltext iframe in the reference panel' do
-      expect(rendered).to have_selector('.reference-fulltext iframe[src="https://www.gutenberg.org/files/1342/1342-h/1342-h.htm"]', visible: :all)
+      # The iframe uses gutenberg_proxy_tocs_path instead of direct URL
+      expect(rendered).to have_selector('.reference-fulltext iframe', visible: :all)
+      # Verify the iframe src contains the proxy path with the fulltext URL as a parameter
+      expect(rendered).to match(/iframe.*src="\/tocs\/gutenberg_proxy\?url=https%3A%2F%2Fwww\.gutenberg\.org%2Ffiles%2F1342%2F1342-h%2F1342-h\.htm"/)
     end
 
     it 'does not display scan thumbnails for Gutenberg books' do

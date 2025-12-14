@@ -7,6 +7,88 @@ RSpec.describe SubjectHeadings::WikidataClient do
   describe '#search' do
     context 'with a valid query' do
       it 'returns Wikidata entity results from the API' do
+        # Stub the search API response - use query hash matching for more reliable stub
+        stub_request(:get, "https://www.wikidata.org/w/api.php")
+          .with(query: hash_including({
+            'action' => 'wbsearchentities',
+            'search' => 'Douglas Adams'
+          }))
+          .to_return(
+            status: 200,
+            body: {
+              search: [
+                { id: 'Q42', label: 'Douglas Adams', description: 'English writer and humorist' }
+              ],
+              'search-continue' => 1
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
+        # Stub the entity details API response
+        stub_request(:get, "https://www.wikidata.org/w/api.php")
+          .with(query: hash_including({
+            'action' => 'wbgetentities',
+            'ids' => 'Q42',
+            'props' => 'claims'
+          }))
+          .to_return(
+            status: 200,
+            body: {
+              entities: {
+                'Q42' => {
+                  claims: {
+                    'P31' => [
+                      { mainsnak: { datavalue: { value: { id: 'Q5' } } } }
+                    ]
+                  }
+                }
+              }
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
+        # Stub the labels API response
+        stub_request(:get, "https://www.wikidata.org/w/api.php")
+          .with(query: hash_including({
+            'action' => 'wbgetentities',
+            'ids' => 'Q5',
+            'props' => 'labels'
+          }))
+          .to_return(
+            status: 200,
+            body: {
+              entities: {
+                'Q5' => {
+                  labels: {
+                    en: { value: 'human' }
+                  }
+                }
+              }
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
+        # Stub the descriptions API response
+        stub_request(:get, "https://www.wikidata.org/w/api.php")
+          .with(query: hash_including({
+            'action' => 'wbgetentities',
+            'ids' => 'Q42',
+            'props' => 'descriptions'
+          }))
+          .to_return(
+            status: 200,
+            body: {
+              entities: {
+                'Q42' => {
+                  descriptions: {
+                    en: { value: 'English writer and humorist' }
+                  }
+                }
+              }
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
         response = client.search('Douglas Adams')
 
         expect(response).to be_a(Hash)
@@ -31,6 +113,87 @@ RSpec.describe SubjectHeadings::WikidataClient do
       end
 
       it 'parses the API response with instance_of types' do
+        # Stub the search API response
+        stub_request(:get, "https://www.wikidata.org/w/api.php")
+          .with(query: hash_including({
+            'action' => 'wbsearchentities',
+            'search' => 'mathematics'
+          }))
+          .to_return(
+            status: 200,
+            body: {
+              search: [
+                { id: 'Q395', label: 'mathematics', description: 'field of study' }
+              ]
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
+        # Stub the entity details API response
+        stub_request(:get, "https://www.wikidata.org/w/api.php")
+          .with(query: hash_including({
+            'action' => 'wbgetentities',
+            'ids' => 'Q395',
+            'props' => 'claims'
+          }))
+          .to_return(
+            status: 200,
+            body: {
+              entities: {
+                'Q395' => {
+                  claims: {
+                    'P31' => [
+                      { mainsnak: { datavalue: { value: { id: 'Q28598684' } } } }
+                    ]
+                  }
+                }
+              }
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
+        # Stub the labels API response
+        stub_request(:get, "https://www.wikidata.org/w/api.php")
+          .with(query: hash_including({
+            'action' => 'wbgetentities',
+            'ids' => 'Q28598684',
+            'props' => 'labels'
+          }))
+          .to_return(
+            status: 200,
+            body: {
+              entities: {
+                'Q28598684' => {
+                  labels: {
+                    en: { value: 'academic discipline' }
+                  }
+                }
+              }
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
+        # Stub the descriptions API response
+        stub_request(:get, "https://www.wikidata.org/w/api.php")
+          .with(query: hash_including({
+            'action' => 'wbgetentities',
+            'ids' => 'Q395',
+            'props' => 'descriptions'
+          }))
+          .to_return(
+            status: 200,
+            body: {
+              entities: {
+                'Q395' => {
+                  descriptions: {
+                    en: { value: 'field of study' }
+                  }
+                }
+              }
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
         response = client.search('mathematics')
 
         expect(response[:results]).to be_an(Array)
@@ -86,6 +249,29 @@ RSpec.describe SubjectHeadings::WikidataClient do
     context 'with a valid entity that has P244' do
       it 'returns the Library of Congress Authority ID' do
         # Q395 (mathematics) has P244: sh85082139
+        # Stub the entity details API response with P244 claim
+        stub_request(:get, "https://www.wikidata.org/w/api.php")
+          .with(query: hash_including({
+            'action' => 'wbgetentities',
+            'ids' => 'Q395',
+            'props' => 'claims'
+          }))
+          .to_return(
+            status: 200,
+            body: {
+              entities: {
+                'Q395' => {
+                  claims: {
+                    'P244' => [
+                      { mainsnak: { datavalue: { value: 'sh85082139' } } }
+                    ]
+                  }
+                }
+              }
+            }.to_json,
+            headers: { 'Content-Type' => 'application/json' }
+          )
+
         lc_id = client.get_library_of_congress_id('Q395')
         expect(lc_id).to eq('sh85082139')
       end

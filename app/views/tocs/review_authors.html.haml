@@ -47,7 +47,7 @@
                         - if role == :translator
                           - existing_match = work.expressions.first&.realizers&.find_by(name: author_name)
                         - else
-                          - existing_match = work.people.find_by(name: author_name)
+                          - existing_match = work.creators.find_by(name: author_name)
 
                         - if existing_match
                           %span.badge.badge-success
@@ -83,7 +83,7 @@
                             = t('tocs.review_authors.role_author')
 
                         .match-actions
-                          - existing_match = work.people.find_by(id: toc_author.id)
+                          - existing_match = work.creators.find_by(id: toc_author.id)
                           - if existing_match
                             %span.badge.badge-success
                               = t('tocs.review_authors.matched')

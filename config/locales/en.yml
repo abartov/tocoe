@@ -669,3 +669,36 @@ en:
       title: "New Person"
     edit:
       title: "Edit Person"
+
+  # Person Matcher component
+  person_matcher:
+    title: "Match Person: %{name}"
+    searching_for: "Searching for:"
+    refine_search: "Refine Search"
+    clear_all: "Clear All"
+    results_count: "results"
+    show_more_details: "Show more details"
+    hide_details: "Hide details"
+    match: "Match!"
+    create_new_person: "Create New Person"
+    sources:
+      database: "Our Database"
+      viaf: "VIAF"
+      wikidata: "Wikidata"
+      loc: "Library of Congress"
+    badges:
+      likely_in_context: "Likely in context"
+      in_db: "In DB"
+    no_results:
+      title: "No Results Found"
+      message: "No matches found for '%{query}'. Try refining your search or create a new person manually."
+    loading:
+      searching: "Searching across all sources..."
+      loading_details: "Loading details..."
+    success:
+      matched: "Successfully matched!"
+      person_associated: "Person has been associated with this %{type}."
+    errors:
+      search_failed: "Search failed. Please try again."
+      match_failed: "Failed to create association. Please try again."
+      details_failed: "Failed to load details."

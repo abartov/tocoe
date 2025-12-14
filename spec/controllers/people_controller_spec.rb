@@ -235,4 +235,199 @@ RSpec.describe PeopleController, type: :controller do
       expect(response).to redirect_to(new_user_session_path)
     end
   end
+
+  # Tests for person matcher endpoints
+  describe 'POST #search_all' do
+    let(:search_results) do
+      {
+        database: [{ id: 1, label: 'Douglas Adams', in_database: true }],
+        viaf: [{ id: 113230702, label: 'Adams, Douglas, 1952-2001', in_database: false }],
+        wikidata: [{ id: 42, label: 'Douglas Adams', in_database: false }],
+        loc: [{ id: 'n80076765', label: 'Adams, Douglas, 1952-2001', in_database: false }]
+      }
+    end
+
+    before do
+      allow(PersonMatcherService).to receive(:search_all).and_return(search_results)
+    end
+
+    it 'returns results from all sources' do
+      post :search_all, params: { query: 'Douglas Adams' }, format: :json
+
+      expect(response).to have_http_status(:success)
+      json = JSON.parse(response.body, symbolize_names: true)
+
+      expect(json).to have_key(:database)
+      expect(json).to have_key(:viaf)
+      expect(json).to have_key(:wikidata)
+      expect(json).to have_key(:loc)
+    end
+
+    it 'passes query and candidates to service' do
+      candidates = [{ source: 'viaf', id: '113230702', label: 'Adams, Douglas' }]
+
+      # Rails wraps params in ActionController::Parameters, so we need to match that
+      expect(PersonMatcherService).to receive(:search_all) do |args|
+        expect(args[:query]).to eq('Douglas Adams')
+        expect(args[:candidates].size).to eq(1)
+        expect(args[:candidates].first).to be_a(ActionController::Parameters)
+        search_results
+      end
+
+      post :search_all, params: { query: 'Douglas Adams', candidates: candidates }, format: :json
+    end
+
+    it 'handles empty candidates array' do
+      expect(PersonMatcherService).to receive(:search_all).with(
+        query: 'Douglas Adams',
+        candidates: []
+      ).and_return(search_results)
+
+      post :search_all, params: { query: 'Douglas Adams' }, format: :json
+    end
+
+    it 'requires authentication' do
+      sign_out user
+      post :search_all, params: { query: 'Douglas Adams' }, format: :json
+      # JSON requests return 401 instead of redirect
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'GET #fetch_details' do
+    let(:details) do
+      {
+        full_name: 'Douglas Noël Adams',
+        dates: '1952-2001',
+        country: 'United Kingdom',
+        authority_ids: { viaf: 113230702, wikidata: 42 }
+      }
+    end
+
+    context 'when details are found' do
+      before do
+        allow(PersonMatcherService).to receive(:fetch_details).and_return(details)
+      end
+
+      it 'returns detailed information' do
+        get :fetch_details, params: { source: 'database', id: 1 }, format: :json
+
+        expect(response).to have_http_status(:success)
+        json = JSON.parse(response.body, symbolize_names: true)
+
+        expect(json[:full_name]).to eq('Douglas Noël Adams')
+        expect(json[:dates]).to eq('1952-2001')
+      end
+
+      it 'passes source and id to service' do
+        expect(PersonMatcherService).to receive(:fetch_details).with(
+          source: 'viaf',
+          id: '113230702'
+        ).and_return(details)
+
+        get :fetch_details, params: { source: 'viaf', id: '113230702' }, format: :json
+      end
+    end
+
+    context 'when details are not found' do
+      before do
+        allow(PersonMatcherService).to receive(:fetch_details).and_return(nil)
+      end
+
+      it 'returns 404 status' do
+        get :fetch_details, params: { source: 'database', id: 999 }, format: :json
+
+        expect(response).to have_http_status(:not_found)
+        json = JSON.parse(response.body, symbolize_names: true)
+        expect(json[:error]).to eq('Details not found')
+      end
+    end
+
+    it 'requires authentication' do
+      sign_out user
+      get :fetch_details, params: { source: 'database', id: 1 }, format: :json
+      # JSON requests return 401 instead of redirect
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  describe 'POST #match' do
+    let(:toc) { Toc.create!(book_uri: 'test_uri', status: 'empty') }
+
+    context 'when matching succeeds' do
+      before do
+        allow(PersonMatcherService).to receive(:match).and_return(
+          { success: true, person: person }
+        )
+      end
+
+      it 'returns success response' do
+        post :match, params: {
+          target_type: 'Toc',
+          target_id: toc.id,
+          source: 'database',
+          external_id: person.id,
+          person_id: person.id
+        }, format: :json
+
+        expect(response).to have_http_status(:success)
+        json = JSON.parse(response.body, symbolize_names: true)
+        expect(json[:success]).to be true
+      end
+
+      it 'passes all parameters to service' do
+        expect(PersonMatcherService).to receive(:match).with(
+          target_type: 'Toc',
+          target_id: toc.id.to_s,
+          source: 'database',
+          external_id: person.id.to_s,
+          person_id: person.id.to_s
+        ).and_return({ success: true, person: person })
+
+        post :match, params: {
+          target_type: 'Toc',
+          target_id: toc.id,
+          source: 'database',
+          external_id: person.id,
+          person_id: person.id
+        }, format: :json
+      end
+    end
+
+    context 'when matching fails' do
+      before do
+        allow(PersonMatcherService).to receive(:match).and_return(
+          { success: false, error: 'Failed to create association' }
+        )
+      end
+
+      it 'returns error response with 422 status' do
+        post :match, params: {
+          target_type: 'Toc',
+          target_id: 999,
+          source: 'database',
+          external_id: person.id,
+          person_id: person.id
+        }, format: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body, symbolize_names: true)
+        expect(json[:success]).to be false
+        expect(json[:error]).to be_present
+      end
+    end
+
+    it 'requires authentication' do
+      sign_out user
+      post :match, params: {
+        target_type: 'Toc',
+        target_id: toc.id,
+        source: 'database',
+        external_id: person.id,
+        person_id: person.id
+      }, format: :json
+      # JSON requests return 401 instead of redirect
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
 end

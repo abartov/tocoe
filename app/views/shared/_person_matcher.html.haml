@@ -1,0 +1,112 @@
+-# Person Matcher Modal
+-# Reusable component for matching people across multiple authority sources
+-#
+-# Usage:
+-#   = render 'shared/person_matcher', target_type: 'Toc', target_id: @toc.id, name_query: 'Douglas Adams', candidates: []
+-#
+-# Parameters:
+-#   target_type: String - 'Toc', 'Work', or 'Expression'
+-#   target_id: Integer - ID of the target object
+-#   name_query: String - Initial name to search for
+-#   candidates: Array<Hash> - Optional candidate identifications [{ source: string, id: string, label: string }]
+
+- target_type ||= nil
+- target_id ||= nil
+- name_query ||= ''
+- candidates ||= []
+
+#person-matcher-modal.modal.fade{tabindex: '-1', role: 'dialog', 'aria-labelledby': 'person-matcher-title', 'aria-hidden': 'true', 'data-target-type': target_type, 'data-target-id': target_id}
+  .modal-dialog.modal-xl{role: 'document'}
+    .modal-content
+      -# Header
+      .modal-header
+        %h2#person-matcher-title.modal-title
+          = t('person_matcher.title', name: name_query)
+        %button.close{type: 'button', 'data-dismiss': 'modal', 'aria-label': t('common.actions.close')}
+          %span{'aria-hidden': 'true'} ×
+
+      -# Search Bar
+      .person-matcher-search-bar
+        %span.search-query
+          = t('person_matcher.searching_for')
+          %strong#person-matcher-query-display= name_query
+        %button.btn.btn-secondary.btn-sm#person-matcher-refine-search{type: 'button'}
+          = t('person_matcher.refine_search')
+        %button.btn.btn-secondary.btn-sm#person-matcher-clear-all{type: 'button'}
+          = t('person_matcher.clear_all')
+
+      -# Results Grid
+      .person-matcher-results-container
+        .person-matcher-loading{style: 'display: none;'}
+          .spinner.spinner-lg
+          %span.loading-text= t('common.loading')
+
+        .person-matcher-results-grid{style: 'display: none;'}
+          -# Column 1: Our Database
+          .person-matcher-column
+            .column-header
+              %h3.column-title
+                = t('person_matcher.sources.database')
+              %p.column-count
+                %span.count-number{data: {source: 'database'}} 0
+                = t('person_matcher.results_count')
+            .column-results{data: {source: 'database'}}
+
+          -# Column 2: VIAF
+          .person-matcher-column
+            .column-header
+              %h3.column-title
+                = t('person_matcher.sources.viaf')
+              %p.column-count
+                %span.count-number{data: {source: 'viaf'}} 0
+                = t('person_matcher.results_count')
+            .column-results{data: {source: 'viaf'}}
+
+          -# Column 3: Wikidata
+          .person-matcher-column
+            .column-header
+              %h3.column-title
+                = t('person_matcher.sources.wikidata')
+              %p.column-count
+                %span.count-number{data: {source: 'wikidata'}} 0
+                = t('person_matcher.results_count')
+            .column-results{data: {source: 'wikidata'}}
+
+          -# Column 4: Library of Congress
+          .person-matcher-column
+            .column-header
+              %h3.column-title
+                = t('person_matcher.sources.loc')
+              %p.column-count
+                %span.count-number{data: {source: 'loc'}} 0
+                = t('person_matcher.results_count')
+            .column-results{data: {source: 'loc'}}
+
+      -# Footer
+      .modal-footer
+        %button.btn.btn-secondary{type: 'button', 'data-dismiss': 'modal'}
+          = t('common.actions.cancel')
+        %button.btn.btn-primary#person-matcher-create-new{type: 'button'}
+          = t('person_matcher.create_new_person')
+
+-# Hidden template for result card (will be cloned by JavaScript)
+%script#person-matcher-result-template{type: 'text/template'}
+  .person-matcher-result-card
+    %h4.result-name
+    .result-badges
+    %p.result-info
+    .result-actions
+      %button.expand-toggle{type: 'button'}
+        = t('person_matcher.show_more_details')
+      %button.match-button.btn.btn-primary.btn-sm{type: 'button'}
+        = t('person_matcher.match')
+    .result-details{style: 'display: none;'}
+
+:javascript
+  // Store initial data for JavaScript to use
+  window.PersonMatcherConfig = {
+    targetType: '#{j target_type}',
+    targetId: #{target_id || 'null'},
+    initialQuery: '#{j name_query}',
+    candidates: #{candidates.to_json}
+  };

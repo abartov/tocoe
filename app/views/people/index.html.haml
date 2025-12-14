@@ -1,7 +1,10 @@
 .filter-bar{style: 'background: #f7fafc; border-bottom: 2px solid #e2e8f0; padding: 1.5rem 2rem; margin: -2rem 0 2rem 0;'}
   .header-row{style: 'display: flex; justify-content: space-between; align-items: center;'}
     %h1{style: 'font-size: 1.8rem; margin: 0; color: #2d3748;'}= t('people.index.title')
-    = link_to t('people.index.new_person'), new_person_path, class: 'btn btn-primary'
+    .actions{style: 'display: flex; gap: 0.5rem;'}
+      %button.btn.btn-secondary#test-person-matcher{type: 'button'}
+        🔍 Test Person Matcher
+      = link_to t('people.index.new_person'), new_person_path, class: 'btn btn-primary'
 
 .people-list{style: 'padding: 0 2rem;'}
   - if @people.any?
@@ -54,3 +57,16 @@
     .empty-state{style: 'text-align: center; padding: 3rem 0; color: #718096;'}
       %p{style: 'font-size: 1.2rem; margin-bottom: 1rem;'} 👥 #{t('people.index.no_people')}
       %p= link_to t('people.index.new_person'), new_person_path, class: 'btn btn-primary'
+
+-# Include the person matcher component
+= render 'shared/person_matcher', target_type: 'Toc', target_id: 1, name_query: 'Douglas Adams', candidates: []
+
+:javascript
+  // Test button to open person matcher
+  $(document).on('turbolinks:load', function() {
+    $('#test-person-matcher').on('click', function() {
+      PersonMatcher.open('Toc', 1, 'Douglas Adams', [
+        { source: 'viaf', id: '113230702', label: 'Adams, Douglas, 1952-2001' }
+      ]);
+    });
+  });

@@ -1,0 +1,368 @@
+// ============================================================================
+// Person Matcher Component Styles
+// ============================================================================
+// Styles for the person matcher modal dialog that allows matching people
+// across multiple authority sources (Database, VIAF, Wikidata, LoC)
+// ============================================================================
+
+@import 'design_system';
+
+// Modal overrides for person matcher
+#person-matcher-modal {
+  .modal-dialog {
+    max-width: 95%;
+    width: 1400px;
+
+    @media (max-width: $breakpoint-mobile) {
+      max-width: 100%;
+      margin: $space-2;
+    }
+  }
+
+  .modal-content {
+    border-radius: $radius-base;
+    box-shadow: $shadow-xl;
+  }
+
+  .modal-header {
+    padding: $space-6;
+    border-bottom: 2px solid $border-light;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .modal-title {
+      font-size: $text-2xl;
+      font-weight: $font-semibold;
+      color: $text-primary;
+      margin: 0;
+    }
+
+    .close {
+      background: none;
+      border: none;
+      font-size: $text-3xl;
+      cursor: pointer;
+      color: $text-secondary;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: $radius-sm;
+      transition: all $transition-fast;
+
+      &:hover {
+        background: $bg-secondary;
+        color: $text-primary;
+      }
+    }
+  }
+
+  .modal-footer {
+    padding: $space-4 $space-6;
+    border-top: 2px solid $border-light;
+    display: flex;
+    justify-content: flex-end;
+    gap: $space-2;
+  }
+}
+
+// Search Bar
+.person-matcher-search-bar {
+  padding: $space-4 $space-6;
+  border-bottom: 1px solid $border-light;
+  display: flex;
+  gap: $space-3;
+  align-items: center;
+  background: $bg-secondary;
+  flex-wrap: wrap;
+
+  .search-query {
+    font-weight: $font-medium;
+    color: $text-secondary;
+    flex: 1;
+    min-width: 200px;
+
+    strong {
+      color: $text-primary;
+    }
+  }
+}
+
+// Results Container
+.person-matcher-results-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space-6;
+  min-height: 500px;
+  position: relative;
+}
+
+// Loading State
+.person-matcher-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $space-20;
+  color: $text-secondary;
+
+  .spinner {
+    margin-bottom: $space-4;
+  }
+
+  .loading-text {
+    font-size: $text-lg;
+  }
+}
+
+// Results Grid
+.person-matcher-results-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $space-4;
+  min-height: 500px;
+
+  @media (max-width: $breakpoint-desktop) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Column
+.person-matcher-column {
+  border: 2px solid $border-light;
+  border-radius: $radius-base;
+  background: $bg-secondary;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+
+  .column-header {
+    padding: $space-4;
+    border-bottom: 2px solid $border-light;
+    background: $bg-primary;
+    border-radius: $radius-base $radius-base 0 0;
+
+    .column-title {
+      font-size: $text-lg;
+      font-weight: $font-semibold;
+      color: $text-primary;
+      margin: 0 0 $space-1 0;
+    }
+
+    .column-count {
+      font-size: $text-sm;
+      color: $text-secondary;
+      margin: 0;
+
+      .count-number {
+        font-weight: $font-semibold;
+      }
+    }
+  }
+
+  .column-results {
+    flex: 1;
+    overflow-y: auto;
+    padding: $space-3;
+    display: flex;
+    flex-direction: column;
+    gap: $space-3;
+  }
+}
+
+// Result Card
+.person-matcher-result-card {
+  background: $bg-primary;
+  border: 2px solid $border-light;
+  border-radius: $radius-base;
+  padding: $space-4;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $primary-600;
+    box-shadow: $shadow-sm;
+  }
+
+  .result-name {
+    font-size: $text-base;
+    font-weight: $font-medium;
+    color: $text-primary;
+    margin: 0 0 $space-2 0;
+  }
+
+  .result-badges {
+    display: flex;
+    gap: $space-2;
+    margin-bottom: $space-2;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    padding: $space-1 $space-2;
+    border-radius: $radius-sm;
+    font-size: $text-xs;
+    font-weight: $font-medium;
+    display: inline-flex;
+    align-items: center;
+    gap: $space-1;
+    white-space: nowrap;
+  }
+
+  .badge-candidate {
+    background: $warning-100;
+    color: $warning-700;
+  }
+
+  .badge-in-db {
+    background: $info-100;
+    color: $info-700;
+  }
+
+  .result-info {
+    font-size: $text-sm;
+    color: $text-secondary;
+    margin-bottom: $space-3;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: $space-2;
+    align-items: center;
+  }
+
+  .expand-toggle {
+    background: none;
+    border: none;
+    color: $primary-600;
+    font-size: $text-sm;
+    cursor: pointer;
+    padding: $space-1 0;
+    font-weight: $font-medium;
+    flex: 1;
+    text-align: left;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $primary-700;
+    }
+
+    &::before {
+      content: '▾ ';
+      display: inline-block;
+      transition: transform $transition-base;
+    }
+
+    &.expanded::before {
+      transform: rotate(-180deg);
+    }
+  }
+
+  .match-button {
+    padding: $space-2 $space-6;
+    background: $primary-600;
+    color: $text-inverse;
+    border: none;
+    border-radius: $radius-sm;
+    font-weight: $font-semibold;
+    cursor: pointer;
+    font-size: $text-sm;
+    transition: all $transition-fast;
+    white-space: nowrap;
+
+    &:hover {
+      background: $primary-700;
+      box-shadow: 0 4px 6px rgba(147, 51, 234, 0.2);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .result-details {
+    margin-top: $space-3;
+    padding: $space-3;
+    background: $bg-secondary;
+    border-radius: $radius-sm;
+    border: 1px solid $border-light;
+    font-size: $text-sm;
+
+    dl {
+      margin: 0;
+    }
+
+    dt {
+      font-weight: $font-semibold;
+      color: $text-primary;
+      margin-top: $space-2;
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
+    dd {
+      margin: $space-1 0 0 0;
+      color: $text-secondary;
+    }
+  }
+}
+
+// No Results State
+.person-matcher-no-results {
+  text-align: center;
+  padding: $space-12;
+  color: $text-tertiary;
+
+  .no-results-icon {
+    font-size: $text-6xl;
+    margin-bottom: $space-4;
+  }
+
+  .no-results-message {
+    font-size: $text-lg;
+    margin: 0;
+  }
+}
+
+// Loading spinner
+.person-matcher-loading-details {
+  text-align: center;
+  padding: $space-4;
+  color: $text-secondary;
+  font-size: $text-sm;
+  font-style: italic;
+}
+
+// Success state after matching
+.person-matcher-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-20;
+  flex-direction: column;
+  color: $success-700;
+
+  .success-icon {
+    font-size: $text-6xl;
+    margin-bottom: $space-4;
+  }
+
+  .success-message {
+    font-size: $text-xl;
+    font-weight: $font-semibold;
+    margin: 0;
+  }
+}

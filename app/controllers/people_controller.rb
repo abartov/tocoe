@@ -65,6 +65,51 @@ class PeopleController < ApplicationController
     render json: results
   end
 
+  # AJAX endpoint for searching all authority sources at once
+  # POST /people/search_all
+  # Params: { query: string, candidates: [{ source: string, id: string, label: string }] }
+  def search_all
+    query = params[:query]
+    candidates = params[:candidates] || []
+
+    results = PersonMatcherService.search_all(query: query, candidates: candidates)
+    render json: results
+  end
+
+  # AJAX endpoint for fetching detailed information about a person
+  # GET /people/fetch_details?source=viaf&id=113230702
+  def fetch_details
+    source = params[:source]
+    id = params[:id]
+
+    details = PersonMatcherService.fetch_details(source: source, id: id)
+
+    if details
+      render json: details
+    else
+      render json: { error: 'Details not found' }, status: :not_found
+    end
+  end
+
+  # AJAX endpoint for matching a person to a target object
+  # POST /people/match
+  # Params: { target_type: string, target_id: integer, source: string, external_id: string, person_id: integer|null }
+  def match
+    result = PersonMatcherService.match(
+      target_type: params[:target_type],
+      target_id: params[:target_id],
+      source: params[:source],
+      external_id: params[:external_id],
+      person_id: params[:person_id]
+    )
+
+    if result[:success]
+      render json: result
+    else
+      render json: result, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_person

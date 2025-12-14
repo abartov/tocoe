@@ -65,6 +65,9 @@ Rails.application.routes.draw do
       post :search_viaf
       post :search_wikidata
       post :search_loc
+      post :search_all
+      get :fetch_details
+      post :match
     end
   end
 

@@ -14,6 +14,12 @@
         .book-card{data: {book_id: book_id, source: 'gutendex'}}
           .card-checkbox
             = check_box_tag "book_ids[]", book_id, false, class: 'book-checkbox', data: { title: book['title'], authors: Array(book['author_name']).join(', '), source: 'gutendex' }
+          - if book['formats'] && book['formats']['image/jpeg']
+            = image_tag book['formats']['image/jpeg'], alt: book['title'], class: 'book-cover', loading: 'lazy', onerror: "this.style.display='none'"
+          - else
+            .book-cover.placeholder
+              .cover-placeholder-content
+                %span.glyphicon.glyphicon-book
           .card-header
             .edition-key
               %code= "PG-#{book_id}"
@@ -34,6 +40,12 @@
           - if can_make_toc
             .card-checkbox
               = check_box_tag "book_ids[]", edition_key, false, class: 'book-checkbox', data: { title: book['title'], authors: Array(book['author_name']).join(', '), source: 'openlibrary' }
+          - if edition && edition['cover_i']
+            = image_tag "https://covers.openlibrary.org/b/id/#{edition['cover_i']}-M.jpg", alt: book['title'], class: 'book-cover', loading: 'lazy', onerror: "this.style.display='none'"
+          - else
+            .book-cover.placeholder
+              .cover-placeholder-content
+                %span.glyphicon.glyphicon-book
           .card-header
             .edition-key
               %code= edition_key || book['key']

@@ -117,6 +117,57 @@ RSpec.describe "publications/_ol_results", type: :view do
       render
       expect(rendered).to have_selector('.search-results-grid')
     end
+
+    context "with cover images" do
+      let(:results_with_covers) do
+        [
+          {
+            'title' => 'Book with Cover',
+            'author_name' => ['Author Name'],
+            'has_fulltext' => true,
+            'ebook_access' => 'public',
+            'key' => '/works/OL123W',
+            'editions' => {
+              'docs' => [
+                { 'key' => '/books/OL123M', 'cover_i' => 123456 }
+              ]
+            }
+          },
+          {
+            'title' => 'Book without Cover',
+            'author_name' => ['Another Author'],
+            'has_fulltext' => true,
+            'ebook_access' => 'public',
+            'key' => '/works/OL456W',
+            'editions' => {
+              'docs' => [
+                { 'key' => '/books/OL456M' }
+              ]
+            }
+          }
+        ]
+      end
+
+      before do
+        assign(:results, results_with_covers)
+      end
+
+      it "displays cover image when cover_i is available" do
+        render
+        expect(rendered).to have_selector('img.book-cover[src*="covers.openlibrary.org/b/id/123456-M.jpg"]')
+      end
+
+      it "displays placeholder cover when cover_i is not available" do
+        render
+        expect(rendered).to have_selector('.book-cover.placeholder', count: 1)
+        expect(rendered).to have_selector('.cover-placeholder-content .glyphicon-book', count: 1)
+      end
+
+      it "sets lazy loading attribute on cover images" do
+        render
+        expect(rendered).to have_selector('img.book-cover[loading="lazy"]')
+      end
+    end
   end
 
   context "with Gutendex (Project Gutenberg) results" do
@@ -168,6 +219,44 @@ RSpec.describe "publications/_ol_results", type: :view do
       render
       expect(rendered).to have_selector('input[type="checkbox"].book-checkbox[value="12345"]')
       expect(rendered).to have_selector('input[type="checkbox"].book-checkbox[value="67890"]')
+    end
+
+    context "with cover images" do
+      let(:results_with_covers) do
+        [
+          {
+            'id' => 12345,
+            'title' => 'Book with Cover',
+            'author_name' => ['Author Name'],
+            'source' => 'gutendex',
+            'formats' => {
+              'image/jpeg' => 'https://www.gutenberg.org/cache/epub/12345/pg12345.cover.medium.jpg'
+            }
+          },
+          {
+            'id' => 67890,
+            'title' => 'Book without Cover',
+            'author_name' => ['Another Author'],
+            'source' => 'gutendex'
+          }
+        ]
+      end
+
+      before do
+        assign(:results, results_with_covers)
+        assign(:source, 'gutendex')
+      end
+
+      it "displays cover image when format is available" do
+        render
+        expect(rendered).to have_selector('img.book-cover[src*="gutenberg.org"]')
+      end
+
+      it "displays placeholder cover when format is not available" do
+        render
+        expect(rendered).to have_selector('.book-cover.placeholder', count: 1)
+        expect(rendered).to have_selector('.cover-placeholder-content .glyphicon-book', count: 1)
+      end
     end
   end
 

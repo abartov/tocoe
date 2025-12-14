@@ -150,4 +150,46 @@ RSpec.feature 'Bulk create TOCs', type: :feature, js: true do
     expect(page).not_to have_css('#bulk-toc-form')
     expect(page).not_to have_css('#bulk-create-btn')
   end
+
+  scenario 'created TOCs have authors attached from OpenLibrary' do
+    # Stub rest_get to return book data with authors
+    allow_any_instance_of(ApplicationController).to receive(:rest_get) do |_, url|
+      if url.include?('OL1M')
+        { 'title' => 'First Book', 'authors' => [{ 'key' => '/authors/OL1A' }] }
+      elsif url.include?('OL2M')
+        { 'title' => 'Second Book', 'authors' => [{ 'key' => '/authors/OL2A' }] }
+      elsif url.include?('/authors/OL1A')
+        { 'name' => 'Author One', 'key' => '/authors/OL1A' }
+      elsif url.include?('/authors/OL2A')
+        { 'name' => 'Author Two', 'key' => '/authors/OL2A' }
+      else
+        {}
+      end
+    end
+
+    visit '/publications/search?search=test'
+
+    # Select both books
+    find("input.book-checkbox[value='OL1M']").click
+    find("input.book-checkbox[value='OL2M']").click
+
+    # Create TOCs
+    find('#bulk-create-btn', visible: :visible).click
+
+    # Wait for redirect
+    expect(page).to have_current_path('/tocs', ignore_query: true, wait: 5)
+
+    # Verify TOCs were created with authors
+    first_toc = Toc.find_by(title: 'First Book')
+    second_toc = Toc.find_by(title: 'Second Book')
+
+    expect(first_toc).not_to be_nil
+    expect(second_toc).not_to be_nil
+
+    expect(first_toc.authors.count).to eq(1)
+    expect(first_toc.authors.first.name).to eq('Author One')
+
+    expect(second_toc.authors.count).to eq(1)
+    expect(second_toc.authors.first.name).to eq('Author Two')
+  end
 end

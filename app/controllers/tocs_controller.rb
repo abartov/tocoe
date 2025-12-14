@@ -507,6 +507,15 @@ class TocsController < ApplicationController
         end
 
         if toc.save
+          # Fetch and store authors for the TOC
+          @toc = toc # Set instance variable for get_authors/store_authors
+          if source == 'gutendex'
+            get_authors(book_data)
+          else
+            get_authors(toc.book_uri)
+          end
+          store_authors
+
           created_count += 1
         end
       rescue => e

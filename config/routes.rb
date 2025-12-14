@@ -11,6 +11,7 @@ Rails.application.routes.draw do
     collection do
       post :create_multiple
       get :search
+      get :gutenberg_proxy
     end
     member do
       get :browse_scans
@@ -30,7 +31,6 @@ Rails.application.routes.draw do
   get 'publications/savetoc'
 
   post 'tocs/do_ocr' => "tocs#do_ocr"
-  get 'tocs/gutenberg_proxy' => "tocs#gutenberg_proxy", as: :gutenberg_proxy
 
   # Aboutnesses - nested under embodiments
   resources :embodiments, only: [] do

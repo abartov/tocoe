@@ -50,9 +50,19 @@
                           - existing_match = work.creators.find_by(name: author_name)
 
                         - if existing_match
-                          %span.badge.badge-success
+                          %span.badge.badge-success.mr-2
                             = t('tocs.review_authors.matched')
                             = existing_match.name
+                          %button.btn.btn-outline-danger.btn-sm.undo-match-button{
+                            type: 'button',
+                            data: {
+                              work_id: work.id,
+                              person_id: existing_match.id,
+                              person_name: existing_match.name,
+                              role: role
+                            }
+                          }
+                            = t('tocs.review_authors.undo_match_button')
                         - else
                           %button.btn.btn-primary.btn-sm.match-button{
                             type: 'button',
@@ -85,9 +95,19 @@
                         .match-actions
                           - existing_match = work.creators.find_by(id: toc_author.id)
                           - if existing_match
-                            %span.badge.badge-success
+                            %span.badge.badge-success.mr-2
                               = t('tocs.review_authors.matched')
                               = existing_match.name
+                            %button.btn.btn-outline-danger.btn-sm.undo-match-button{
+                              type: 'button',
+                              data: {
+                                work_id: work.id,
+                                person_id: existing_match.id,
+                                person_name: existing_match.name,
+                                role: 'author'
+                              }
+                            }
+                              = t('tocs.review_authors.undo_match_button')
                           - else
                             %button.btn.btn-success.btn-sm.accept-parent-match-button{
                               type: 'button',
@@ -177,6 +197,51 @@
         error: function() {
           alert('Error: Failed to accept match. Please try again.');
           $button.prop('disabled', false).text('Accept Match from Parent');
+        }
+      });
+    });
+
+    // Handle undo match button clicks
+    $('.undo-match-button').on('click', function() {
+      var $button = $(this);
+      var workId = $button.data('work-id');
+      var personId = $button.data('person-id');
+      var personName = $button.data('person-name');
+      var role = $button.data('role');
+
+      // Confirm with user
+      if (!confirm('Undo match for "' + personName + '"? This will allow you to select a different person.')) {
+        return;
+      }
+
+      // Disable button during request
+      $button.prop('disabled', true).text('Undoing...');
+
+      // Make AJAX request to undo match
+      $.ajax({
+        url: '/people/undo_match',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+          work_id: workId,
+          person_id: personId,
+          role: role
+        },
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+        },
+        success: function(data) {
+          if (data.success) {
+            // Reload page to show updated status
+            location.reload();
+          } else {
+            alert('Error: ' + (data.error || 'Failed to undo match'));
+            $button.prop('disabled', false).text('Undo Match');
+          }
+        },
+        error: function() {
+          alert('Error: Failed to undo match. Please try again.');
+          $button.prop('disabled', false).text('Undo Match');
         }
       });
     });

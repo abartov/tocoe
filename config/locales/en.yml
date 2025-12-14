@@ -230,6 +230,7 @@ en:
       match_button: "Match Author"
       accept_parent_match_button: "Accept Match from Parent"
       match_different_person: "Match Different Person"
+      undo_match_button: "Undo Match"
       skip_for_now: "Skip matching for now"
 
     # Browse scans view

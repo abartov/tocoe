@@ -70,6 +70,7 @@ Rails.application.routes.draw do
       get :fetch_details
       post :match
       post :accept_parent_match
+      post :undo_match
     end
   end
 

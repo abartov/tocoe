@@ -204,4 +204,101 @@ RSpec.feature 'Review Authors Workflow', type: :feature do
     # Should be redirected to TOC show page
     expect(current_path).to eq(toc_path(toc))
   end
+
+  scenario 'review authors page shows undo match button for matched authors' do
+    # Create a TOC with manifestation and works
+    toc = Toc.create!(
+      book_uri: 'http://openlibrary.org/books/OL123M',
+      title: 'Test Collection',
+      status: :transcribed,
+      toc_body: "# Work One || Matched Author"
+    )
+
+    # Process the TOC to create works
+    manifestation = Manifestation.create!(title: 'Test Manifestation')
+    work = Work.create!(title: 'Work One')
+    expression = Expression.create!(title: 'Work One')
+    work.expressions << expression
+    Embodiment.create!(expression: expression, manifestation: manifestation, sequence_number: 1)
+    toc.update!(manifestation: manifestation)
+
+    # Create a person and link to the work
+    person = Person.create!(name: 'Matched Author')
+    PeopleWork.create!(person: person, work: work)
+
+    # Visit the review_authors page
+    visit review_authors_toc_path(toc)
+
+    # Should show matched badge and undo button
+    expect(page).to have_content(I18n.t('tocs.review_authors.matched'))
+    expect(page).to have_content('Matched Author')
+    expect(page).to have_button(I18n.t('tocs.review_authors.undo_match_button'))
+    expect(page).not_to have_button(I18n.t('tocs.review_authors.match_button'))
+  end
+
+  scenario 'review authors page shows undo match button for matched translators' do
+    # Create a TOC with a translator
+    toc = Toc.create!(
+      book_uri: 'http://openlibrary.org/books/OL123M',
+      title: 'Test Collection',
+      status: :transcribed,
+      toc_body: "# Work One || [Matched Translator]"
+    )
+
+    # Process the TOC to create works
+    manifestation = Manifestation.create!(title: 'Test Manifestation')
+    work = Work.create!(title: 'Work One')
+    expression = Expression.create!(title: 'Work One')
+    work.expressions << expression
+    Embodiment.create!(expression: expression, manifestation: manifestation, sequence_number: 1)
+    toc.update!(manifestation: manifestation)
+
+    # Create a person and link to the expression as a realizer
+    person = Person.create!(name: 'Matched Translator')
+    Realization.create!(realizer: person, expression: expression)
+
+    # Visit the review_authors page
+    visit review_authors_toc_path(toc)
+
+    # Should show matched badge and undo button
+    expect(page).to have_content(I18n.t('tocs.review_authors.matched'))
+    expect(page).to have_content('Matched Translator')
+    expect(page).to have_button(I18n.t('tocs.review_authors.undo_match_button'))
+    expect(page).not_to have_button(I18n.t('tocs.review_authors.match_button'))
+  end
+
+  scenario 'review authors page shows undo match button for inherited matched authors' do
+    # Create a TOC with a book author
+    toc = Toc.create!(
+      book_uri: 'http://openlibrary.org/books/OL123M',
+      title: 'Test Collection',
+      status: :transcribed,
+      toc_body: "# Chapter One"
+    )
+
+    # Add a book author to the TOC
+    book_author = Person.create!(name: 'Book Author')
+    PeopleToc.create!(person: book_author, toc: toc)
+
+    # Process the TOC to create works
+    manifestation = Manifestation.create!(title: 'Test Manifestation')
+    work = Work.create!(title: 'Chapter One')
+    expression = Expression.create!(title: 'Chapter One')
+    work.expressions << expression
+    Embodiment.create!(expression: expression, manifestation: manifestation, sequence_number: 1)
+    toc.update!(manifestation: manifestation)
+
+    # Link the book author to the work
+    PeopleWork.create!(person: book_author, work: work)
+
+    # Visit the review_authors page
+    visit review_authors_toc_path(toc)
+
+    # Should show inherited author with matched status and undo button
+    expect(page).to have_content(I18n.t('tocs.review_authors.no_explicit_authors'))
+    expect(page).to have_content(I18n.t('tocs.review_authors.inherited_authors_from_toc'))
+    expect(page).to have_content('Book Author')
+    expect(page).to have_content(I18n.t('tocs.review_authors.matched'))
+    expect(page).to have_button(I18n.t('tocs.review_authors.undo_match_button'))
+  end
 end

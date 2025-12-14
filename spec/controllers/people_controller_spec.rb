@@ -611,4 +611,212 @@ RSpec.describe PeopleController, type: :controller do
       expect(response).to have_http_status(:unauthorized)
     end
   end
+
+  describe 'POST #undo_match' do
+    let(:work) { Work.create!(title: 'Test Work') }
+    let(:author) { Person.create!(name: 'Test Author', dates: '1800-1900') }
+
+    context 'when undoing an author match' do
+      before do
+        # Create initial association
+        PeopleWork.create!(person: author, work: work)
+      end
+
+      it 'removes the work-person association' do
+        expect {
+          post :undo_match, params: {
+            work_id: work.id,
+            person_id: author.id,
+            role: 'author'
+          }, format: :json
+        }.to change(PeopleWork, :count).by(-1)
+
+        # Verify the association was removed
+        expect(work.reload.creators).not_to include(author)
+      end
+
+      it 'returns success response' do
+        post :undo_match, params: {
+          work_id: work.id,
+          person_id: author.id,
+          role: 'author'
+        }, format: :json
+
+        expect(response).to have_http_status(:success)
+        json = JSON.parse(response.body, symbolize_names: true)
+        expect(json[:success]).to be true
+        expect(json[:person][:id]).to eq(author.id)
+        expect(json[:person][:name]).to eq('Test Author')
+      end
+
+      it 'does not fail when association does not exist' do
+        # Remove the association first
+        PeopleWork.find_by(person: author, work: work).destroy
+
+        # Try to undo again
+        expect {
+          post :undo_match, params: {
+            work_id: work.id,
+            person_id: author.id,
+            role: 'author'
+          }, format: :json
+        }.not_to change(PeopleWork, :count)
+
+        # Should still return success
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'when undoing a translator match' do
+      let(:expression) { Expression.create!(work: work, title: 'Test Expression') }
+
+      before do
+        # Create initial realization
+        Realization.create!(realizer: author, expression: expression)
+      end
+
+      it 'removes the expression-person realization' do
+        expect {
+          post :undo_match, params: {
+            work_id: work.id,
+            person_id: author.id,
+            role: 'translator'
+          }, format: :json
+        }.to change(Realization, :count).by(-1)
+
+        # Verify the realization was removed
+        expect(work.reload.expressions.first.realizers).not_to include(author)
+      end
+
+      it 'returns success response for translator' do
+        post :undo_match, params: {
+          work_id: work.id,
+          person_id: author.id,
+          role: 'translator'
+        }, format: :json
+
+        expect(response).to have_http_status(:success)
+        json = JSON.parse(response.body, symbolize_names: true)
+        expect(json[:success]).to be true
+      end
+
+      it 'does not fail when realization does not exist' do
+        # Remove the realization first
+        Realization.find_by(realizer: author, expression: expression).destroy
+
+        # Try to undo again
+        expect {
+          post :undo_match, params: {
+            work_id: work.id,
+            person_id: author.id,
+            role: 'translator'
+          }, format: :json
+        }.not_to change(Realization, :count)
+
+        # Should still return success
+        expect(response).to have_http_status(:success)
+      end
+    end
+
+    context 'with missing parameters' do
+      it 'returns error when work_id is missing' do
+        post :undo_match, params: {
+          person_id: author.id,
+          role: 'author'
+        }, format: :json
+
+        expect(response).to have_http_status(:bad_request)
+        json = JSON.parse(response.body, symbolize_names: true)
+        expect(json[:success]).to be false
+        expect(json[:error]).to eq('Missing required parameters')
+      end
+
+      it 'returns error when person_id is missing' do
+        post :undo_match, params: {
+          work_id: work.id,
+          role: 'author'
+        }, format: :json
+
+        expect(response).to have_http_status(:bad_request)
+        json = JSON.parse(response.body, symbolize_names: true)
+        expect(json[:success]).to be false
+        expect(json[:error]).to eq('Missing required parameters')
+      end
+    end
+
+    context 'with invalid IDs' do
+      it 'returns error when work is not found' do
+        post :undo_match, params: {
+          work_id: 99999,
+          person_id: author.id,
+          role: 'author'
+        }, format: :json
+
+        expect(response).to have_http_status(:not_found)
+        json = JSON.parse(response.body, symbolize_names: true)
+        expect(json[:success]).to be false
+        expect(json[:error]).to eq('Work or Person not found')
+      end
+
+      it 'returns error when person is not found' do
+        post :undo_match, params: {
+          work_id: work.id,
+          person_id: 99999,
+          role: 'author'
+        }, format: :json
+
+        expect(response).to have_http_status(:not_found)
+        json = JSON.parse(response.body, symbolize_names: true)
+        expect(json[:success]).to be false
+        expect(json[:error]).to eq('Work or Person not found')
+      end
+    end
+
+    context 'when translator role but no expression exists' do
+      it 'returns error when work has no expressions' do
+        # Ensure work has no expressions
+        work.expressions.destroy_all
+
+        post :undo_match, params: {
+          work_id: work.id,
+          person_id: author.id,
+          role: 'translator'
+        }, format: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body, symbolize_names: true)
+        expect(json[:success]).to be false
+        expect(json[:error]).to eq('Failed to remove association')
+      end
+    end
+
+    context 'when role is not specified' do
+      before do
+        # Create initial association
+        PeopleWork.create!(person: author, work: work)
+      end
+
+      it 'defaults to author role' do
+        expect {
+          post :undo_match, params: {
+            work_id: work.id,
+            person_id: author.id
+          }, format: :json
+        }.to change(PeopleWork, :count).by(-1)
+
+        expect(work.reload.creators).not_to include(author)
+      end
+    end
+
+    it 'requires authentication' do
+      sign_out user
+      post :undo_match, params: {
+        work_id: work.id,
+        person_id: author.id,
+        role: 'author'
+      }, format: :json
+      # JSON requests return 401 instead of redirect
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
 end

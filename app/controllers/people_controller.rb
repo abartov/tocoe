@@ -160,6 +160,58 @@ class PeopleController < ApplicationController
     render json: { success: false, error: e.message }, status: :internal_server_error
   end
 
+  # AJAX endpoint for undoing a match between work/expression and person
+  # POST /people/undo_match
+  # Params: { work_id: integer, person_id: integer, role: string }
+  def undo_match
+    work_id = params[:work_id]
+    person_id = params[:person_id]
+    role = params[:role] || 'author'
+
+    # Validate inputs
+    unless work_id.present? && person_id.present?
+      render json: { success: false, error: 'Missing required parameters' }, status: :bad_request
+      return
+    end
+
+    # Find the work and person
+    work = Work.find_by(id: work_id)
+    person = Person.find_by(id: person_id)
+
+    unless work && person
+      render json: { success: false, error: 'Work or Person not found' }, status: :not_found
+      return
+    end
+
+    # Remove association based on role
+    success = case role.to_s
+              when 'translator'
+                # Remove association with expression as a realizer
+                expression = work.expressions.first
+                if expression
+                  realization = Realization.find_by(realizer: person, expression: expression)
+                  realization&.destroy
+                  true
+                else
+                  false
+                end
+              else # 'author' or default
+                # Remove association with work as a creator
+                people_work = PeopleWork.find_by(person: person, work: work)
+                people_work&.destroy
+                true
+              end
+
+    if success
+      render json: { success: true, person: { id: person.id, name: person.name } }
+    else
+      render json: { success: false, error: 'Failed to remove association' }, status: :unprocessable_entity
+    end
+  rescue StandardError => e
+    Rails.logger.error "Error undoing match: #{e.message}"
+    render json: { success: false, error: e.message }, status: :internal_server_error
+  end
+
   private
 
   def set_person

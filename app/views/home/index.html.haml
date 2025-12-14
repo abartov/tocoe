@@ -46,6 +46,24 @@
           %h3.feature-title= t('home.index.step_4_title')
           %p.feature-description= t('home.index.step_4_description')
 
+.homepage-examples
+  .container
+    .row.text-center
+      .col-md-12
+        %h2.section-title= t('home.index.examples_title')
+        %p.section-subtitle= t('home.index.examples_subtitle')
+
+    .row
+      .col-md-6
+        .example-card
+          = image_tag 'presentation-screenshots/toc-show.png', alt: t('home.index.example_toc_view_alt'), class: 'example-image'
+          %h4.example-caption= t('home.index.example_toc_view')
+
+      .col-md-6
+        .example-card
+          = image_tag 'presentation-screenshots/tocs-index.png', alt: t('home.index.example_toc_list_alt'), class: 'example-image'
+          %h4.example-caption= t('home.index.example_toc_list')
+
 .homepage-about
   .container
     .row

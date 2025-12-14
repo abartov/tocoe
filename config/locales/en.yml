@@ -352,6 +352,12 @@ en:
       step_4_title: "Share"
       step_4_description: "All TOCs are released as CC0 public domain data"
       about_title: "About the Project"
+      examples_title: "See ToCoE in Action"
+      examples_subtitle: "Real examples of tables of contents created by our community"
+      example_toc_view: "Detailed TOC View with Original Scans"
+      example_toc_view_alt: "Screenshot showing a table of contents with the original scanned page"
+      example_toc_list: "Browse All Tables of Contents"
+      example_toc_list_alt: "Screenshot showing the TOC index page"
 
   # Publications search
   publications:

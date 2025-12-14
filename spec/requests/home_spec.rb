@@ -25,5 +25,17 @@ RSpec.describe "Homes", type: :request do
       get root_path
       expect(response).to redirect_to(dashboard_index_path)
     end
+
+    it "displays visual examples section" do
+      get root_path
+      expect(response.body).to include('See ToCoE in Action')
+      expect(response.body).to include('Real examples of tables of contents')
+    end
+
+    it "displays example images" do
+      get root_path
+      expect(response.body).to include('Detailed TOC View with Original Scans')
+      expect(response.body).to include('Browse All Tables of Contents')
+    end
   end
 end

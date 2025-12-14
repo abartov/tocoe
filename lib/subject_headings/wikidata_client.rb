@@ -93,9 +93,10 @@ module SubjectHeadings
     # Search for Wikidata entities (items) by keyword
     # @param query [String] The search term
     # @param count [Integer] Number of results to return
-    # @return [Array<Hash>] Array of hashes with :uri, :label, and :instance_of labels
-    def search(query, count: 20)
-      return [] if query.blank?
+    # @param offset [Integer] Offset for pagination (0-based)
+    # @return [Hash] Hash with :results (array) and :has_more (boolean)
+    def search(query, count: 20, offset: 0)
+      return { results: [], has_more: false } if query.blank?
 
       params = {
         action: 'wbsearchentities',
@@ -104,13 +105,21 @@ module SubjectHeadings
         language: 'en',
         uselang: 'en',
         type: 'item',
-        limit: count
+        limit: count,
+        continue: offset
       }
 
       begin
         data = fetch_json(params)
         results = data['search'] || []
-        return [] if results.empty?
+
+        # Check if there are more results available
+        # Wikidata returns 'search-continue' in the response if there are more results
+        has_more = data.key?('search-continue')
+
+        if results.empty?
+          return { results: [], has_more: false }
+        end
 
         entity_ids = results.map { |result| result['id'] }
         entity_details = fetch_entities(entity_ids)
@@ -124,7 +133,7 @@ module SubjectHeadings
         # Fetch descriptions for search results
         descriptions = fetch_descriptions(entity_ids)
 
-        results.map do |result|
+        formatted_results = results.map do |result|
           entity_id = result['id']
           instance_labels_for_entity = instance_ids_by_entity.fetch(entity_id, []).map do |value_id|
             instance_labels[value_id]
@@ -138,9 +147,11 @@ module SubjectHeadings
             entity_id: entity_id
           }
         end
+
+        { results: formatted_results, has_more: has_more }
       rescue StandardError => e
         Rails.logger.error("Wikidata API error: #{e.message}")
-        []
+        { results: [], has_more: false }
       end
     end
 

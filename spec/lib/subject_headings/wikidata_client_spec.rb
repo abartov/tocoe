@@ -7,12 +7,15 @@ RSpec.describe SubjectHeadings::WikidataClient do
   describe '#search' do
     context 'with a valid query' do
       it 'returns Wikidata entity results from the API' do
-        results = client.search('Douglas Adams')
+        response = client.search('Douglas Adams')
 
-        expect(results).to be_an(Array)
-        expect(results).not_to be_empty
+        expect(response).to be_a(Hash)
+        expect(response).to have_key(:results)
+        expect(response).to have_key(:has_more)
+        expect(response[:results]).to be_an(Array)
+        expect(response[:results]).not_to be_empty
 
-        first_result = results.first
+        first_result = response[:results].first
         expect(first_result).to have_key(:uri)
         expect(first_result).to have_key(:label)
         expect(first_result).to have_key(:instance_of)
@@ -22,35 +25,48 @@ RSpec.describe SubjectHeadings::WikidataClient do
       end
 
       it 'limits results based on count parameter' do
-        results = client.search('science', count: 5)
+        response = client.search('science', count: 5)
 
-        expect(results.length).to be <= 5
+        expect(response[:results].length).to be <= 5
       end
 
       it 'parses the API response with instance_of types' do
-        results = client.search('mathematics')
+        response = client.search('mathematics')
 
-        expect(results).to be_an(Array)
-        expect(results).not_to be_empty
+        expect(response[:results]).to be_an(Array)
+        expect(response[:results]).not_to be_empty
 
         # Verify that results have proper structure
-        first_result = results.first
+        first_result = response[:results].first
         expect(first_result).to have_key(:uri)
         expect(first_result).to have_key(:label)
         expect(first_result).to have_key(:instance_of)
         expect(first_result[:instance_of]).to be_an(Array)
       end
+
+      it 'supports pagination with offset parameter' do
+        response_page1 = client.search('science', count: 5, offset: 0)
+        response_page2 = client.search('science', count: 5, offset: 5)
+
+        expect(response_page1[:results]).to be_an(Array)
+        expect(response_page2[:results]).to be_an(Array)
+
+        # Results should be different for different pages
+        if response_page1[:results].any? && response_page2[:results].any?
+          expect(response_page1[:results].first[:uri]).not_to eq(response_page2[:results].first[:uri])
+        end
+      end
     end
 
     context 'with an empty query' do
-      it 'returns an empty array' do
-        results = client.search('')
-        expect(results).to eq([])
+      it 'returns empty results' do
+        response = client.search('')
+        expect(response).to eq({ results: [], has_more: false })
       end
 
-      it 'returns an empty array for nil query' do
-        results = client.search(nil)
-        expect(results).to eq([])
+      it 'returns empty results for nil query' do
+        response = client.search(nil)
+        expect(response).to eq({ results: [], has_more: false })
       end
     end
 
@@ -60,8 +76,8 @@ RSpec.describe SubjectHeadings::WikidataClient do
         allow(Net::HTTP).to receive(:get_response).and_raise(StandardError.new('Network error'))
 
         expect(Rails.logger).to receive(:error).with(/Wikidata API error/)
-        results = client.search('test')
-        expect(results).to eq([])
+        response = client.search('test')
+        expect(response).to eq({ results: [], has_more: false })
       end
     end
   end

@@ -59,7 +59,11 @@
 
 :javascript
   $(document).ready(function() {
-    $('#search_button').click(function() {
+    var currentPage = 1;
+    var currentQuery = '';
+    var currentSource = '';
+
+    function performSearch(page) {
       var source = $('#source_select').val();
       var query = $('#search_query').val();
 
@@ -68,20 +72,28 @@
         return;
       }
 
+      currentQuery = query;
+      currentSource = source;
+      currentPage = page;
+
       $.ajax({
         url: '#{search_embodiment_aboutnesses_path(@embodiment)}',
         type: 'POST',
-        data: { source: source, query: query },
+        data: { source: source, query: query, page: page },
         dataType: 'json',
         beforeSend: function() {
           $('#search_results').html('<div class="loading-spinner"><div class="spinner"></div><span class="loading-text">Searching...</span></div>');
         },
         success: function(data) {
-          if (data.length === 0) {
+          var results = data.results || [];
+          var hasMore = data.has_more || false;
+          var currentPage = data.page || 1;
+
+          if (results.length === 0) {
             $('#search_results').html('<p class="text-muted">No results found.</p>');
           } else {
-            var html = '<h3>Search Results <span class="badge">' + data.length + '</span></h3><div class="list-group">';
-            $.each(data, function(index, result) {
+            var html = '<h3>Search Results <span class="badge">' + results.length + '</span></h3><div class="list-group">';
+            $.each(results, function(index, result) {
               html += '<a href="#" class="list-group-item result-item" data-uri="' + result.uri + '" data-label="' + result.label + '" data-source="' + source + '" style="margin-bottom: 0.5rem; border-radius: 8px; transition: all 0.2s;">';
               html += '<h4 class="list-group-item-heading" style="color: #667eea; font-weight: 600; margin-bottom: 0.5rem;">' + result.label + '</h4>';
 
@@ -119,6 +131,31 @@
               html += '</a>';
             });
             html += '</div>';
+
+            // Add pagination controls
+            if (currentPage > 1 || hasMore) {
+              html += '<div class="pagination-controls" style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">';
+
+              // Previous button
+              if (currentPage > 1) {
+                html += '<button class="btn btn-default pagination-btn" data-page="' + (currentPage - 1) + '">← Previous</button>';
+              } else {
+                html += '<button class="btn btn-default" disabled>← Previous</button>';
+              }
+
+              // Page indicator
+              html += '<span class="text-muted">Page ' + currentPage + '</span>';
+
+              // Next button
+              if (hasMore) {
+                html += '<button class="btn btn-default pagination-btn" data-page="' + (currentPage + 1) + '">Next →</button>';
+              } else {
+                html += '<button class="btn btn-default" disabled>Next →</button>';
+              }
+
+              html += '</div>';
+            }
+
             $('#search_results').html(html);
           }
         },
@@ -126,6 +163,16 @@
           $('#search_results').html('<p class="text-danger">Error performing search. Please try again.</p>');
         }
       });
+    }
+
+    $('#search_button').click(function() {
+      performSearch(1);
+    });
+
+    $(document).on('click', '.pagination-btn', function(e) {
+      e.preventDefault();
+      var page = $(this).data('page');
+      performSearch(page);
     });
 
     $(document).on('click', '.result-item', function(e) {

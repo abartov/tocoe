@@ -8,12 +8,15 @@ RSpec.describe SubjectHeadings::LcshClient do
     context 'with a valid query' do
       it 'returns subject heading results from the LCSH API', :skip_in_ci do
         # This is a live API test - skip if needed in CI
-        results = client.search('whales')
+        response = client.search('whales')
 
-        expect(results).to be_an(Array)
-        expect(results).not_to be_empty
+        expect(response).to be_a(Hash)
+        expect(response).to have_key(:results)
+        expect(response).to have_key(:has_more)
+        expect(response[:results]).to be_an(Array)
+        expect(response[:results]).not_to be_empty
 
-        first_result = results.first
+        first_result = response[:results].first
         expect(first_result).to have_key(:uri)
         expect(first_result).to have_key(:label)
         expect(first_result[:uri]).to match(/^https?:\/\/id\.loc\.gov\//)
@@ -21,21 +24,34 @@ RSpec.describe SubjectHeadings::LcshClient do
       end
 
       it 'limits results based on count parameter', :skip_in_ci do
-        results = client.search('science', count: 5)
+        response = client.search('science', count: 5)
 
-        expect(results.length).to be <= 5
+        expect(response[:results].length).to be <= 5
+      end
+
+      it 'supports pagination with offset parameter', :skip_in_ci do
+        response_page1 = client.search('science', count: 5, offset: 0)
+        response_page2 = client.search('science', count: 5, offset: 5)
+
+        expect(response_page1[:results]).to be_an(Array)
+        expect(response_page2[:results]).to be_an(Array)
+
+        # Results should be different for different pages
+        if response_page1[:results].any? && response_page2[:results].any?
+          expect(response_page1[:results].first[:uri]).not_to eq(response_page2[:results].first[:uri])
+        end
       end
     end
 
     context 'with an empty query' do
-      it 'returns an empty array' do
-        results = client.search('')
-        expect(results).to eq([])
+      it 'returns empty results' do
+        response = client.search('')
+        expect(response).to eq({ results: [], has_more: false })
       end
 
-      it 'returns an empty array for nil query' do
-        results = client.search(nil)
-        expect(results).to eq([])
+      it 'returns empty results for nil query' do
+        response = client.search(nil)
+        expect(response).to eq({ results: [], has_more: false })
       end
     end
 
@@ -44,10 +60,10 @@ RSpec.describe SubjectHeadings::LcshClient do
         allow(Net::HTTP).to receive(:get_response).and_raise(StandardError.new('Network error'))
       end
 
-      it 'logs the error and returns an empty array' do
+      it 'logs the error and returns empty results' do
         expect(Rails.logger).to receive(:error).with(/LCSH API error/)
-        results = client.search('test')
-        expect(results).to eq([])
+        response = client.search('test')
+        expect(response).to eq({ results: [], has_more: false })
       end
     end
 
@@ -57,10 +73,10 @@ RSpec.describe SubjectHeadings::LcshClient do
         allow(Net::HTTP).to receive(:get_response).and_return(response)
       end
 
-      it 'logs the error and returns an empty array' do
+      it 'logs the error and returns empty results' do
         expect(Rails.logger).to receive(:error).with(/LCSH API error/)
-        results = client.search('test')
-        expect(results).to eq([])
+        response = client.search('test')
+        expect(response).to eq({ results: [], has_more: false })
       end
     end
 
@@ -89,23 +105,39 @@ RSpec.describe SubjectHeadings::LcshClient do
       end
 
       it 'parses the API response correctly' do
-        results = client.search('whales')
+        response = client.search('whales')
 
-        expect(results.length).to eq(2)
-        expect(results[0]).to eq(
+        expect(response).to be_a(Hash)
+        expect(response[:results].length).to eq(2)
+        expect(response[:has_more]).to eq(false)
+        expect(response[:results][0]).to eq(
           uri: 'http://id.loc.gov/authorities/subjects/sh85146352',
           label: 'Whales',
           alt_labels: [],
           broader: [],
           lc_id: 'sh85146352'
         )
-        expect(results[1]).to eq(
+        expect(response[:results][1]).to eq(
           uri: 'http://id.loc.gov/authorities/subjects/sh85146353',
           label: 'Whales--Anatomy',
           alt_labels: [],
           broader: [],
           lc_id: 'sh85146353'
         )
+      end
+
+      it 'handles pagination correctly' do
+        # Get first result only
+        response = client.search('whales', count: 1, offset: 0)
+        expect(response[:results].length).to eq(1)
+        expect(response[:results][0][:label]).to eq('Whales')
+        expect(response[:has_more]).to eq(true) # More results available
+
+        # Get second result only
+        response = client.search('whales', count: 1, offset: 1)
+        expect(response[:results].length).to eq(1)
+        expect(response[:results][0][:label]).to eq('Whales--Anatomy')
+        expect(response[:has_more]).to eq(false) # No more results
       end
     end
   end

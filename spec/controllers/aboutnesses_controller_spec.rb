@@ -45,38 +45,75 @@ RSpec.describe AboutnessesController, type: :controller do
       ]
     end
 
+    let(:mock_response) do
+      { results: mock_results, has_more: false }
+    end
+
     context 'with LCSH source' do
-      it 'searches using LCSH client and returns JSON' do
+      it 'searches using LCSH client and returns JSON with pagination info' do
         lcsh_client = instance_double(SubjectHeadings::LcshClient)
         allow(SubjectHeadings::LcshClient).to receive(:new).and_return(lcsh_client)
-        allow(lcsh_client).to receive(:search).with('whales').and_return(mock_results)
+        allow(lcsh_client).to receive(:search).with('whales', count: 20, offset: 0).and_return(mock_response)
 
         post :search, params: { embodiment_id: embodiment.id, source: 'LCSH', query: 'whales' }, format: :json
 
         expect(response).to be_successful
-        expect(JSON.parse(response.body)).to eq(mock_results.map(&:stringify_keys))
+        json_response = JSON.parse(response.body)
+        expect(json_response['results']).to eq(mock_results.map(&:stringify_keys))
+        expect(json_response['has_more']).to eq(false)
+        expect(json_response['page']).to eq(1)
+        expect(json_response['per_page']).to eq(20)
+      end
+
+      it 'supports pagination with page parameter' do
+        lcsh_client = instance_double(SubjectHeadings::LcshClient)
+        allow(SubjectHeadings::LcshClient).to receive(:new).and_return(lcsh_client)
+        allow(lcsh_client).to receive(:search).with('whales', count: 20, offset: 20).and_return(mock_response)
+
+        post :search, params: { embodiment_id: embodiment.id, source: 'LCSH', query: 'whales', page: 2 }, format: :json
+
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response['page']).to eq(2)
       end
     end
 
     context 'with Wikidata source' do
-      it 'searches using Wikidata client and returns JSON' do
+      it 'searches using Wikidata client and returns JSON with pagination info' do
         wikidata_client = instance_double(SubjectHeadings::WikidataClient)
         allow(SubjectHeadings::WikidataClient).to receive(:new).and_return(wikidata_client)
-        allow(wikidata_client).to receive(:search).with('Douglas Adams').and_return(mock_results)
+        allow(wikidata_client).to receive(:search).with('Douglas Adams', count: 20, offset: 0).and_return(mock_response)
 
         post :search, params: { embodiment_id: embodiment.id, source: 'Wikidata', query: 'Douglas Adams' }, format: :json
 
         expect(response).to be_successful
-        expect(JSON.parse(response.body)).to eq(mock_results.map(&:stringify_keys))
+        json_response = JSON.parse(response.body)
+        expect(json_response['results']).to eq(mock_results.map(&:stringify_keys))
+        expect(json_response['has_more']).to eq(false)
+        expect(json_response['page']).to eq(1)
+      end
+
+      it 'supports pagination with page parameter' do
+        wikidata_client = instance_double(SubjectHeadings::WikidataClient)
+        allow(SubjectHeadings::WikidataClient).to receive(:new).and_return(wikidata_client)
+        allow(wikidata_client).to receive(:search).with('Douglas Adams', count: 20, offset: 40).and_return(mock_response)
+
+        post :search, params: { embodiment_id: embodiment.id, source: 'Wikidata', query: 'Douglas Adams', page: 3 }, format: :json
+
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response['page']).to eq(3)
       end
     end
 
     context 'with invalid source' do
-      it 'returns an empty array' do
+      it 'returns empty results with pagination info' do
         post :search, params: { embodiment_id: embodiment.id, source: 'InvalidSource', query: 'test' }, format: :json
 
         expect(response).to be_successful
-        expect(JSON.parse(response.body)).to eq([])
+        json_response = JSON.parse(response.body)
+        expect(json_response['results']).to eq([])
+        expect(json_response['has_more']).to eq(false)
       end
     end
   end

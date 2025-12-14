@@ -18,18 +18,30 @@ class AboutnessesController < ApplicationController
   def search
     source = params[:source]
     query = params[:query]
+    page = (params[:page] || 1).to_i
+    per_page = (params[:per_page] || 20).to_i
 
-    @results = case source
+    # Calculate offset from page number (1-based to 0-based)
+    offset = (page - 1) * per_page
+
+    response = case source
                when 'LCSH'
-                 SubjectHeadings::LcshClient.new.search(query)
+                 SubjectHeadings::LcshClient.new.search(query, count: per_page, offset: offset)
                when 'Wikidata'
-                 SubjectHeadings::WikidataClient.new.search(query)
+                 SubjectHeadings::WikidataClient.new.search(query, count: per_page, offset: offset)
                else
-                 []
+                 { results: [], has_more: false }
                end
 
     respond_to do |format|
-      format.json { render json: @results }
+      format.json do
+        render json: {
+          results: response[:results],
+          has_more: response[:has_more],
+          page: page,
+          per_page: per_page
+        }
+      end
     end
   end
 

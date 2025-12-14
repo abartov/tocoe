@@ -110,6 +110,56 @@ class PeopleController < ApplicationController
     end
   end
 
+  # AJAX endpoint for accepting a parent (TOC-level) match for a work
+  # POST /people/accept_parent_match
+  # Params: { work_id: integer, person_id: integer, role: string }
+  def accept_parent_match
+    work_id = params[:work_id]
+    person_id = params[:person_id]
+    role = params[:role] || 'author'
+
+    # Validate inputs
+    unless work_id.present? && person_id.present?
+      render json: { success: false, error: 'Missing required parameters' }, status: :bad_request
+      return
+    end
+
+    # Find the work and person
+    work = Work.find_by(id: work_id)
+    person = Person.find_by(id: person_id)
+
+    unless work && person
+      render json: { success: false, error: 'Work or Person not found' }, status: :not_found
+      return
+    end
+
+    # Create association based on role
+    success = case role.to_s
+              when 'translator'
+                # Associate with expression as a realizer
+                expression = work.expressions.first
+                if expression
+                  Realization.find_or_create_by(realizer: person, expression: expression)
+                  true
+                else
+                  false
+                end
+              else # 'author' or default
+                # Associate with work as a creator
+                PeopleWork.find_or_create_by(person: person, work: work)
+                true
+              end
+
+    if success
+      render json: { success: true, person: { id: person.id, name: person.name } }
+    else
+      render json: { success: false, error: 'Failed to create association' }, status: :unprocessable_entity
+    end
+  rescue StandardError => e
+    Rails.logger.error "Error accepting parent match: #{e.message}"
+    render json: { success: false, error: e.message }, status: :internal_server_error
+  end
+
   private
 
   def set_person

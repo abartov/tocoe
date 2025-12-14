@@ -89,7 +89,17 @@
                               = t('tocs.review_authors.matched')
                               = existing_match.name
                           - else
-                            %button.btn.btn-primary.btn-sm.match-button{
+                            %button.btn.btn-success.btn-sm.accept-parent-match-button{
+                              type: 'button',
+                              data: {
+                                work_id: work.id,
+                                person_id: toc_author.id,
+                                person_name: toc_author.name,
+                                role: 'author'
+                              }
+                            }
+                              = t('tocs.review_authors.accept_parent_match_button')
+                            %button.btn.btn-outline-secondary.btn-sm.match-button.ml-2{
                               type: 'button',
                               data: {
                                 work_id: work.id,
@@ -99,7 +109,7 @@
                                 target_id: work.id
                               }
                             }
-                              = t('tocs.review_authors.match_button')
+                              = t('tocs.review_authors.match_different_person')
 
       -# Footer actions
       .mt-4.d-flex.justify-content-between
@@ -111,7 +121,7 @@
 
 :javascript
   $(document).ready(function() {
-    // Handle match button clicks
+    // Handle match button clicks (opens person matcher)
     $('.match-button').on('click', function() {
       var $button = $(this);
       var authorName = $button.data('author-name');
@@ -124,5 +134,50 @@
 
       // Note: After successful match, the person matcher will reload the page
       // to show the updated "matched" status
+    });
+
+    // Handle accept parent match button clicks (direct association)
+    $('.accept-parent-match-button').on('click', function() {
+      var $button = $(this);
+      var workId = $button.data('work-id');
+      var personId = $button.data('person-id');
+      var personName = $button.data('person-name');
+      var role = $button.data('role');
+
+      // Confirm with user
+      if (!confirm('Accept "' + personName + '" as author for this work?')) {
+        return;
+      }
+
+      // Disable button during request
+      $button.prop('disabled', true).text('Accepting...');
+
+      // Make AJAX request to accept parent match
+      $.ajax({
+        url: '/people/accept_parent_match',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+          work_id: workId,
+          person_id: personId,
+          role: role
+        },
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+        },
+        success: function(data) {
+          if (data.success) {
+            // Reload page to show updated status
+            location.reload();
+          } else {
+            alert('Error: ' + (data.error || 'Failed to accept match'));
+            $button.prop('disabled', false).text('Accept Match from Parent');
+          }
+        },
+        error: function() {
+          alert('Error: Failed to accept match. Please try again.');
+          $button.prop('disabled', false).text('Accept Match from Parent');
+        }
+      });
     });
   });

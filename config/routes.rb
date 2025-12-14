@@ -69,6 +69,7 @@ Rails.application.routes.draw do
       post :search_all
       get :fetch_details
       post :match
+      post :accept_parent_match
     end
   end
 

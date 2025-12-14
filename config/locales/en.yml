@@ -604,6 +604,21 @@ en:
         contact_us: "If you need additional help or found a bug, please report it on our GitHub issue tracker:"
         github_issues: "Report an Issue"
 
+  # Footer
+  footer:
+    about_title: "About ToCoE"
+    about_description: "Table of Contents of Everything - Creating CC0 public domain tables of contents through volunteer labor and linked open data."
+    links_title: "Links"
+    github: "GitHub Repository"
+    license: "CC0 1.0 Universal"
+    help: "Help & Documentation"
+    keyboard_shortcuts: "Keyboard Shortcuts"
+    contact_title: "Contact"
+    contact_description: "Questions or feedback?"
+    report_issue: "Report an Issue"
+    blame: 'Blame <a href="https://meta.wikimedia.org/wiki/User:Ijon" target="_blank" rel="noopener">Ijon</a> for this.'
+    cc0_notice: "All content released under CC0 1.0 Universal."
+
   # People (authors/creators) management
   people:
     flash:

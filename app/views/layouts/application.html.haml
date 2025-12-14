@@ -5,7 +5,7 @@
     = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true
     = javascript_include_tag 'application', 'data-turbolinks-track' => true
     = csrf_meta_tags
-  %body
+  %body{class: "#{controller_name} #{action_name}"}
     #main-container.container-fluid
       %nav.tocoe-navbar
         .navbar-container
@@ -84,6 +84,12 @@
                   = t('footer.license', default: 'CC0 1.0 Universal')
                   →
               %li= link_to t('footer.help', default: 'Help & Documentation'), help_path
+              %li
+                %a{href: '#', 'data-toggle' => 'modal', 'data-target' => '#keyboard-shortcuts-modal'}
+                  ⌨️
+                  = t('footer.keyboard_shortcuts', default: 'Keyboard Shortcuts')
+                  %small.text-muted (Press ?)
+
 
           .footer-section
             %h4= t('footer.contact_title', default: 'Contact')

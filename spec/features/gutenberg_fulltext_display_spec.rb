@@ -28,8 +28,9 @@ RSpec.feature 'Gutenberg fulltext in-page display', type: :feature do
     # Should show the fulltext available message
     expect(page).to have_content('Full text available')
 
-    # Should contain an iframe with the fulltext URL
-    expect(page).to have_selector("iframe[src='#{fulltext_url}']")
+    # Should contain an iframe with the proxy URL (not direct Gutenberg URL)
+    expect(page).to have_selector("iframe[src*='gutenberg_proxy']")
+    expect(page).to have_selector("iframe[src*='#{CGI.escape(fulltext_url)}']")
 
     # Should show help text about scrolling through the text
     expect(page).to have_content('Scroll through the full text below')
@@ -73,8 +74,9 @@ RSpec.feature 'Gutenberg fulltext in-page display', type: :feature do
 
     visit edit_toc_path(toc)
 
-    # Should show the iframe (not the OCR section)
-    expect(page).to have_selector("iframe[src='#{fulltext_url}']")
+    # Should show the iframe with proxy URL (not the OCR section)
+    expect(page).to have_selector("iframe[src*='gutenberg_proxy']")
+    expect(page).to have_selector("iframe[src*='#{CGI.escape(fulltext_url)}']")
 
     # Should not show OCR section for PG
     expect(page).not_to have_content('Urls of toc page images', normalize_ws: true)

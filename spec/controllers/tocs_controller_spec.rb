@@ -1868,4 +1868,185 @@ RSpec.describe TocsController, type: :controller do
       end
     end
   end
+
+  describe 'GET #gutenberg_proxy' do
+    it 'proxies Gutenberg HTTPS URLs successfully' do
+      url = 'https://www.gutenberg.org/files/84/84-h/84-h.htm'
+      html_content = '<html><body>Frankenstein</body></html>'
+
+      response_double = double(
+        success?: true,
+        body: html_content,
+        headers: { 'content-type' => 'text/html; charset=utf-8' }
+      )
+
+      allow(HTTParty).to receive(:get).with(
+        url,
+        hash_including(follow_redirects: true)
+      ).and_return(response_double)
+
+      get :gutenberg_proxy, params: { url: url }
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to eq(html_content)
+      expect(response.headers['Content-Type']).to include('text/html')
+    end
+
+    it 'converts HTTP URLs to HTTPS before fetching' do
+      http_url = 'http://www.gutenberg.org/files/84/84-h/84-h.htm'
+      https_url = 'https://www.gutenberg.org/files/84/84-h/84-h.htm'
+      html_content = '<html><body>Test</body></html>'
+
+      response_double = double(
+        success?: true,
+        body: html_content,
+        headers: { 'content-type' => 'text/html' }
+      )
+
+      allow(HTTParty).to receive(:get).with(
+        https_url,
+        hash_including(follow_redirects: true)
+      ).and_return(response_double)
+
+      get :gutenberg_proxy, params: { url: http_url }
+
+      expect(HTTParty).to have_received(:get).with(
+        https_url,
+        hash_including(follow_redirects: true)
+      )
+      expect(response).to have_http_status(:success)
+    end
+
+    it 'rejects non-Gutenberg URLs' do
+      get :gutenberg_proxy, params: { url: 'https://evil.com/malware.html' }
+
+      expect(response).to have_http_status(:bad_request)
+      expect(response.body).to include('Only gutenberg.org URLs are allowed')
+    end
+
+    it 'handles HTTP errors from Gutenberg' do
+      url = 'https://www.gutenberg.org/files/99999/not-found.htm'
+
+      response_double = double(
+        success?: false,
+        code: 404
+      )
+
+      allow(HTTParty).to receive(:get).and_return(response_double)
+
+      get :gutenberg_proxy, params: { url: url }
+
+      expect(response).to have_http_status(:bad_gateway)
+      expect(response.body).to include('Error fetching content: HTTP 404')
+    end
+
+    it 'handles network errors gracefully' do
+      url = 'https://www.gutenberg.org/files/84/84-h/84-h.htm'
+
+      allow(HTTParty).to receive(:get).and_raise(Timeout::Error.new('Request timeout'))
+
+      get :gutenberg_proxy, params: { url: url }
+
+      expect(response).to have_http_status(:internal_server_error)
+      expect(response.body).to include('Error: Request timeout')
+    end
+
+    it 'fixes HTTP links in HTML content' do
+      url = 'https://www.gutenberg.org/files/84/84-h/84-h.htm'
+      html_with_http_links = '<html><a href="http://www.gutenberg.org/other.html">Link</a></html>'
+      expected_html = '<html><a href="https://www.gutenberg.org/other.html">Link</a></html>'
+
+      response_double = double(
+        success?: true,
+        body: html_with_http_links,
+        headers: { 'content-type' => 'text/html; charset=utf-8' }
+      )
+
+      allow(HTTParty).to receive(:get).and_return(response_double)
+
+      get :gutenberg_proxy, params: { url: url }
+
+      expect(response.body).to eq(expected_html)
+    end
+
+    it 'sets appropriate headers' do
+      url = 'https://www.gutenberg.org/files/84/84-h/84-h.htm'
+      html_content = '<html><body>Test</body></html>'
+
+      response_double = double(
+        success?: true,
+        body: html_content,
+        headers: { 'content-type' => 'text/html; charset=utf-8' }
+      )
+
+      allow(HTTParty).to receive(:get).and_return(response_double)
+
+      get :gutenberg_proxy, params: { url: url }
+
+      expect(response.headers['X-Frame-Options']).to eq('SAMEORIGIN')
+      expect(response.headers['Content-Type']).to include('text/html')
+    end
+
+    it 'allows Gutenberg subdomains' do
+      url = 'https://mirror.gutenberg.org/files/84/84-h.htm'
+      html_content = '<html><body>Mirror</body></html>'
+
+      response_double = double(
+        success?: true,
+        body: html_content,
+        headers: { 'content-type' => 'text/html' }
+      )
+
+      allow(HTTParty).to receive(:get).and_return(response_double)
+
+      get :gutenberg_proxy, params: { url: url }
+
+      expect(response).to have_http_status(:success)
+    end
+  end
+
+  describe '#fix_http_links_in_html' do
+    it 'converts HTTP Gutenberg links to HTTPS' do
+      html = '<a href="http://www.gutenberg.org/page.html">Link</a>'
+      expected = '<a href="https://www.gutenberg.org/page.html">Link</a>'
+
+      result = controller.send(:fix_http_links_in_html, html)
+
+      expect(result).to eq(expected)
+    end
+
+    it 'leaves HTTPS Gutenberg links unchanged' do
+      html = '<a href="https://www.gutenberg.org/page.html">Link</a>'
+
+      result = controller.send(:fix_http_links_in_html, html)
+
+      expect(result).to eq(html)
+    end
+
+    it 'handles multiple HTTP links' do
+      html = '<a href="http://www.gutenberg.org/1.html">1</a><a href="http://www.gutenberg.org/2.html">2</a>'
+      expected = '<a href="https://www.gutenberg.org/1.html">1</a><a href="https://www.gutenberg.org/2.html">2</a>'
+
+      result = controller.send(:fix_http_links_in_html, html)
+
+      expect(result).to eq(expected)
+    end
+
+    it 'handles Gutenberg URLs without www' do
+      html = '<a href="http://gutenberg.org/page.html">Link</a>'
+      expected = '<a href="https://gutenberg.org/page.html">Link</a>'
+
+      result = controller.send(:fix_http_links_in_html, html)
+
+      expect(result).to eq(expected)
+    end
+
+    it 'does not modify non-Gutenberg HTTP links' do
+      html = '<a href="http://example.com/page.html">Link</a>'
+
+      result = controller.send(:fix_http_links_in_html, html)
+
+      expect(result).to eq(html)
+    end
+  end
 end

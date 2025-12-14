@@ -253,6 +253,54 @@ class TocsController < ApplicationController
     end
   end
 
+  # GET /tocs/gutenberg_proxy?url=...
+  # Server-side proxy for Gutenberg fulltext to avoid mixed content issues
+  # Gutenberg sometimes redirects HTTPS to HTTP, which browsers block
+  # This proxy fetches content server-side and serves it over HTTPS
+  def gutenberg_proxy
+    url = params[:url]
+
+    # Validate URL is from Gutenberg (allow subdomains)
+    unless url =~ %r{^https?://([a-z0-9-]+\.)?gutenberg\.org/}
+      render plain: 'Error: Only gutenberg.org URLs are allowed', status: :bad_request
+      return
+    end
+
+    begin
+      # Force HTTPS on the initial request
+      url = url.sub(/^http:/, 'https:')
+
+      # Fetch content with HTTParty, following redirects but forcing HTTPS
+      http_response = HTTParty.get(url, {
+        follow_redirects: true,
+        timeout: 30,
+        headers: {
+          'User-Agent' => 'ToCoE/1.0 (Table of Contents of Everything; https://tocoe.toolforge.org)'
+        }
+      })
+
+      if http_response.success?
+        # Serve the content with appropriate headers
+        # Allow iframe embedding and set content type
+        response.headers['Content-Type'] = http_response.headers['content-type'] || 'text/html; charset=utf-8'
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+
+        # Fix any remaining HTTP links in the HTML to HTTPS
+        content = http_response.body
+        if http_response.headers['content-type']&.include?('html')
+          content = fix_http_links_in_html(content)
+        end
+
+        render html: content.html_safe
+      else
+        render plain: "Error fetching content: HTTP #{http_response.code}", status: :bad_gateway
+      end
+    rescue => e
+      Rails.logger.error "Gutenberg proxy error: #{e.message}"
+      render plain: "Error: #{e.message}", status: :internal_server_error
+    end
+  end
+
   # POST /tocs/:id/auto_match_subjects
   # Auto-match imported subjects with Library of Congress Subject Headings
   def auto_match_subjects
@@ -879,6 +927,13 @@ class TocsController < ApplicationController
     persons.each do |person|
       PeopleWork.create!(person: person, work: work)
     end
+  end
+
+  # Fix HTTP links in HTML content to HTTPS
+  # Specifically targets Gutenberg URLs to prevent mixed content
+  def fix_http_links_in_html(html)
+    # Replace HTTP Gutenberg URLs with HTTPS in common HTML attributes
+    html.gsub(/http:\/\/(www\.)?gutenberg\.org/, 'https://\1gutenberg.org')
   end
 end
 

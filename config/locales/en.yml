@@ -234,6 +234,14 @@ en:
       next: "Next"
       last: "Last"
       save_button: "Save Marked Pages"
+      selected_pages:
+        one: "%{count} page selected"
+        other: "%{count} pages selected"
+      selected_pages_text:
+        one: "page selected"
+        other: "pages selected"
+      selected_header_tooltip: "Click thumbnails to jump to page or deselect"
+      clear_selection: "Clear all"
 
     # Edit view
     edit:

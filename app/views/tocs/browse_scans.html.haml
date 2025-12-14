@@ -8,6 +8,20 @@
   = t('tocs.browse_scans.of')
   = @metadata[:imagecount]
 
+/ Sticky header for selected pages
+#selection-header.sticky-selection-header{style: 'display: none;'}
+  .container-fluid
+    .row.align-items-center
+      .col-md-8
+        .selection-info
+          %strong.selection-count
+          %span.glyphicon.glyphicon-info-sign.ml-2{title: t('tocs.browse_scans.selected_header_tooltip'), 'data-toggle': 'tooltip'}
+        .selected-thumbnails-container
+      .col-md-4.text-right
+        %button.btn.btn-sm.btn-link.clear-selection{type: 'button'}
+          %span.glyphicon.glyphicon-remove
+          = t('tocs.browse_scans.clear_selection')
+
 = form_tag mark_pages_toc_path(@toc), method: :post, id: 'mark_pages_form' do
   .row
     .col-md-12
@@ -98,6 +112,7 @@
         %button.btn.btn-primary{type: 'button', 'data-dismiss': 'modal'}= t('common.actions.cancel')
 
 :css
+  /* Scan grid styles */
   .scan-grid .card {
     min-height: 320px;
     cursor: pointer;
@@ -128,7 +143,228 @@
     margin-bottom: 1rem;
   }
 
+  /* Sticky selection header */
+  .sticky-selection-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 20px;
+    border-radius: 0 0 8px 8px;
+    animation: slideDown 0.3s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .sticky-selection-header .selection-info {
+    margin-bottom: 8px;
+  }
+
+  .sticky-selection-header .selection-count {
+    font-size: 16px;
+    margin-right: 8px;
+  }
+
+  .sticky-selection-header .glyphicon-info-sign {
+    cursor: help;
+    opacity: 0.8;
+  }
+
+  .sticky-selection-header .clear-selection {
+    color: white;
+    text-decoration: none;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+  }
+
+  .sticky-selection-header .clear-selection:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  .selected-thumbnails-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .selected-thumbnail {
+    position: relative;
+    width: 45px;
+    height: 60px;
+    border: 2px solid white;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+  }
+
+  .selected-thumbnail:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+  }
+
+  .selected-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .selected-thumbnail .page-number-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 9px;
+    padding: 1px 3px;
+    border-radius: 2px;
+    font-weight: bold;
+  }
+
+  .selected-thumbnail .remove-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .selected-thumbnail:hover .remove-badge {
+    opacity: 1;
+  }
+
 :javascript
+  // Initialize Bootstrap tooltips
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+  });
+
+  // I18n strings for JavaScript
+  const i18nStrings = {
+    selectedPageSingular: "#{I18n.t('tocs.browse_scans.selected_pages_text.one').html_safe}",
+    selectedPagePlural: "#{I18n.t('tocs.browse_scans.selected_pages_text.other').html_safe}"
+  };
+
+  // Sticky header for selected pages
+  var selectedPages = new Map(); // Map of checkbox value (URL) -> {pageNumber, url, thumbUrl}
+
+  function updateSelectionHeader() {
+    const header = document.getElementById('selection-header');
+    const count = selectedPages.size;
+
+    if (count === 0) {
+      header.style.display = 'none';
+      return;
+    }
+
+    // Show header
+    header.style.display = 'block';
+
+    // Update count with I18n pluralization
+    const countText = count === 1 ? '1 ' + i18nStrings.selectedPageSingular : count + ' ' + i18nStrings.selectedPagePlural;
+    header.querySelector('.selection-count').textContent = countText;
+
+    // Update thumbnails
+    const container = header.querySelector('.selected-thumbnails-container');
+    container.innerHTML = '';
+
+    // Sort by page number for consistent display
+    const sortedPages = Array.from(selectedPages.entries()).sort((a, b) => {
+      return parseInt(a[1].pageNumber) - parseInt(b[1].pageNumber);
+    });
+
+    sortedPages.forEach(function([url, data]) {
+      const thumb = document.createElement('div');
+      thumb.className = 'selected-thumbnail';
+      thumb.setAttribute('data-page', data.pageNumber);
+      thumb.setAttribute('data-url', url);
+      thumb.title = 'Page ' + data.pageNumber + ' - Click to jump or deselect';
+
+      thumb.innerHTML = '<img src="' + data.thumbUrl + '" alt="Page ' + data.pageNumber + '">' +
+                        '<span class="page-number-badge">' + data.pageNumber + '</span>' +
+                        '<span class="remove-badge">&times;</span>';
+
+      thumb.addEventListener('click', function() {
+        const pageNumber = this.getAttribute('data-page');
+        const checkbox = document.getElementById('page_' + pageNumber);
+
+        if (checkbox) {
+          // Try to scroll to the page first
+          const scanCard = checkbox.closest('.scan-page');
+          if (scanCard) {
+            scanCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Flash the card to indicate it
+            const card = scanCard.querySelector('.scan-card');
+            card.style.transition = 'all 0.3s ease';
+            card.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.6)';
+            setTimeout(function() {
+              card.style.boxShadow = '';
+            }, 1000);
+          }
+
+          // Deselect if clicked on remove badge or if shift key is held
+          if (event.target.classList.contains('remove-badge') || event.shiftKey) {
+            checkbox.checked = false;
+            checkbox.dispatchEvent(new Event('change'));
+          }
+        }
+      });
+
+      container.appendChild(thumb);
+    });
+  }
+
+  function initializeSelectedPages() {
+    // Populate selectedPages map from currently checked checkboxes
+    document.querySelectorAll('.page-checkbox:checked').forEach(function(checkbox) {
+      const scanPage = checkbox.closest('.scan-page');
+      const pageNumber = scanPage.getAttribute('data-page');
+      const img = scanPage.querySelector('.card-img-top');
+
+      selectedPages.set(checkbox.value, {
+        pageNumber: pageNumber,
+        url: checkbox.value,
+        thumbUrl: img.src
+      });
+    });
+
+    updateSelectionHeader();
+  }
+
+  // Clear all selections
+  document.querySelector('.clear-selection').addEventListener('click', function() {
+    document.querySelectorAll('.page-checkbox:checked').forEach(function(checkbox) {
+      checkbox.checked = false;
+      checkbox.dispatchEvent(new Event('change'));
+    });
+  });
+
   // Lightbox functionality
   document.querySelectorAll('.view-preview').forEach(function(button) {
     button.addEventListener('click', function(e) {
@@ -197,12 +433,29 @@
   document.querySelectorAll('.page-checkbox').forEach(function(checkbox) {
     checkbox.addEventListener('change', function() {
       const card = this.closest('.scan-card');
+      const scanPage = this.closest('.scan-page');
+      const pageNumber = scanPage.getAttribute('data-page');
+      const img = scanPage.querySelector('.card-img-top');
+
       if (this.checked) {
         card.classList.add('selected');
         document.getElementById('no_explicit_toc').checked = false;
+
+        // Add to selectedPages map
+        selectedPages.set(this.value, {
+          pageNumber: pageNumber,
+          url: this.value,
+          thumbUrl: img.src
+        });
       } else {
         card.classList.remove('selected');
+
+        // Remove from selectedPages map
+        selectedPages.delete(this.value);
       }
+
+      // Update sticky header
+      updateSelectionHeader();
     });
   });
 
@@ -216,4 +469,13 @@
         checkbox.closest('.scan-card').classList.remove('selected');
       }
     }.bind(this));
+
+    // Clear selectedPages map and update header
+    if (this.checked) {
+      selectedPages.clear();
+      updateSelectionHeader();
+    }
   });
+
+  // Initialize sticky header on page load
+  initializeSelectedPages();

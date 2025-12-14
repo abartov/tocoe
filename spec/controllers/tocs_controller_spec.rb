@@ -1200,6 +1200,11 @@ RSpec.describe TocsController, type: :controller do
 
       allow(lc_client).to receive(:search_subjects).with('Fiction').and_return(fiction_results)
 
+      # Mock Wikidata client to return no mapping (so only LCSH is created)
+      wikidata_client = instance_double(SubjectHeadings::WikidataClient)
+      allow(SubjectHeadings::WikidataClient).to receive(:new).and_return(wikidata_client)
+      allow(wikidata_client).to receive(:find_entity_by_library_of_congress_id).with('sh85048050').and_return(nil)
+
       expect {
         post :auto_match_subjects, params: { id: processed_toc.id }, format: :js
       }.to change(Aboutness, :count).by(1)
@@ -1294,6 +1299,123 @@ RSpec.describe TocsController, type: :controller do
       expect(assigns(:error)).to eq('TOC must be processed first before auto-matching subjects')
       expect(assigns(:exact_matches)).to be_empty
       expect(assigns(:suggestions)).to be_empty
+    end
+
+    it 'auto-adds equivalent Wikidata aboutness when LCSH exact match has Wikidata mapping' do
+      # Create a TOC with Mathematics as the subject
+      math_toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL456M',
+        title: 'Math Book',
+        imported_subjects: 'Mathematics',
+        manifestation: manifestation
+      )
+
+      # Mock LC search to return an exact match with sh85082139 (Mathematics)
+      lc_results = [
+        { uri: 'https://id.loc.gov/authorities/subjects/sh85082139', label: 'Mathematics' }
+      ]
+      allow(lc_client).to receive(:search_subjects).with('Mathematics').and_return(lc_results)
+
+      # Mock Wikidata client to return Q395 (mathematics)
+      wikidata_client = instance_double(SubjectHeadings::WikidataClient)
+      allow(SubjectHeadings::WikidataClient).to receive(:new).and_return(wikidata_client)
+      allow(wikidata_client).to receive(:find_entity_by_library_of_congress_id).with('sh85082139').and_return(
+        { entity_id: 'Q395', label: 'mathematics' }
+      )
+
+      # Should create both LCSH and Wikidata aboutnesses
+      expect {
+        post :auto_match_subjects, params: { id: math_toc.id }, format: :js
+      }.to change(Aboutness, :count).by(2)
+
+      # Check LCSH aboutness
+      lcsh_aboutness = Aboutness.find_by(source_name: 'LCSH', subject_heading_uri: 'https://id.loc.gov/authorities/subjects/sh85082139')
+      expect(lcsh_aboutness).to be_present
+      expect(lcsh_aboutness.subject_heading_label).to eq('Mathematics')
+      expect(lcsh_aboutness.status).to eq('verified')
+      expect(lcsh_aboutness.contributor_id).to be_nil
+      expect(lcsh_aboutness.embodiment).to eq(main_embodiment)
+
+      # Check Wikidata aboutness
+      wikidata_aboutness = Aboutness.find_by(source_name: 'Wikidata', subject_heading_uri: 'http://www.wikidata.org/entity/Q395')
+      expect(wikidata_aboutness).to be_present
+      expect(wikidata_aboutness.subject_heading_label).to eq('mathematics')
+      expect(wikidata_aboutness.status).to eq('verified')
+      expect(wikidata_aboutness.contributor_id).to be_nil
+      expect(wikidata_aboutness.embodiment).to eq(main_embodiment)
+    end
+
+    it 'handles cases where LCSH match has no Wikidata equivalent' do
+      # Create a TOC with Obscure Topic as the subject
+      obscure_toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL789M',
+        title: 'Obscure Book',
+        imported_subjects: 'Obscure Topic',
+        manifestation: manifestation
+      )
+
+      # Mock LC search to return an exact match
+      lc_results = [
+        { uri: 'https://id.loc.gov/authorities/subjects/sh99999999', label: 'Obscure Topic' }
+      ]
+      allow(lc_client).to receive(:search_subjects).with('Obscure Topic').and_return(lc_results)
+
+      # Mock Wikidata client to return nil (no Wikidata mapping)
+      wikidata_client = instance_double(SubjectHeadings::WikidataClient)
+      allow(SubjectHeadings::WikidataClient).to receive(:new).and_return(wikidata_client)
+      allow(wikidata_client).to receive(:find_entity_by_library_of_congress_id).with('sh99999999').and_return(nil)
+
+      # Should only create LCSH aboutness (not Wikidata)
+      expect {
+        post :auto_match_subjects, params: { id: obscure_toc.id }, format: :js
+      }.to change(Aboutness, :count).by(1)
+
+      # Check only LCSH aboutness was created
+      lcsh_aboutness = Aboutness.last
+      expect(lcsh_aboutness.source_name).to eq('LCSH')
+      expect(lcsh_aboutness.subject_heading_uri).to eq('https://id.loc.gov/authorities/subjects/sh99999999')
+    end
+
+    it 'does not create duplicate Wikidata aboutness if it already exists' do
+      # Create a TOC with Mathematics as the subject
+      math_toc2 = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL999M',
+        title: 'Another Math Book',
+        imported_subjects: 'Mathematics',
+        manifestation: manifestation
+      )
+
+      # Mock LC search
+      lc_results = [
+        { uri: 'https://id.loc.gov/authorities/subjects/sh85082139', label: 'Mathematics' }
+      ]
+      allow(lc_client).to receive(:search_subjects).with('Mathematics').and_return(lc_results)
+
+      # Mock Wikidata client
+      wikidata_client = instance_double(SubjectHeadings::WikidataClient)
+      allow(SubjectHeadings::WikidataClient).to receive(:new).and_return(wikidata_client)
+      allow(wikidata_client).to receive(:find_entity_by_library_of_congress_id).with('sh85082139').and_return(
+        { entity_id: 'Q395', label: 'mathematics' }
+      )
+
+      # Pre-create Wikidata aboutness
+      Aboutness.create!(
+        embodiment: main_embodiment,
+        subject_heading_uri: 'http://www.wikidata.org/entity/Q395',
+        source_name: 'Wikidata',
+        subject_heading_label: 'mathematics',
+        status: 'verified',
+        contributor_id: nil
+      )
+
+      # Should only create LCSH aboutness (Wikidata already exists)
+      expect {
+        post :auto_match_subjects, params: { id: math_toc2.id }, format: :js
+      }.to change(Aboutness, :count).by(1)
+
+      # Verify only one Wikidata aboutness exists
+      wikidata_count = Aboutness.where(source_name: 'Wikidata', subject_heading_uri: 'http://www.wikidata.org/entity/Q395').count
+      expect(wikidata_count).to eq(1)
     end
   end
 

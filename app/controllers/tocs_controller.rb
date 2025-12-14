@@ -375,6 +375,9 @@ class TocsController < ApplicationController
             matched_label: exact_match[:label],
             uri: exact_match[:uri]
           }
+
+          # Auto-add equivalent Wikidata aboutness if available
+          auto_add_wikidata_aboutness(aboutness, main_embodiment)
         else
           # If save failed (e.g., duplicate), keep the subject
           remaining_subjects << subject
@@ -934,6 +937,46 @@ class TocsController < ApplicationController
   def fix_http_links_in_html(html)
     # Replace HTTP Gutenberg URLs with HTTPS in common HTML attributes
     html.gsub(/http:\/\/(www\.)?gutenberg\.org/, 'https://\1gutenberg.org')
+  end
+
+  # Automatically add Wikidata aboutness if the LCSH aboutness has a Wikidata mapping
+  # This mirrors the behavior in AboutnessesController#auto_add_wikidata_heading
+  def auto_add_wikidata_aboutness(lcsh_aboutness, embodiment)
+    # Extract LC authority ID from URI (e.g., "sh85082139" from "https://id.loc.gov/authorities/subjects/sh85082139")
+    lc_id = lcsh_aboutness.subject_heading_uri.split('/').last
+    return unless lc_id.present? && lc_id.match?(/^sh\d+$/)
+
+    # Find Wikidata entity with this P244 value
+    wikidata_client = SubjectHeadings::WikidataClient.new
+    result = wikidata_client.find_entity_by_library_of_congress_id(lc_id)
+    return unless result.present?
+
+    entity_id = result[:entity_id]
+    label = result[:label]
+
+    # Create Wikidata aboutness with the same status as the LCSH aboutness
+    wikidata_uri = "http://www.wikidata.org/entity/#{entity_id}"
+
+    # Check if this Wikidata heading already exists for this embodiment
+    existing = embodiment.aboutnesses.find_by(subject_heading_uri: wikidata_uri)
+    return if existing.present?
+
+    # Create the Wikidata aboutness with the same contributor/status as the LCSH one
+    wikidata_aboutness = embodiment.aboutnesses.new(
+      subject_heading_uri: wikidata_uri,
+      source_name: 'Wikidata',
+      subject_heading_label: label,
+      contributor_id: lcsh_aboutness.contributor_id,
+      status: lcsh_aboutness.status
+    )
+
+    if wikidata_aboutness.save
+      Rails.logger.info("Auto-added Wikidata entity #{wikidata_uri} from LC authority #{lc_id}")
+    else
+      Rails.logger.error("Failed to auto-add Wikidata heading: #{wikidata_aboutness.errors.full_messages.join(', ')}")
+    end
+  rescue StandardError => e
+    Rails.logger.error("Error auto-adding Wikidata heading: #{e.message}")
   end
 end
 

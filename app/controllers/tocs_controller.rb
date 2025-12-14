@@ -24,6 +24,9 @@ class TocsController < ApplicationController
 
     # Apply sorting
     @tocs = apply_sorting(@tocs)
+
+    # Eager load authors to avoid N+1 queries
+    @tocs = @tocs.includes(:authors)
   end
 
   # GET /tocs/search

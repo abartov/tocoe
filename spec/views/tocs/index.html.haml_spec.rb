@@ -138,4 +138,78 @@ RSpec.describe "tocs/index.html.haml", type: :view do
       expect(rendered).to have_link('Search Publications', href: publications_search_path)
     end
   end
+
+  context 'author display' do
+    before do
+      allow(view).to receive(:current_user).and_return(regular_user)
+    end
+
+    it 'displays author names when TOC has authors' do
+      author1 = Person.create!(name: 'Jane Austen')
+      author2 = Person.create!(name: 'Charles Dickens')
+      toc_with_authors = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL999M',
+        title: 'Book with Authors',
+        status: :empty
+      )
+      PeopleToc.create!(person: author1, toc: toc_with_authors)
+      PeopleToc.create!(person: author2, toc: toc_with_authors)
+
+      assign(:tocs, [toc_with_authors])
+      render
+
+      expect(rendered).to have_content('Jane Austen, Charles Dickens')
+      expect(rendered).to have_selector('.toc-meta', text: /✍️/)
+    end
+
+    it 'displays single author correctly' do
+      author = Person.create!(name: 'William Shakespeare')
+      toc_with_author = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL888M',
+        title: 'Book with One Author',
+        status: :empty
+      )
+      PeopleToc.create!(person: author, toc: toc_with_author)
+
+      assign(:tocs, [toc_with_author])
+      render
+
+      expect(rendered).to have_content('William Shakespeare')
+      expect(rendered).to have_selector('.toc-meta', text: /✍️/)
+    end
+
+    it 'does not display author section when TOC has no authors' do
+      toc_no_authors = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL777M',
+        title: 'Book without Authors',
+        status: :empty
+      )
+
+      assign(:tocs, [toc_no_authors])
+      render
+
+      # Author emoji should not be present
+      toc_card = rendered.match(/<div[^>]*class="[^"]*toc-card[^"]*"[^>]*>.*?Book without Authors.*?<\/div>/m).to_s
+      expect(toc_card).not_to include('✍️')
+    end
+
+    it 'handles TOCs with multiple authors correctly' do
+      author1 = Person.create!(name: 'Author One')
+      author2 = Person.create!(name: 'Author Two')
+      author3 = Person.create!(name: 'Author Three')
+      toc_multiple_authors = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL666M',
+        title: 'Book with Multiple Authors',
+        status: :empty
+      )
+      PeopleToc.create!(person: author1, toc: toc_multiple_authors)
+      PeopleToc.create!(person: author2, toc: toc_multiple_authors)
+      PeopleToc.create!(person: author3, toc: toc_multiple_authors)
+
+      assign(:tocs, [toc_multiple_authors])
+      render
+
+      expect(rendered).to have_content('Author One, Author Two, Author Three')
+    end
+  end
 end

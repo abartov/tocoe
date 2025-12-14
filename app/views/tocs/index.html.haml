@@ -92,6 +92,10 @@
           %span
             📅
             = toc.created_at.strftime('%b %d, %Y')
+          - if toc.authors.any?
+            %span
+              ✍️
+              = toc.authors.map(&:name).join(', ')
           - if current_user&.admin? && toc.contributor
             %span
               👤

@@ -10,6 +10,17 @@ RSpec.describe TocsController, type: :controller do
   end
 
   describe 'GET #index' do
+    it 'includes authors association in the query' do
+      toc1 = Toc.create!(book_uri: 'http://openlibrary.org/books/OL1M', title: 'Book 1')
+      author1 = Person.create!(name: 'Author One')
+      PeopleToc.create!(person: author1, toc: toc1)
+
+      get :index
+
+      # Verify authors are accessible on the loaded TOCs
+      expect(assigns(:tocs).first.authors).to include(author1)
+    end
+
     it 'excludes verified TOCs by default' do
       verified_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL1M', title: 'Verified', status: :verified)
       pending_toc = Toc.create!(book_uri: 'http://openlibrary.org/books/OL2M', title: 'Pending', status: :pages_marked)

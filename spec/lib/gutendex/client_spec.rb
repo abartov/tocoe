@@ -104,5 +104,67 @@ RSpec.describe Gutendex::Client do
 
       expect(url).to be_nil
     end
+
+    it 'forces HTTPS URLs to prevent mixed content issues' do
+      # Use Pride and Prejudice (ID 1342)
+      url = client.preferred_fulltext_url(1342)
+
+      # All returned URLs should use HTTPS
+      expect(url).to start_with('https://')
+      expect(url).not_to start_with('http://')
+    end
+
+    context 'when API returns HTTP URLs' do
+      it 'converts HTTP URLs to HTTPS' do
+        # Mock the fulltext_urls to return HTTP URLs
+        allow(client).to receive(:fulltext_urls).and_return(
+          'text/html' => 'http://www.gutenberg.org/files/1342/1342-h/1342-h.htm'
+        )
+
+        url = client.preferred_fulltext_url(1342)
+
+        expect(url).to eq('https://www.gutenberg.org/files/1342/1342-h/1342-h.htm')
+      end
+
+      it 'leaves HTTPS URLs unchanged' do
+        # Mock the fulltext_urls to return HTTPS URLs
+        allow(client).to receive(:fulltext_urls).and_return(
+          'text/html' => 'https://www.gutenberg.org/files/1342/1342-h/1342-h.htm'
+        )
+
+        url = client.preferred_fulltext_url(1342)
+
+        expect(url).to eq('https://www.gutenberg.org/files/1342/1342-h/1342-h.htm')
+      end
+    end
+  end
+
+  describe '#force_https' do
+    it 'converts HTTP URLs to HTTPS' do
+      http_url = 'http://www.gutenberg.org/files/1342/1342-h/1342-h.htm'
+      https_url = client.send(:force_https, http_url)
+
+      expect(https_url).to eq('https://www.gutenberg.org/files/1342/1342-h/1342-h.htm')
+    end
+
+    it 'leaves HTTPS URLs unchanged' do
+      https_url = 'https://www.gutenberg.org/files/1342/1342-h/1342-h.htm'
+      result = client.send(:force_https, https_url)
+
+      expect(result).to eq(https_url)
+    end
+
+    it 'returns nil when given nil' do
+      result = client.send(:force_https, nil)
+
+      expect(result).to be_nil
+    end
+
+    it 'handles URLs with subdomains' do
+      http_url = 'http://mirror.gutenberg.org/files/test.html'
+      https_url = client.send(:force_https, http_url)
+
+      expect(https_url).to eq('https://mirror.gutenberg.org/files/test.html')
+    end
   end
 end

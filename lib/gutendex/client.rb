@@ -77,21 +77,31 @@ class Gutendex::Client
 
   # Get preferred fulltext URL for a book
   # Prefers HTML, then plain text
+  # Ensures all URLs use HTTPS to avoid mixed content issues
   def preferred_fulltext_url(pg_id)
     formats = fulltext_urls(pg_id)
 
     # Prefer HTML
     html_url = formats['text/html'] || formats.find { |k, _v| k.include?('html') }&.last
-    return html_url if html_url
+    return force_https(html_url) if html_url
 
     # Fall back to plain text
     text_url = formats['text/plain'] || formats['text/plain; charset=utf-8'] ||
                formats['text/plain; charset=us-ascii']
-    return text_url if text_url
+    return force_https(text_url) if text_url
 
     nil
   rescue => e
     Rails.logger.error "Failed to get preferred fulltext URL for PG ID #{pg_id}: #{e.message}"
     nil
+  end
+
+  private
+
+  # Force a URL to use HTTPS instead of HTTP
+  # Project Gutenberg supports HTTPS, so we can safely upgrade HTTP URLs
+  def force_https(url)
+    return nil if url.nil?
+    url.sub(/\Ahttp:/, 'https:')
   end
 end

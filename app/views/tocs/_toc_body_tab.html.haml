@@ -41,7 +41,8 @@
                 %h4{style: 'margin: 0;'}= t('tocs.form.gutenberg_section.fulltext_available_title')
               .panel-body
                 %p.text-muted= t('tocs.form.gutenberg_section.fulltext_help')
-                %iframe{ src: @fulltext_url, style: 'width: 100%; height: 600px; border: 1px solid #ddd;' }
+                -# Use server-side proxy to avoid mixed content issues from Gutenberg's HTTP redirects
+                %iframe{ src: gutenberg_proxy_tocs_path(url: @fulltext_url), style: 'width: 100%; height: 600px; border: 1px solid #ddd;' }
 
     -# Editing panel
     .editing-panel

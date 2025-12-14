@@ -9,6 +9,51 @@ RSpec.describe TocsController, type: :controller do
     sign_in user
   end
 
+  # Helper method tests
+  describe '#parse_toc_authors' do
+    it 'parses author names without square brackets as authors' do
+      line = 'Hamlet || William Shakespeare'
+      title, authors_data = controller.send(:parse_toc_authors, line)
+
+      expect(title).to eq('Hamlet')
+      expect(authors_data.length).to eq(1)
+      expect(authors_data[0][:name]).to eq('William Shakespeare')
+      expect(authors_data[0][:role]).to eq(:author)
+    end
+
+    it 'parses author names in square brackets as translators' do
+      line = 'The Name of the Rose || Umberto Eco; [William Weaver]'
+      title, authors_data = controller.send(:parse_toc_authors, line)
+
+      expect(title).to eq('The Name of the Rose')
+      expect(authors_data.length).to eq(2)
+      expect(authors_data[0][:name]).to eq('Umberto Eco')
+      expect(authors_data[0][:role]).to eq(:author)
+      expect(authors_data[1][:name]).to eq('William Weaver')
+      expect(authors_data[1][:role]).to eq(:translator)
+    end
+
+    it 'handles multiple authors with mixed roles' do
+      line = 'Book Title || Author One; [Translator One]; Author Two; [Translator Two]'
+      title, authors_data = controller.send(:parse_toc_authors, line)
+
+      expect(title).to eq('Book Title')
+      expect(authors_data.length).to eq(4)
+      expect(authors_data[0][:role]).to eq(:author)
+      expect(authors_data[1][:role]).to eq(:translator)
+      expect(authors_data[2][:role]).to eq(:author)
+      expect(authors_data[3][:role]).to eq(:translator)
+    end
+
+    it 'returns empty authors array when no || separator' do
+      line = 'Plain Title'
+      title, authors_data = controller.send(:parse_toc_authors, line)
+
+      expect(title).to eq('Plain Title')
+      expect(authors_data).to be_empty
+    end
+  end
+
   describe 'GET #index' do
     it 'includes authors association in the query' do
       toc1 = Toc.create!(book_uri: 'http://openlibrary.org/books/OL1M', title: 'Book 1')
@@ -582,14 +627,14 @@ RSpec.describe TocsController, type: :controller do
       )
     end
 
-    it 'marks TOC as transcribed and sets contributor' do
+    it 'marks TOC as transcribed and sets contributor, redirects to review_authors' do
       post :mark_transcribed, params: { id: pages_marked_toc.id }
 
       pages_marked_toc.reload
       expect(pages_marked_toc.status).to eq('transcribed')
       expect(pages_marked_toc.contributor_id).to eq(user.id)
-      expect(response).to redirect_to(pages_marked_toc)
-      expect(flash[:notice]).to eq('TOC marked as transcribed successfully')
+      expect(response).to redirect_to(review_authors_toc_path(pages_marked_toc))
+      expect(flash[:notice]).to eq(I18n.t('tocs.flash.marked_as_transcribed_now_review_authors'))
     end
 
     it 'rejects if TOC is not in pages_marked status' do
@@ -1720,47 +1765,55 @@ RSpec.describe TocsController, type: :controller do
     end
   end
 
-  describe '#parse_toc_authors' do
+  describe '#parse_toc_authors (legacy tests - updated for new format)' do
     it 'parses single author' do
-      title, authors = controller.send(:parse_toc_authors, 'Title || Author')
+      title, authors_data = controller.send(:parse_toc_authors, 'Title || Author')
       expect(title).to eq('Title')
-      expect(authors).to eq(['Author'])
+      expect(authors_data.length).to eq(1)
+      expect(authors_data[0][:name]).to eq('Author')
+      expect(authors_data[0][:role]).to eq(:author)
     end
 
     it 'parses multiple authors separated by semicolon' do
-      title, authors = controller.send(:parse_toc_authors, 'Title || Author1; Author2')
+      title, authors_data = controller.send(:parse_toc_authors, 'Title || Author1; Author2')
       expect(title).to eq('Title')
-      expect(authors).to eq(['Author1', 'Author2'])
+      expect(authors_data.length).to eq(2)
+      expect(authors_data[0][:name]).to eq('Author1')
+      expect(authors_data[1][:name]).to eq('Author2')
     end
 
     it 'handles three or more authors' do
-      title, authors = controller.send(:parse_toc_authors, 'Title || Author1; Author2; Author3')
+      title, authors_data = controller.send(:parse_toc_authors, 'Title || Author1; Author2; Author3')
       expect(title).to eq('Title')
-      expect(authors).to eq(['Author1', 'Author2', 'Author3'])
+      expect(authors_data.length).to eq(3)
+      expect(authors_data.map { |a| a[:name] }).to eq(['Author1', 'Author2', 'Author3'])
     end
 
     it 'handles no author' do
-      title, authors = controller.send(:parse_toc_authors, 'Title')
+      title, authors_data = controller.send(:parse_toc_authors, 'Title')
       expect(title).to eq('Title')
-      expect(authors).to eq([])
+      expect(authors_data).to eq([])
     end
 
     it 'strips whitespace from title and author names' do
-      title, authors = controller.send(:parse_toc_authors, '  Title  ||  Author1  ;  Author2  ')
+      title, authors_data = controller.send(:parse_toc_authors, '  Title  ||  Author1  ;  Author2  ')
       expect(title).to eq('Title')
-      expect(authors).to eq(['Author1', 'Author2'])
+      expect(authors_data.length).to eq(2)
+      expect(authors_data[0][:name]).to eq('Author1')
+      expect(authors_data[1][:name]).to eq('Author2')
     end
 
     it 'filters out empty author names' do
-      title, authors = controller.send(:parse_toc_authors, 'Title || Author1; ; Author2')
+      title, authors_data = controller.send(:parse_toc_authors, 'Title || Author1; ; Author2')
       expect(title).to eq('Title')
-      expect(authors).to eq(['Author1', 'Author2'])
+      expect(authors_data.length).to eq(2)
+      expect(authors_data.map { |a| a[:name] }).to eq(['Author1', 'Author2'])
     end
 
     it 'handles empty author string after ||' do
-      title, authors = controller.send(:parse_toc_authors, 'Title || ')
+      title, authors_data = controller.send(:parse_toc_authors, 'Title || ')
       expect(title).to eq('Title')
-      expect(authors).to eq([])
+      expect(authors_data).to eq([])
     end
   end
 
@@ -1835,7 +1888,7 @@ RSpec.describe TocsController, type: :controller do
     end
   end
 
-  describe '#process_toc with author associations' do
+  describe '#process_toc with author associations (updated for manual matching)' do
     let(:test_toc) { Toc.create!(book_uri: 'http://example.com/book', title: 'Test Collection') }
 
     before do
@@ -1843,30 +1896,19 @@ RSpec.describe TocsController, type: :controller do
     end
 
     context 'with explicit authors in TOC markdown' do
-      it 'creates Person records and links to Works for single author' do
+      it 'creates Works but does NOT automatically create Person records or associations' do
         markdown = "# Work 1 || Shakespeare"
 
         expect {
           controller.send(:process_toc, markdown)
-        }.to change(Person, :count).by(1).and change(PeopleWork, :count).by(1)
+        }.to change(Person, :count).by(0).and change(PeopleWork, :count).by(0)
 
         work = Work.find_by(title: 'Work 1')
         expect(work).not_to be_nil
-        expect(work.creators.map(&:name)).to eq(['Shakespeare'])
+        expect(work.creators).to be_empty # No automatic association
       end
 
-      it 'creates Person records and links to Works for multiple authors' do
-        markdown = "# Work 1 || Author1; Author2"
-
-        expect {
-          controller.send(:process_toc, markdown)
-        }.to change(Person, :count).by(2).and change(PeopleWork, :count).by(2)
-
-        work = Work.find_by(title: 'Work 1')
-        expect(work.creators.map(&:name)).to match_array(['Author1', 'Author2'])
-      end
-
-      it 'stores clean titles without author suffix' do
+      it 'creates Works with clean titles even with authors specified' do
         markdown = "# Work Title || Author Name"
 
         controller.send(:process_toc, markdown)
@@ -1875,67 +1917,20 @@ RSpec.describe TocsController, type: :controller do
         expect(work).not_to be_nil
         expect(work.title).to eq('Work Title')
         expect(work.title).not_to include('||')
+        expect(work.creators).to be_empty # Authors must be matched manually later
       end
 
-      it 'handles multiple works with different authors' do
+      it 'handles multiple works with different authors without creating Persons' do
         markdown = "# Work 1 || Author1\n# Work 2 || Author2"
 
         expect {
           controller.send(:process_toc, markdown)
-        }.to change(Person, :count).by(2).and change(Work, :count).by(3) # 2 works + 1 aggregating
+        }.to change(Person, :count).by(0).and change(Work, :count).by(3) # 2 works + 1 aggregating
 
         work1 = Work.find_by(title: 'Work 1')
         work2 = Work.find_by(title: 'Work 2')
-        expect(work1.creators.map(&:name)).to eq(['Author1'])
-        expect(work2.creators.map(&:name)).to eq(['Author2'])
-      end
-
-      it 'reuses existing Person records with same name' do
-        existing_person = Person.create!(name: 'Shared Author')
-        markdown = "# Work 1 || Shared Author\n# Work 2 || Shared Author"
-
-        expect {
-          controller.send(:process_toc, markdown)
-        }.to change(Person, :count).by(0).and change(PeopleWork, :count).by(2)
-
-        work1 = Work.find_by(title: 'Work 1')
-        work2 = Work.find_by(title: 'Work 2')
-        expect(work1.creators.first).to eq(existing_person)
-        expect(work2.creators.first).to eq(existing_person)
-      end
-    end
-
-    context 'with fallback to book authors' do
-      let(:book_author) { Person.create!(name: 'Book Author') }
-
-      before do
-        test_toc.authors << book_author
-      end
-
-      it 'links book authors to Works without explicit authors' do
-        markdown = "# Work 1\n# Work 2"
-
-        expect {
-          controller.send(:process_toc, markdown)
-        }.to change(PeopleWork, :count).by(2)
-
-        work1 = Work.find_by(title: 'Work 1')
-        work2 = Work.find_by(title: 'Work 2')
-        expect(work1.creators).to include(book_author)
-        expect(work2.creators).to include(book_author)
-      end
-
-      it 'uses explicit authors when present, book authors otherwise' do
-        markdown = "# Work 1 || Explicit Author\n# Work 2"
-
-        expect {
-          controller.send(:process_toc, markdown)
-        }.to change(Person, :count).by(1)
-
-        work1 = Work.find_by(title: 'Work 1')
-        work2 = Work.find_by(title: 'Work 2')
-        expect(work1.creators.map(&:name)).to eq(['Explicit Author'])
-        expect(work2.creators).to include(book_author)
+        expect(work1.creators).to be_empty
+        expect(work2.creators).to be_empty
       end
     end
 
@@ -1949,10 +1944,10 @@ RSpec.describe TocsController, type: :controller do
         expect(Work.where(title: 'Section Name').count).to eq(0)
         expect(Work.where(title: 'Section Name /').count).to eq(0)
 
-        # Should create Work for the actual entry
+        # Should create Work for the actual entry (without automatic person linking)
         work = Work.find_by(title: 'Work 1')
         expect(work).not_to be_nil
-        expect(work.creators.map(&:name)).to eq(['Author'])
+        expect(work.creators).to be_empty
       end
 
       it 'handles multiple section headings' do
@@ -1966,15 +1961,17 @@ RSpec.describe TocsController, type: :controller do
     end
 
     context 'with nested works' do
-      it 'assigns authors independently to nested works' do
+      it 'creates nested works without automatic author assignments' do
         markdown = "# Work 1 || Author1\n## Nested Work || Author2"
 
         controller.send(:process_toc, markdown)
 
         work1 = Work.find_by(title: 'Work 1')
         nested_work = Work.find_by(title: 'Nested Work')
-        expect(work1.creators.map(&:name)).to eq(['Author1'])
-        expect(nested_work.creators.map(&:name)).to eq(['Author2'])
+        expect(work1).not_to be_nil
+        expect(nested_work).not_to be_nil
+        expect(work1.creators).to be_empty
+        expect(nested_work.creators).to be_empty
       end
     end
 
@@ -2169,6 +2166,89 @@ RSpec.describe TocsController, type: :controller do
       result = controller.send(:fix_http_links_in_html, html)
 
       expect(result).to eq(html)
+    end
+  end
+
+  describe 'POST #mark_transcribed redirects to review_authors' do
+    let(:toc_with_pages) do
+      Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Test Book',
+        status: :pages_marked,
+        toc_body: "# Essay One || Alice Smith\n# Essay Two || Bob Jones"
+      )
+    end
+
+    it 'redirects to review_authors after successful transcription' do
+      post :mark_transcribed, params: { id: toc_with_pages.id }
+
+      expect(response).to redirect_to(review_authors_toc_path(toc_with_pages))
+      expect(flash[:notice]).to eq(I18n.t('tocs.flash.marked_as_transcribed_now_review_authors'))
+    end
+  end
+
+  describe 'GET #review_authors' do
+    let(:manifestation) { Manifestation.create!(title: 'Test Manifestation') }
+    let(:work1) { Work.create!(title: 'Work One') }
+    let(:work2) { Work.create!(title: 'Work Two') }
+    let(:expression1) { Expression.create!(title: 'Work One') }
+    let(:expression2) { Expression.create!(title: 'Work Two') }
+
+    let(:toc_with_works) do
+      toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL123M',
+        title: 'Test Collection',
+        status: :transcribed,
+        toc_body: "# Work One || Author One\n# Work Two || [Translator Two]",
+        manifestation: manifestation
+      )
+
+      # Create embodiments
+      work1.expressions << expression1
+      work2.expressions << expression2
+      Embodiment.create!(expression: expression1, manifestation: manifestation, sequence_number: 1)
+      Embodiment.create!(expression: expression2, manifestation: manifestation, sequence_number: 2)
+
+      toc
+    end
+
+    it 'shows review page for transcribed TOC' do
+      get :review_authors, params: { id: toc_with_works.id }
+
+      expect(response).to have_http_status(:success)
+      expect(assigns(:work_author_pairs)).to be_present
+    end
+
+    it 'extracts work-author pairs correctly' do
+      get :review_authors, params: { id: toc_with_works.id }
+
+      pairs = assigns(:work_author_pairs)
+      expect(pairs.length).to eq(2)
+
+      # First work with author
+      expect(pairs[0][:work]).to eq(work1)
+      expect(pairs[0][:authors].length).to eq(1)
+      expect(pairs[0][:authors][0][:name]).to eq('Author One')
+      expect(pairs[0][:authors][0][:role]).to eq(:author)
+
+      # Second work with translator
+      expect(pairs[1][:work]).to eq(work2)
+      expect(pairs[1][:authors].length).to eq(1)
+      expect(pairs[1][:authors][0][:name]).to eq('Translator Two')
+      expect(pairs[1][:authors][0][:role]).to eq(:translator)
+    end
+
+    it 'rejects if TOC is not transcribed or verified' do
+      empty_toc = Toc.create!(
+        book_uri: 'http://openlibrary.org/books/OL456M',
+        title: 'Empty TOC',
+        status: :empty
+      )
+
+      get :review_authors, params: { id: empty_toc.id }
+
+      expect(response).to redirect_to(empty_toc)
+      expect(flash[:error]).to eq(I18n.t('tocs.flash.must_be_transcribed_to_review_authors'))
     end
   end
 end

@@ -5,7 +5,7 @@ require 'rest-client'
 # Tables of Contents controller
 # rubocop:disable ClassLength
 class TocsController < ApplicationController
-  before_action :set_toc, only: [:show, :download, :edit, :update, :destroy, :browse_scans, :mark_pages, :mark_transcribed, :verify, :auto_match_subjects]
+  before_action :set_toc, only: [:show, :download, :edit, :update, :destroy, :browse_scans, :mark_pages, :mark_transcribed, :verify, :auto_match_subjects, :review_authors]
 
   # GET /tocs
   # GET /tocs.json
@@ -483,12 +483,28 @@ class TocsController < ApplicationController
     @toc.status = :transcribed
 
     if @toc.save
-      flash[:notice] = I18n.t('tocs.flash.marked_as_transcribed_successfully')
-      redirect_to @toc
+      # Redirect to author review page for manual person matching
+      flash[:notice] = I18n.t('tocs.flash.marked_as_transcribed_now_review_authors')
+      redirect_to review_authors_toc_path(@toc)
     else
       flash[:error] = I18n.t('tocs.flash.failed_to_mark_transcribed')
       redirect_to @toc
     end
+  end
+
+  # GET /tocs/:id/review_authors
+  # Shows a review page for manually matching authors to persons
+  def review_authors
+    unless @toc.transcribed? || @toc.verified?
+      flash[:error] = I18n.t('tocs.flash.must_be_transcribed_to_review_authors')
+      redirect_to @toc and return
+    end
+
+    # Extract work-author pairs from the TOC markdown
+    @work_author_pairs = extract_work_author_pairs(@toc.toc_body, @toc.manifestation)
+
+    # Get inherited authors from TOC (for works without explicit authors)
+    @toc_authors = @toc.authors
   end
 
   # POST /tocs/:id/verify
@@ -711,21 +727,15 @@ class TocsController < ApplicationController
       next if line_content.end_with?('/') # Skip section headings
 
       # Parse title and authors from TOC line
-      title, author_names = parse_toc_authors(line_content)
+      title, authors_data = parse_toc_authors(line_content)
 
       # Create Work with clean title (no author string)
       w = Work.new(title: title) # TODO: add other details if specified in metadata
       w.save!
 
-      # Create/find Person records and link to Work
-      if author_names.any?
-        # Explicit authors in TOC line
-        persons = find_or_create_persons(author_names)
-        link_authors_to_work(w, persons)
-      elsif @toc.authors.present?
-        # Fallback: use book's principal authors
-        link_authors_to_work(w, @toc.authors)
-      end
+      # Note: Person associations are NOT created here
+      # They will be created manually via the person matcher after transcription
+      # Authors data (names and roles) will be extracted again when needed
 
       e = Expression.new(title: title) # TODO: likewise
       e.save!
@@ -906,12 +916,21 @@ class TocsController < ApplicationController
   end
 
   # Parse author names from TOC line
-  # Returns: [title_without_authors, [author_name1, author_name2, ...]]
+  # Returns: [title_without_authors, [{name: string, role: :author|:translator}, ...]]
+  # Names in square brackets are translators, others are authors
   def parse_toc_authors(line)
     if line.include?('||')
       title, author_string = line.split('||', 2)
-      author_names = author_string.split(';').map(&:strip).reject(&:empty?)
-      [title.strip, author_names]
+      authors_data = author_string.split(';').map(&:strip).reject(&:empty?).map do |name|
+        if name.match?(/^\[.*\]$/)
+          # Name in square brackets => translator
+          { name: name.gsub(/^\[|\]$/, '').strip, role: :translator }
+        else
+          # Regular name => author
+          { name: name, role: :author }
+        end
+      end
+      [title.strip, authors_data]
     else
       [line, []]
     end
@@ -937,6 +956,40 @@ class TocsController < ApplicationController
   def fix_http_links_in_html(html)
     # Replace HTTP Gutenberg URLs with HTTPS in common HTML attributes
     html.gsub(/http:\/\/(www\.)?gutenberg\.org/, 'https://\1gutenberg.org')
+  end
+
+  # Extract work-author pairs from TOC markdown
+  # Returns array of hashes: [{ work: Work, authors: [{name: string, role: :author|:translator}] }, ...]
+  def extract_work_author_pairs(markdown, manifestation)
+    return [] unless markdown.present? && manifestation.present?
+
+    pairs = []
+    work_index = 0
+
+    # Get all Works from the manifestation (excluding the aggregating work)
+    works = manifestation.embodiments
+                         .where.not(sequence_number: nil)
+                         .order(:sequence_number)
+                         .includes(expression: :work)
+                         .map { |emb| emb.expression.work }
+
+    markdown.lines.each do |line|
+      next unless line.strip =~ /^#+/ # Only process heading lines
+      line_content = $'.strip
+      next if line_content.end_with?('/') # Skip section headings
+
+      # Parse title and authors from TOC line
+      title, authors_data = parse_toc_authors(line_content)
+
+      # Match with the corresponding work by index
+      if work_index < works.length
+        work = works[work_index]
+        pairs << { work: work, authors: authors_data, title: title }
+        work_index += 1
+      end
+    end
+
+    pairs
   end
 
   # Automatically add Wikidata aboutness if the LCSH aboutness has a Wikidata mapping

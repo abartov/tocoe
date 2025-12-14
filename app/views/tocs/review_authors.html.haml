@@ -1,0 +1,128 @@
+-# Review Authors Page
+-# Shows all work-author pairs for manual person matching
+
+.container.mt-4
+  .row
+    .col-md-12
+      %h1= t('tocs.review_authors.title', toc_title: @toc.title)
+
+      %p.lead= t('tocs.review_authors.instructions')
+
+      -# Show progress
+      .alert.alert-info
+        = t('tocs.review_authors.progress_message', total: @work_author_pairs.length)
+
+      -# List all work-author pairs
+      .work-author-pairs
+        - @work_author_pairs.each_with_index do |pair, index|
+          - work = pair[:work]
+          - authors = pair[:authors]
+          - title = pair[:title]
+
+          .card.mb-3{id: "work-#{work.id}"}
+            .card-header
+              %h5.mb-0
+                = "#{index + 1}. #{title}"
+
+            .card-body
+              - if authors.any?
+                -# Work has explicit authors in TOC
+                %p.mb-2
+                  %strong= t('tocs.review_authors.authors_to_match')
+                %ul.list-unstyled
+                  - authors.each do |author_data|
+                    - author_name = author_data[:name]
+                    - role = author_data[:role]
+                    - role_label = role == :translator ? t('tocs.review_authors.role_translator') : t('tocs.review_authors.role_author')
+
+                    %li.mb-3.d-flex.justify-content-between.align-items-center{id: "work-#{work.id}-author-#{author_name.parameterize}"}
+                      .author-info
+                        %span.author-name
+                          = author_name
+                        %span.badge.badge-secondary.ml-2
+                          = role_label
+
+                      .match-actions
+                        -# Check if already matched
+                        - if role == :translator
+                          - existing_match = work.expressions.first&.realizers&.find_by(name: author_name)
+                        - else
+                          - existing_match = work.people.find_by(name: author_name)
+
+                        - if existing_match
+                          %span.badge.badge-success
+                            = t('tocs.review_authors.matched')
+                            = existing_match.name
+                        - else
+                          %button.btn.btn-primary.btn-sm.match-button{
+                            type: 'button',
+                            data: {
+                              work_id: work.id,
+                              author_name: author_name,
+                              role: role,
+                              target_type: role == :translator ? 'Expression' : 'Work',
+                              target_id: role == :translator ? work.expressions.first&.id : work.id
+                            }
+                          }
+                            = t('tocs.review_authors.match_button')
+
+              - else
+                -# Work has no explicit authors - inherit from TOC
+                %p.text-muted
+                  = t('tocs.review_authors.no_explicit_authors')
+                - if @toc_authors.any?
+                  %p.mb-2
+                    %strong= t('tocs.review_authors.inherited_authors_from_toc')
+                  %ul.list-unstyled
+                    - @toc_authors.each do |toc_author|
+                      %li.mb-3.d-flex.justify-content-between.align-items-center
+                        .author-info
+                          %span.author-name
+                            = toc_author.name
+                          %span.badge.badge-secondary.ml-2
+                            = t('tocs.review_authors.role_author')
+
+                        .match-actions
+                          - existing_match = work.people.find_by(id: toc_author.id)
+                          - if existing_match
+                            %span.badge.badge-success
+                              = t('tocs.review_authors.matched')
+                              = existing_match.name
+                          - else
+                            %button.btn.btn-primary.btn-sm.match-button{
+                              type: 'button',
+                              data: {
+                                work_id: work.id,
+                                author_name: toc_author.name,
+                                role: 'author',
+                                target_type: 'Work',
+                                target_id: work.id
+                              }
+                            }
+                              = t('tocs.review_authors.match_button')
+
+      -# Footer actions
+      .mt-4.d-flex.justify-content-between
+        = link_to t('common.actions.back'), @toc, class: 'btn btn-secondary'
+        = link_to t('tocs.review_authors.skip_for_now'), @toc, class: 'btn btn-outline-secondary'
+
+-# Include person matcher modal
+= render 'shared/person_matcher'
+
+:javascript
+  $(document).ready(function() {
+    // Handle match button clicks
+    $('.match-button').on('click', function() {
+      var $button = $(this);
+      var authorName = $button.data('author-name');
+      var role = $button.data('role');
+      var targetType = $button.data('target-type');
+      var targetId = $button.data('target-id');
+
+      // Open person matcher modal
+      PersonMatcher.open(targetType, targetId, authorName, []);
+
+      // Note: After successful match, the person matcher will reload the page
+      // to show the updated "matched" status
+    });
+  });

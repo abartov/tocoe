@@ -127,6 +127,8 @@ en:
         other: "Successfully created %{count} TOCs"
       failed_to_create_any: "Failed to create any TOCs"
       openlibrary_server_error: "Unable to fetch author information from Open Library. The service may be temporarily unavailable. You can still edit and save the TOC."
+      marked_as_transcribed_now_review_authors: "TOC transcribed! Now match authors to person records."
+      must_be_transcribed_to_review_authors: "TOC must be transcribed before reviewing authors"
 
     # Index view
     index:
@@ -213,6 +215,20 @@ en:
         browse_scans_button: "Browse Scans to Mark TOC Pages"
 
       browse_scans_link: "Browse Scans"
+
+    # Review authors view
+    review_authors:
+      title: "Review Authors for: %{toc_title}"
+      instructions: "Match each author to a person record using the person matcher. This ensures proper attribution and links to authority databases (VIAF, Wikidata, Library of Congress)."
+      progress_message: "Total works to review: %{total}"
+      authors_to_match: "Authors to match:"
+      no_explicit_authors: "No explicit authors listed for this work."
+      inherited_authors_from_toc: "Inherited authors from TOC:"
+      role_author: "Author"
+      role_translator: "Translator"
+      matched: "Matched:"
+      match_button: "Match Author"
+      skip_for_now: "Skip matching for now"
 
     # Browse scans view
     browse_scans:

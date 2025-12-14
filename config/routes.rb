@@ -20,6 +20,7 @@ Rails.application.routes.draw do
       post :mark_transcribed
       post :verify
       post :auto_match_subjects
+      get :review_authors
     end
   end
   get 'publications/search'

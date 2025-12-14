@@ -554,8 +554,27 @@ class TocsController < ApplicationController
     is_gutenberg = @toc&.source == 'gutenberg' || (uri_or_book_data.is_a?(Hash) && !uri_or_book_data.key?('key'))
 
     if is_gutenberg
-      # Gutendex book data passed directly (already deserialized as Hash from serialize :book_data)
-      @book = uri_or_book_data.is_a?(String) ? JSON.parse(uri_or_book_data) : uri_or_book_data
+      # Handle Gutenberg data
+      if uri_or_book_data.is_a?(String)
+        # If it's a string and we're in Gutenberg mode, it could be:
+        # 1. A Gutenberg URI that we need to fetch book data for
+        # 2. JSON string (legacy, unlikely)
+
+        # Check if it's a Gutenberg URI
+        if uri_or_book_data =~ %r{gutenberg\.org/ebooks/(\d+)}
+          # Extract book ID and fetch from Gutendex
+          pg_book_id = $1
+          gutendex_client = Gutendex::Client.new
+          @book = gutendex_client.book(pg_book_id)
+        else
+          # Assume it's JSON string (legacy)
+          @book = JSON.parse(uri_or_book_data)
+        end
+      else
+        # It's already a Hash (book_data from serialize :book_data)
+        @book = uri_or_book_data
+      end
+
       @authors = @book['authors'] || []
       # Transform Gutendex authors to ensure consistent format
       @authors = @authors.map do |author|

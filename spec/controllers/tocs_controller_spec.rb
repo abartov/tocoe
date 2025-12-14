@@ -812,6 +812,53 @@ RSpec.describe TocsController, type: :controller do
       end
     end
 
+    context 'with Gutenberg URI and source: gutenberg (regression test for JSON::ParserError)' do
+      let(:gutendex_client) { instance_double(Gutendex::Client) }
+      let(:gutendex_book_data) do
+        {
+          'title' => 'Pride and Prejudice',
+          'authors' => [
+            { 'name' => 'Austen, Jane', 'birth_year' => 1775, 'death_year' => 1817 }
+          ]
+        }
+      end
+
+      before do
+        # Create a Gutenberg TOC with source set but no book_data
+        gutenberg_toc = Toc.new(
+          book_uri: 'https://www.gutenberg.org/ebooks/1342',
+          title: 'Pride and Prejudice',
+          source: :gutenberg,
+          book_data: nil  # This is the problematic scenario
+        )
+        controller.instance_variable_set(:@toc, gutenberg_toc)
+
+        allow(Gutendex::Client).to receive(:new).and_return(gutendex_client)
+        allow(gutendex_client).to receive(:book).with('1342').and_return(gutendex_book_data)
+      end
+
+      it 'handles Gutenberg URI when source is gutenberg but book_data is nil' do
+        # This should NOT raise JSON::ParserError
+        # It should fetch the book data from Gutendex instead
+        expect {
+          controller.send(:get_authors, 'https://www.gutenberg.org/ebooks/1342')
+        }.not_to raise_error
+
+        authors = controller.instance_variable_get(:@authors)
+        expect(authors).to be_present
+        expect(authors[0]['name']).to eq('Austen, Jane')
+      end
+
+      it 'fetches book data from Gutendex when given a Gutenberg URI' do
+        controller.send(:get_authors, 'https://www.gutenberg.org/ebooks/1342')
+
+        expect(gutendex_client).to have_received(:book).with('1342')
+
+        book = controller.instance_variable_get(:@book)
+        expect(book).to eq(gutendex_book_data)
+      end
+    end
+
     context 'with Gutendex book data' do
       let(:gutendex_book_data) do
         {

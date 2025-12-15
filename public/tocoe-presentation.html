@@ -366,7 +366,7 @@
 
         <!-- Slide 4: The Workflow - Step 1 -->
         <div class="slide">
-            <h1>🔄 The Workflow</h1>
+            <h1>🔄 The 4-Step Workflow</h1>
             <h2>Step 1: Finding a Book</h2>
             <p>Contributors start by searching for a book from two major sources:</p>
 
@@ -392,7 +392,12 @@
                 <em>Click to view full size • Publications search interface for Open Library and Gutenberg</em>
             </p>
 
-            <p>Once a book is selected, ToCoE automatically fetches metadata like title, author, and publication date.</p>
+            <h3>Smart Features</h3>
+            <ul>
+                <li><strong>Batch creation:</strong> Select multiple books to create ToC entries at once</li>
+                <li><strong>Auto-filtering:</strong> Excludes books that already have ToCs</li>
+                <li><strong>Metadata import:</strong> Automatically fetches title, authors, subjects, and publication data</li>
+            </ul>
         </div>
 
         <!-- Slide 5: The Workflow - Step 2 -->
@@ -453,29 +458,34 @@
         <!-- Slide 7: The Workflow - Step 4 -->
         <div class="slide">
             <h1>🔄 The Workflow</h1>
-            <h2>Step 4: Processing & Linking to Linked Data</h2>
-            <p>When a contributor submits a ToC, ToCoE automatically creates the complete FRBR structure:</p>
+            <h2>Step 4: Author & Subject Matching</h2>
+            <p>After transcription, contributors link authors and subject headings to authoritative sources through an interactive matching interface.</p>
 
             <div class="workflow-step">
-                <h3>🏗️ What Happens Behind the Scenes</h3>
+                <h3>👥 Multi-Source Person Matching</h3>
+                <p>The platform searches <strong>4 authority sources simultaneously</strong>:</p>
                 <ul>
-                    <li>Creates Work, Expression, and Embodiment records for each entry</li>
-                    <li>Links to Person records (authors) via <span class="term">OpenLibrary IDs</span></li>
-                    <li>Preserves the order via sequence numbers</li>
-                    <li>Links to external authority files when available</li>
+                    <li><strong>Local Database:</strong> Previously matched authors</li>
+                    <li><strong>VIAF:</strong> Virtual International Authority File</li>
+                    <li><strong>Wikidata:</strong> Collaborative knowledge base (Q numbers)</li>
+                    <li><strong>Library of Congress:</strong> LC Name Authority File</li>
+                </ul>
+                <p style="margin-top: 1rem;">Contributors review suggestions side-by-side and confirm matches with one click. The system distinguishes between <em>authors</em> (linked to Works) and <em>translators</em> (linked to Expressions).</p>
+            </div>
+
+            <div class="workflow-step">
+                <h3>🏷️ Intelligent Subject Matching</h3>
+                <ul>
+                    <li><strong>Auto-matching:</strong> Imported subjects automatically matched to Library of Congress Subject Headings (LCSH)</li>
+                    <li><strong>Bi-directional linking:</strong> When LCSH is matched, equivalent Wikidata entities are auto-imported (and vice versa)</li>
+                    <li><strong>Manual curation:</strong> Contributors can add additional subject headings with verification workflow</li>
+                    <li><strong>Subject browser:</strong> Explore all subject headings with statistics, search, and popularity rankings</li>
                 </ul>
             </div>
 
             <div class="definition">
-                <strong>Linked Open Data:</strong> A method of publishing structured data so it can be interlinked and queried. ToCoE connects to:
-                <ul>
-                    <li><strong>VIAF (Virtual International Authority File):</strong> International standard for author names</li>
-                    <li><strong>Wikidata:</strong> Collaborative knowledge base with unique IDs (Q numbers) for people, places, concepts</li>
-                    <li><strong>Library of Congress Subject Headings (LCSH):</strong> Standardized subject terms used by libraries worldwide</li>
-                </ul>
+                <strong>Linked Open Data:</strong> By connecting to multiple authority files, ToCoE creates a web of interlinked bibliographic data that's machine-readable and discoverable across systems worldwide.
             </div>
-
-            <p><strong>Real Example:</strong> T.S. Eliot in our database is linked to <code>openlibrary.org/authors/OL116256A</code>, which connects to his VIAF, Wikidata (Q42614), and LC authority records.</p>
         </div>
 
         <!-- Slide 8: The Workflow - Step 5 -->
@@ -522,24 +532,36 @@
                     <p>Thumbnail previews load progressively with spinners, then expand to full size on click. Browse scans quickly without waiting for all images to load.</p>
                 </div>
                 <div class="feature-card">
-                    <h4>🤖 OCR Integration</h4>
-                    <p>Automatic text extraction from page images using an external OCR service. Paste the results directly into the ToC editor with one click.</p>
+                    <h4>🤖 Enhanced OCR Integration</h4>
+                    <p>Inline text extraction from page images with "magic trim" button to automatically format OCR output. Supports both Tesseract (local) and REST API services.</p>
                 </div>
                 <div class="feature-card">
-                    <h4>🔎 Zoom Controls</h4>
-                    <p>+/− buttons to zoom in and out on scans, plus a "default" button to reset. Helps read small or blurry text.</p>
+                    <h4>⌨️ Keyboard Shortcuts</h4>
+                    <p>Power user shortcuts: <code>?</code> for help, <code>/</code> for search, <code>g d</code> for dashboard, <code>Cmd+S</code> to save, and more. Navigate without touching the mouse.</p>
                 </div>
                 <div class="feature-card">
                     <h4>📱 Responsive Design</h4>
                     <p>Works on desktop, tablet, and mobile devices. Contribute from anywhere.</p>
                 </div>
                 <div class="feature-card">
-                    <h4>📊 Workflow Stepper</h4>
-                    <p>Visual progress indicator showing current status (pages marked → transcribed → verified).</p>
+                    <h4>📊 Visual Workflow Stepper</h4>
+                    <p>Color-coded progress indicator showing current position in 4-step workflow (Create → Mark Pages → Transcribe → Verify). Always know where you are.</p>
                 </div>
                 <div class="feature-card">
                     <h4>📚 Integrated Fulltext Viewer</h4>
-                    <p>For Gutenberg books, view the full text side-by-side with the ToC editor. No need to switch windows.</p>
+                    <p>For Gutenberg books, view the full text side-by-side with the ToC editor. Secure HTTPS proxy eliminates mixed-content warnings.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>❓ Contextual Help System</h4>
+                    <p>Screen-specific help panels with interactive examples (live markdown preview, animated OCR demos). Toggle on/off in user settings. Persistence via localStorage.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📤 Export in 3 Formats</h4>
+                    <p>Download verified ToCs as plaintext, markdown (with CC0 footer), or JSON (structured data with authority IDs). All formats are public domain.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔐 Google OAuth2 Sign-In</h4>
+                    <p>Fast, secure authentication with your Google account. No password to remember.</p>
                 </div>
             </div>
 
@@ -605,54 +627,116 @@ DANTE</pre>
             </div>
         </div>
 
-        <!-- Slide 11: Future Plans - Part 1 -->
+        <!-- Slide 11: Subject Headings & Discovery -->
+        <div class="slide">
+            <h1>🏷️ Subject Headings & Discovery</h1>
+            <h2>Comprehensive "Aboutness" Management</h2>
+            <p>ToCoE implements a sophisticated subject heading system that connects works to standardized vocabularies.</p>
+
+            <div class="workflow-step">
+                <h3>📚 Subject Headings Browser</h3>
+                <ul>
+                    <li><strong>Statistics dashboard:</strong> Total aboutnesses, verified/proposed counts, unique headings</li>
+                    <li><strong>"Most Frequently Linked" ranking:</strong> Discover popular subjects</li>
+                    <li><strong>Search with autocomplete:</strong> Find subject headings quickly</li>
+                    <li><strong>Individual subject pages:</strong> See all works linked to a subject, with links to Library of Congress and Wikidata</li>
+                    <li><strong>Latest aboutnesses feed:</strong> Track recent subject tagging activity</li>
+                </ul>
+            </div>
+
+            <div class="workflow-step">
+                <h3>🔄 Intelligent Auto-Matching</h3>
+                <ul>
+                    <li><strong>Import subjects from book metadata:</strong> OpenLibrary and Gutendex subjects automatically imported</li>
+                    <li><strong>Exact match detection:</strong> Auto-match to Library of Congress Subject Headings (LCSH) via SPARQL queries</li>
+                    <li><strong>Bi-directional linking:</strong> LCSH → auto-import Wikidata entities (P244 property), and vice versa</li>
+                    <li><strong>Manual matching with suggestions:</strong> For non-exact matches, contributors review and select from candidates</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <strong>LCSH (Library of Congress Subject Headings):</strong> The world's most widely used subject vocabulary. ToCoE connects to the authoritative source via SPARQL, ensuring accuracy and interoperability with library systems worldwide.
+            </div>
+        </div>
+
+        <!-- Slide 12: Dashboard & Community Features -->
+        <div class="slide">
+            <h1>📊 Dashboard & Community</h1>
+            <h2>Personalized Workflow & Activity Tracking</h2>
+
+            <div class="workflow-step">
+                <h3>🏠 User Dashboard</h3>
+                <ul>
+                    <li><strong>Personal statistics:</strong> Your total ToCs, verified count, in-progress work</li>
+                    <li><strong>Recent ToCs:</strong> Quick access to your recent contributions</li>
+                    <li><strong>ToCs needing verification:</strong> Discover work transcribed by others that needs peer review</li>
+                    <li><strong>Community activity feed:</strong> See recent verifications across the platform</li>
+                    <li><strong>Quick actions:</strong> One-click access to search books, verify ToCs, add subjects</li>
+                </ul>
+            </div>
+
+            <div class="workflow-step">
+                <h3>🌐 Public Browse</h3>
+                <ul>
+                    <li><strong>Unauthenticated access:</strong> Anyone can browse verified ToCs without signing in</li>
+                    <li><strong>Public download endpoints:</strong> All export formats (plaintext, markdown, JSON) available to the public</li>
+                    <li><strong>Read-only view:</strong> Explore completed tables of contents and their metadata</li>
+                </ul>
+                <p style="margin-top: 1rem;"><em>Impact:</em> Verified ToCs are immediately useful to the public. No login barrier for accessing CC0 data.</p>
+            </div>
+
+            <div class="workflow-step">
+                <h3>🔍 Smart Filtering & Search</h3>
+                <ul>
+                    <li><strong>Filter by status:</strong> Empty, pages marked, transcribed, verified</li>
+                    <li><strong>Sortable columns:</strong> Title, status, created date, contributor, reviewer</li>
+                    <li><strong>"Show all" vs "needs work" toggle:</strong> Default view excludes your own ToCs and verified ones</li>
+                    <li><strong>Full-text search:</strong> Search across title, URI, body, comments</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 13: Future Plans -->
         <div class="slide">
             <h1>🚀 Future Plans</h1>
             <h2>Where ToCoE is Heading</h2>
-            <p>Based on our TODO list, here are the planned enhancements and their expected contributions:</p>
 
             <div class="workflow-step">
-                <h3>📤 Export Capabilities</h3>
+                <h3>📤 MARCXML Export</h3>
                 <ul>
-                    <li><strong>Markdown Export:</strong> Clean, human-readable format for documentation and sharing</li>
-                    <li><strong>XML Export (MARCXML):</strong> Library-standard format for integration with catalog systems</li>
-                    <li><strong>Additional formats:</strong> JSON, CSV for data analysis and mashups</li>
+                    <li><strong>Library-standard format:</strong> Export ToCs as MARCXML for direct integration with library catalog systems</li>
+                    <li><strong>MARC fields:</strong> 505 (Formatted Contents Note) for ToC entries, 100/700 (Creator/Contributor) for authors</li>
+                    <li><strong>Authority control:</strong> Include VIAF, LC, and Wikidata IDs in exported records</li>
                 </ul>
-                <p style="margin-top: 1rem;"><em>Expected Impact:</em> Libraries and researchers can import ToCoE data directly into their systems. MARCXML is the standard used by library catalogs worldwide.</p>
+                <p style="margin-top: 1rem;"><em>Expected Impact:</em> Libraries can import ToCoE data directly into their catalogs. MARCXML is the standard used worldwide for bibliographic data exchange.</p>
             </div>
 
             <div class="definition">
                 <strong>MARCXML:</strong> MARC (Machine-Readable Cataloging) is the international standard for library catalog records. MARCXML is the XML version, making it easy to exchange bibliographic data between library systems.
             </div>
-        </div>
-
-        <!-- Slide 12: Future Plans - Part 2 -->
-        <div class="slide">
-            <h1>🚀 Future Plans</h1>
-            <h2>Enhanced Features Coming Soon</h2>
 
             <div class="workflow-step">
-                <h3>⚖️ Escalation System for Difficult Cases</h3>
+                <h3>⚖️ Escalation System for Edge Cases</h3>
                 <ul>
-                    <li><strong>User-initiated escalation:</strong> Any contributor can flag a ToC as "committee review" if unsure how to handle it</li>
-                    <li><strong>Committee membership:</strong> Admins designate trusted experts to review edge cases</li>
-                    <li><strong>Resolution workflow:</strong> Committee members can make decisions and provide guidance</li>
+                    <li><strong>User-initiated escalation:</strong> Flag complex ToCs for "committee review"</li>
+                    <li><strong>Committee membership:</strong> Admins designate trusted experts to review difficult cases</li>
+                    <li><strong>Resolution workflow:</strong> Committee members provide guidance and make decisions</li>
                 </ul>
-                <p style="margin-top: 1rem;"><em>Expected Impact:</em> Handles complex bibliographic situations (multi-volume works, partial ToCs, ambiguous attributions) without slowing down regular contributors. Ensures quality on challenging materials.</p>
+                <p style="margin-top: 1rem;"><em>Expected Impact:</em> Handle complex bibliographic situations (multi-volume works, partial ToCs, ambiguous attributions) without slowing down regular contributors.</p>
             </div>
 
             <div class="workflow-step">
                 <h3>🔌 Public API</h3>
                 <ul>
-                    <li><strong>Query by ID:</strong> Open Library ID, Project Gutenberg ID</li>
+                    <li><strong>Query by ID:</strong> Open Library ID, Project Gutenberg ID, Work ID</li>
                     <li><strong>Search by title:</strong> Substring matching for discovery</li>
-                    <li><strong>Return format:</strong> Status + ToC in multiple formats (markdown, XML, JSON)</li>
+                    <li><strong>Return format:</strong> Status + ToC in multiple formats (plaintext, markdown, JSON, MARCXML)</li>
                 </ul>
-                <p style="margin-top: 1rem;"><em>Expected Impact:</em> Developers can integrate ToCoE data into apps, websites, and research tools. Enables automated discovery of whether a ToC exists for a given book.</p>
+                <p style="margin-top: 1rem;"><em>Expected Impact:</em> Developers can integrate ToCoE data into apps, websites, and research tools. Enables automated discovery and retrieval.</p>
             </div>
         </div>
 
-        <!-- Slide 13: The Impact -->
+        <!-- Slide 14: The Impact -->
         <div class="slide">
             <h1>🌍 The Bigger Picture</h1>
             <h2>Why This Matters</h2>
@@ -662,6 +746,7 @@ DANTE</pre>
                 <li>Discover essays and articles buried in anthologies and collections</li>
                 <li>Trace the publication history of individual works across different collections</li>
                 <li>Build citation networks and study scholarly influence</li>
+                <li><strong>Download structured data:</strong> Export verified ToCs in JSON format with authority IDs for computational analysis</li>
             </ul>
 
             <h3>For Libraries</h3>
@@ -669,6 +754,7 @@ DANTE</pre>
                 <li>Enhance catalog records with detailed ToC data at no cost</li>
                 <li>Improve discovery of component parts (articles, essays, chapters)</li>
                 <li>Integrate with linked data ecosystems (Wikidata, VIAF, LC authorities)</li>
+                <li><strong>Future MARCXML export:</strong> Direct import into library catalog systems</li>
             </ul>
 
             <h3>For the Public</h3>
@@ -676,6 +762,7 @@ DANTE</pre>
                 <li>Better search and discovery of knowledge across book collections</li>
                 <li>Free, unrestricted access to comprehensive bibliographic data</li>
                 <li>Participate in building a public good through volunteer contribution</li>
+                <li><strong>Browse without login:</strong> All verified ToCs are publicly accessible</li>
             </ul>
 
             <div class="workflow-step">
@@ -684,7 +771,7 @@ DANTE</pre>
             </div>
         </div>
 
-        <!-- Slide 14: Get Involved -->
+        <!-- Slide 15: Get Involved -->
         <div class="slide">
             <h1>🤝 Get Involved</h1>
             <h2>Join the Community</h2>
@@ -696,18 +783,19 @@ DANTE</pre>
 
             <h3>How to Contribute</h3>
             <ol style="font-size: 1.4rem;">
-                <li>Create a free account on the ToCoE platform</li>
-                <li>Search for a book from Open Library or Gutenberg that interests you</li>
-                <li>Mark ToC pages or transcribe the table of contents</li>
-                <li>Review and verify others' contributions</li>
-                <li>See your work immediately published as CC0 public domain data</li>
+                <li><strong>Sign in with Google:</strong> Fast, secure authentication — no password to remember</li>
+                <li><strong>Search for a book:</strong> Choose from Open Library or Project Gutenberg</li>
+                <li><strong>Follow the 4-step workflow:</strong> Create → Mark Pages → Transcribe → Verify</li>
+                <li><strong>Use contextual help:</strong> Interactive examples and guidance throughout</li>
+                <li><strong>Match authors and subjects:</strong> Link to authority files for maximum discoverability</li>
+                <li><strong>See your work immediately published:</strong> All verified ToCs are publicly accessible as CC0 data</li>
             </ol>
 
             <h3>Skills Needed</h3>
             <p style="font-size: 1.3rem;">None! If you can read a table of contents and type it into a form, you can contribute. The platform handles all the complex bibliographic modeling automatically.</p>
 
             <h3>Time Commitment</h3>
-            <p style="font-size: 1.3rem;">Transcribing a typical ToC takes 5-15 minutes. Contribute as much or as little as you like — every ToC helps build this public resource.</p>
+            <p style="font-size: 1.3rem;">Transcribing a typical ToC takes 5-15 minutes. Use keyboard shortcuts to work faster. Contribute as much or as little as you like — every ToC helps build this public resource.</p>
 
             <div class="cc0-badge" style="font-size: 1.3rem; margin-top: 2rem;">
                 🌍 All contributions are released as CC0 Public Domain
@@ -718,7 +806,7 @@ DANTE</pre>
             </p>
         </div>
 
-        <!-- Slide 15: Thank You -->
+        <!-- Slide 16: Thank You -->
         <div class="slide">
             <div style="text-align: center; padding-top: 10vh;">
                 <h1 style="font-size: 5rem;">Thank You! 📚</h1>

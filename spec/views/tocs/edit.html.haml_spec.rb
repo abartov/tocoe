@@ -148,6 +148,101 @@ RSpec.describe "tocs/edit.html.haml", type: :view do
     end
   end
 
+  context 'Verification UI' do
+    let(:contributor) { User.create!(email: 'contributor@example.com', password: 'password123', password_confirmation: 'password123') }
+
+    context 'when ToC is transcribed' do
+      let(:toc) do
+        Toc.create!(
+          book_uri: 'http://openlibrary.org/books/OL123M',
+          title: 'Test Book',
+          status: :transcribed,
+          contributor: contributor
+        )
+      end
+
+      before do
+        assign(:toc, toc)
+        assign(:authors, [])
+      end
+
+      it 'displays verification alert' do
+        render
+
+        expect(rendered).to have_selector('.alert.alert-success.status-alert')
+        expect(rendered).to match(/📄/)
+      end
+
+      it 'displays verify button when current user is not the contributor' do
+        render
+
+        expect(rendered).to have_button(I18n.t('tocs.show.transcribed_alert.verify_button'))
+      end
+
+      it 'shows disabled verify button when current user is the contributor' do
+        allow(view).to receive(:current_user).and_return(contributor)
+        render
+
+        expect(rendered).to have_selector('button[disabled]', text: I18n.t('tocs.show.transcribed_alert.verify_button'))
+        expect(rendered).to have_content(I18n.t('tocs.show.transcribed_alert.cannot_verify_own'))
+      end
+
+      it 'includes confirmation dialog for verify action' do
+        render
+
+        expect(rendered).to have_selector('form[action="' + verify_toc_path(toc) + '"]')
+        expect(rendered).to have_selector('input[type="submit"][data-confirm]')
+      end
+    end
+
+    context 'when ToC is not transcribed' do
+      let(:toc) do
+        Toc.create!(
+          book_uri: 'http://openlibrary.org/books/OL123M',
+          title: 'Test Book',
+          status: :pages_marked
+        )
+      end
+
+      before do
+        assign(:toc, toc)
+        assign(:authors, [])
+      end
+
+      it 'does not display verification alert' do
+        render
+
+        expect(rendered).not_to have_selector('.alert.alert-success.status-alert')
+        expect(rendered).not_to have_button(I18n.t('tocs.show.transcribed_alert.verify_button'))
+      end
+    end
+
+    context 'when ToC is verified' do
+      let(:reviewer) { User.create!(email: 'reviewer@example.com', password: 'password123', password_confirmation: 'password123') }
+      let(:toc) do
+        Toc.create!(
+          book_uri: 'http://openlibrary.org/books/OL123M',
+          title: 'Test Book',
+          status: :verified,
+          contributor: contributor,
+          reviewer: reviewer
+        )
+      end
+
+      before do
+        assign(:toc, toc)
+        assign(:authors, [])
+      end
+
+      it 'does not display verification alert' do
+        render
+
+        expect(rendered).not_to have_selector('.alert.alert-success.status-alert')
+        expect(rendered).not_to have_button(I18n.t('tocs.show.transcribed_alert.verify_button'))
+      end
+    end
+  end
+
   context 'Simplified OCR section with scan items' do
     context 'when TOC has marked pages (OpenLibrary)' do
       let(:toc) do

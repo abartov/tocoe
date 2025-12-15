@@ -1,5 +1,24 @@
 %h1= t('tocs.edit.title')
 
+- if @toc.transcribed?
+  .alert.alert-success.status-alert{style: 'border-left: 4px solid #38a169; background: #f0fff4; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;'}
+    .d-flex.align-items-start
+      %span{style: 'font-size: 2rem; margin-right: 1rem;'} 📄
+      .flex-grow-1
+        %p{style: 'margin-bottom: 0.75rem;'}
+          %strong{style: 'font-size: 1.1rem; color: #22543d;'}= t('tocs.show.transcribed_alert.title')
+        %p{style: 'color: #2d3748; margin-bottom: 1rem;'}= t('tocs.show.transcribed_alert.description')
+        %p{style: 'margin: 0;'}
+          - if current_user && @toc.contributor_id == current_user.id
+            %button.btn.btn-success{type: 'button', disabled: true, title: t('tocs.show.transcribed_alert.cannot_verify_own'), data: { toggle: 'tooltip' }}
+              %span.glyphicon.glyphicon-lock
+              = t('tocs.show.transcribed_alert.verify_button')
+            %p.text-muted{style: 'margin-top: 0.5rem; font-size: 0.9rem;'}
+              %span.glyphicon.glyphicon-info-sign
+              = t('tocs.show.transcribed_alert.cannot_verify_own')
+          - else
+            = button_to t('tocs.show.transcribed_alert.verify_button'), verify_toc_path(@toc), method: :post, class: 'btn btn-success', data: { confirm: t('tocs.show.transcribed_alert.confirm_verified') }
+
 = render 'form'
 
 = link_to t('common.actions.show'), @toc

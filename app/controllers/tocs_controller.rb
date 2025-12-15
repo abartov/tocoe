@@ -251,6 +251,11 @@ class TocsController < ApplicationController
         @results += get_ocr_from_service(url) + "\n\n"
       end
     end
+
+    respond_to do |format|
+      format.js   # Renders do_ocr.js.erb for legacy support
+      format.json { render json: { results: @results } }
+    end
   end
 
   # GET /tocs/gutenberg_proxy?url=...

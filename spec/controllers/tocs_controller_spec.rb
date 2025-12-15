@@ -614,6 +614,21 @@ RSpec.describe TocsController, type: :controller do
         expect(response.body).to include('$("#paste_ocr").show()')
       end
     end
+
+    context 'JSON response format' do
+      it 'returns OCR results as JSON' do
+        allow(controller).to receive(:valid?).and_return(true)
+        allow(controller).to receive(:get_ocr_from_service).and_return("Line 1\nLine 2\nLine 3")
+
+        post :do_ocr, params: { ocr_images: 'https://archive.org/test.jpg' }, format: :json
+
+        expect(response.content_type).to include('application/json')
+        json_response = JSON.parse(response.body)
+        expect(json_response['results']).to include('Line 1')
+        expect(json_response['results']).to include('Line 2')
+        expect(json_response['results']).to include('Line 3')
+      end
+    end
   end
 
   describe 'POST #mark_transcribed' do

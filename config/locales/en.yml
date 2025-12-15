@@ -330,6 +330,7 @@ en:
         urls_label: "URLs of ToC page images"
         prefilled_help: "Pre-filled with marked TOC pages. Clear to enter different URLs."
         attempt_button: "Attempt OCR"
+        extract_text_button: "Extract Text"
         paste_button: "Paste to ToC textarea"
         processing: "Processing OCR, please wait..."
         no_pages_marked_title: "No TOC pages marked yet."

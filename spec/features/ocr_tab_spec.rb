@@ -28,31 +28,33 @@ RSpec.feature 'OCR tab functionality', type: :feature, js: true do
     allow_any_instance_of(TocsController).to receive(:get_ocr_from_service).and_return('Extracted OCR text')
   end
 
-  scenario 'clicking Attempt OCR button does not raise CSRF error' do
+  scenario 'clicking Extract Text button on individual scans does not raise CSRF error' do
     visit edit_toc_path(toc)
 
     # Click the OCR tab to make it active
     click_link I18n.t('tocs.form.tabs.ocr')
 
     # Wait for OCR tab content to be visible
-    expect(page).to have_selector('#ocr_form', visible: :visible, wait: 5)
+    expect(page).to have_selector('.toc-scans', visible: :visible, wait: 5)
 
-    # The OCR form should be present
-    expect(page).to have_css('#ocr_form')
+    # Should have scan items
+    expect(page).to have_css('.scan-item', count: 2)
 
-    # Find and click the "Attempt OCR" submit button
-    within '#ocr_form' do
-      click_button id: 'ocr_submit'
+    # Find and click the first "Extract Text" button
+    within first('.scan-item') do
+      click_button I18n.t('tocs.form.ocr_section.extract_text_button')
     end
 
     # Wait for AJAX to complete (up to 10 seconds)
     # The button should be re-enabled after OCR completes
-    expect(page).to have_button('ocr_submit', disabled: false, wait: 10)
+    within first('.scan-item') do
+      expect(page).to have_button(I18n.t('tocs.form.ocr_section.extract_text_button'), disabled: false, wait: 10)
 
-    # Results should appear in the #results div
-    expect(page).to have_css('#results')
-    within '#results' do
-      expect(page).to have_content('Extracted OCR text')
+      # Results should appear in the .ocr-result div
+      expect(page).to have_css('.ocr-result', visible: :visible)
+      within '.ocr-result' do
+        expect(page).to have_content('Extracted OCR text')
+      end
     end
 
     # Should NOT see any error messages about CSRF
@@ -60,27 +62,32 @@ RSpec.feature 'OCR tab functionality', type: :feature, js: true do
     expect(page).not_to have_content('authenticity')
   end
 
-  scenario 'OCR results enable paste button' do
+  scenario 'OCR results show paste button for individual scan' do
     visit edit_toc_path(toc)
 
     # Click the OCR tab to make it active
     click_link I18n.t('tocs.form.tabs.ocr')
 
     # Wait for OCR tab content to be visible
-    expect(page).to have_selector('#ocr_form', visible: :visible, wait: 5)
+    expect(page).to have_selector('.toc-scans', visible: :visible, wait: 5)
 
-    # Initially, paste button should be hidden
-    expect(page).to have_css('#paste_ocr', visible: :hidden)
+    # Initially, OCR result containers should be hidden
+    within first('.scan-item') do
+      expect(page).to have_css('.ocr-result-container', visible: :hidden)
+    end
 
-    # Click Attempt OCR button
-    within '#ocr_form' do
-      click_button id: 'ocr_submit'
+    # Click Extract Text button on first scan
+    within first('.scan-item') do
+      click_button I18n.t('tocs.form.ocr_section.extract_text_button')
     end
 
     # Wait for OCR to complete
-    expect(page).to have_button('ocr_submit', disabled: false, wait: 10)
+    within first('.scan-item') do
+      expect(page).to have_button(I18n.t('tocs.form.ocr_section.extract_text_button'), disabled: false, wait: 10)
 
-    # Paste button should now be visible
-    expect(page).to have_css('#paste_ocr', visible: :visible)
+      # Result container should now be visible with paste button
+      expect(page).to have_css('.ocr-result-container', visible: :visible)
+      expect(page).to have_button(I18n.t('tocs.form.ocr_section.paste_button'), visible: :visible)
+    end
   end
 end

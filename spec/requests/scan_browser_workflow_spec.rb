@@ -178,7 +178,7 @@ RSpec.describe 'Scan Browser Workflow', type: :request do
 
       get edit_toc_path(toc)
       expect(response).to have_http_status(:success)
-      expect(response.body).to include('Attempt OCR')
+      expect(response.body).to include(I18n.t('tocs.form.ocr_section.extract_text_button'))
       expect(response.body).to include('https://archive.org/test.jpg')
       expect(response.body).not_to include('No TOC pages marked yet')
     end

@@ -46,62 +46,39 @@
               %h5= t('help.contextual.ocr.tip_title')
               %p= t('help.contextual.ocr.tip_manual_better')
 
-    .panel.panel-default
-      .panel-heading
-        %h4= t('tocs.form.ocr_section.title')
-      .panel-body
-        #ocr_form
+    -# Simplified OCR: show scans directly with Extract Text button on each
+    - if @toc.toc_page_urls.present?
+      .panel.panel-default
+        .panel-heading
+          %h4= t('tocs.form.ocr_section.title')
+        .panel-body
           = hidden_field_tag :toc_id, @toc.id
 
-          .form-group
-            = label_tag t('tocs.form.ocr_section.urls_label'), nil, class: 'control-label'
-            = text_area_tag :ocr_images, @toc.toc_page_urls, rows: 4, class: 'form-control'
-            - if @toc.toc_page_urls.present?
-              %span.help-block= t('tocs.form.ocr_section.prefilled_help')
-            - else
-              %span.help-block= t('tocs.form.ocr_section.urls_help')
+          -# Display each scan with its own Extract Text button
+          .toc-scans
+            - @toc.toc_page_urls.split("\n").map(&:strip).reject(&:blank?).each_with_index do |url, index|
+              .scan-item{style: 'margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px solid #ddd;', data: {url: url, index: index}}
+                .row
+                  .col-md-6
+                    .scan-image-container{style: 'text-align: center;'}
+                      = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail scan-image', style: 'max-width: 100%; height: auto; cursor: pointer;', data: {url: url, index: index}
+                      %p.text-center.small{style: 'margin-top: 5px;'}
+                        = t('tocs.show.page_number', number: index + 1)
+                  .col-md-6
+                    .scan-controls
+                      %button.btn.btn-primary.extract-text-btn{type: 'button', data: {url: url, index: index}}
+                        %span.glyphicon.glyphicon-eye-open
+                        = t('tocs.form.ocr_section.extract_text_button')
+                      .loading-spinner{style: 'display:none; margin-top: 10px;'}
+                        .spinner
+                        %span.loading-text= t('tocs.form.ocr_section.processing')
 
-          .ocr-actions
-            = button_tag t('tocs.form.ocr_section.attempt_button'), id: 'ocr_submit', type: 'button', class: 'btn btn-primary btn-lg'
-            = button_tag(type: 'button', id: 'paste_ocr', class: 'btn btn-success btn-lg', style: 'display: none;') do
-              %span.glyphicon.glyphicon-paste
-              = t('tocs.form.ocr_section.paste_button')
-            #ocr_working.loading-spinner{style: 'display:none; margin-left: 15px;'}
-              .spinner
-              %span.loading-text= t('tocs.form.ocr_section.processing')
-
-          .form-group{style: 'margin-top: 1.5rem;'}
-            = label_tag t('tocs.form.ocr_section.results_label'), nil, class: 'control-label'
-            #results{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f9f9f9; font-family: monospace; font-size: 1rem;'}
-
-    -# Collapsible TOC scans area
-    - if @toc.toc_page_urls.present?
-      .scan-thumbnails-section
-        .panel.panel-default
-          .panel-heading
-            .clearfix
-              %h4{style: 'float: left; margin: 0;'}= t('tocs.form.ocr_section.scans_title')
-              %button.btn.btn-sm.btn-info{type: 'button', 'data-toggle' => 'collapse', 'data-target' => '#tocScansCollapse', style: 'float: right;'}
-                = t('tocs.form.ocr_section.toggle_scans')
-                %span.caret
-          .collapse#tocScansCollapse
-            .panel-body
-              .toc-scans-controls{style: 'margin-bottom: 10px; padding: 10px; background-color: #e9ecef; border: 1px solid #ddd; border-radius: 3px;'}
-                %span{style: 'margin-right: 10px; font-weight: bold;'}
-                  = t('tocs.form.ocr_section.zoom_label')
-                %button.btn.btn-sm.btn-default#zoomInBtn{type: 'button', title: t('tocs.form.ocr_section.zoom_in_title')}
-                  %span{style: 'font-weight: bold; font-size: 16px;'} +
-                %button.btn.btn-sm.btn-default#zoomOutBtn{type: 'button', title: t('tocs.form.ocr_section.zoom_out_title'), style: 'margin-left: 5px;'}
-                  %span{style: 'font-weight: bold; font-size: 16px;'} −
-                %button.btn.btn-sm.btn-default#zoomDefaultBtn{type: 'button', title: t('tocs.form.ocr_section.zoom_default_title'), style: 'margin-left: 5px;'}
-                  %span{style: 'font-weight: bold;'} def
-              .toc-scans-thumbnails{style: 'max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa;'}
-                - @toc.toc_page_urls.split("\n").map(&:strip).reject(&:blank?).each_with_index do |url, index|
-                  .toc-scan-thumb{style: 'display: inline-block; margin: 5px; cursor: pointer; vertical-align: top; width: 450px;', 'data-image-url' => url, 'data-page-number' => index + 1, 'data-default-width' => '450'}
-                    .image-loading-container{style: "height: 500px; width: 450px;"}
-                      = image_tag "#{url}?scale=8", alt: t('tocs.show.page_number', number: index + 1), class: 'img-thumbnail toc-scan-image image-loader', data: { image_id: "ocr-#{index}" }, style: 'width: 450px; height: auto;'
-                    .text-center.small
-                      = t('tocs.show.page_number', number: index + 1)
+                    .ocr-result-container{style: 'margin-top: 15px; display: none;'}
+                      .ocr-result{style: 'max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f9f9f9; font-family: monospace; font-size: 0.9rem; white-space: pre-wrap;'}
+                      .ocr-actions{style: 'margin-top: 10px;'}
+                        %button.btn.btn-success.paste-result-btn{type: 'button', data: {index: index}}
+                          %span.glyphicon.glyphicon-paste
+                          = t('tocs.form.ocr_section.paste_button')
 
     -# Modal for zoomed scan view
     - if @toc.toc_page_urls.present?
@@ -117,43 +94,11 @@
               %img#scanZoomImage{src: '', alt: '', style: 'max-width: 100%; height: auto;'}
 
     :javascript
-      $('#paste_ocr').click(function() {
-        $('#toc_area').val($('#results').text());
-        // Switch to TOC Body tab after pasting
-        $('a[href="#toc-body"]').tab('show');
-      });
-
-      $('#ocr_submit').click(function() {
-        // Disable button and show loading
-        $('#ocr_submit').prop('disabled', true);
-        $('#ocr_working').show();
-        $('#paste_ocr').hide();
-        $('#results').html('');
-
-        // Make AJAX POST request
-        $.ajax({
-          url: '#{tocs_do_ocr_path}',
-          type: 'POST',
-          dataType: 'script',
-          data: {
-            toc_id: $('#toc_id').val(),
-            ocr_images: $('#ocr_images').val()
-          },
-          headers: {
-            'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
-          },
-          error: function(xhr, status, error) {
-            $('#ocr_submit').prop('disabled', false);
-            $('#ocr_working').hide();
-            $('#results').html('<span style="color: red;">Error: ' + error + '</span>');
-          }
-        });
-      });
-
-      // Handle click on scan thumbnails to open zoomed modal
-      $('.toc-scan-thumb').click(function() {
-        var imageUrl = $(this).data('image-url');
-        var pageNumber = $(this).data('page-number');
+      // Handle click on scan images to open zoomed modal
+      $('.scan-image').click(function() {
+        var imageUrl = $(this).data('url');
+        var pageIndex = $(this).data('index');
+        var pageNumber = pageIndex + 1;
         var modalTitle = '#{I18n.t('tocs.show.page_number', number: '__PAGE__').gsub('__PAGE__', '\' + pageNumber + \'')}';
 
         $('#scanZoomModalLabel').text(modalTitle);
@@ -162,43 +107,65 @@
         $('#scanZoomModal').modal('show');
       });
 
-      // Zoom controls for TOC scan thumbnails
-      $('#zoomInBtn').click(function() {
-        $('.toc-scan-thumb').each(function() {
-          var $thumb = $(this);
-          var $img = $thumb.find('.toc-scan-image');
-          var currentWidth = $img.width();
-          var newWidth = Math.round(currentWidth * 1.2);
+      // Handle Extract Text button clicks
+      $('.extract-text-btn').click(function() {
+        var $btn = $(this);
+        var $scanItem = $btn.closest('.scan-item');
+        var $spinner = $scanItem.find('.loading-spinner');
+        var $resultContainer = $scanItem.find('.ocr-result-container');
+        var $result = $scanItem.find('.ocr-result');
+        var url = $btn.data('url');
 
-          $thumb.css('width', newWidth + 'px');
-          $img.css('width', newWidth + 'px');
+        // Disable button and show loading
+        $btn.prop('disabled', true);
+        $spinner.show();
+        $resultContainer.hide();
+        $result.html('');
+
+        // Make AJAX POST request for single image
+        $.ajax({
+          url: '#{tocs_do_ocr_path}',
+          type: 'POST',
+          dataType: 'json',
+          data: {
+            toc_id: $('#toc_id').val(),
+            ocr_images: url
+          },
+          headers: {
+            'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')
+          },
+          success: function(response) {
+            $btn.prop('disabled', false);
+            $spinner.hide();
+            $result.text(response.results);
+            $resultContainer.show();
+          },
+          error: function(xhr, status, error) {
+            $btn.prop('disabled', false);
+            $spinner.hide();
+            $result.html('<span style="color: red;">Error: ' + error + '</span>');
+            $resultContainer.show();
+          }
         });
       });
 
-      $('#zoomOutBtn').click(function() {
-        $('.toc-scan-thumb').each(function() {
-          var $thumb = $(this);
-          var $img = $thumb.find('.toc-scan-image');
-          var currentWidth = $img.width();
-          var newWidth = Math.round(currentWidth * 0.8);
+      // Handle paste button clicks
+      $('.paste-result-btn').click(function() {
+        var $btn = $(this);
+        var $scanItem = $btn.closest('.scan-item');
+        var $result = $scanItem.find('.ocr-result');
+        var currentText = $('#toc_area').val();
+        var ocrText = $result.text();
 
-          // Don't go below 100px
-          if (newWidth < 100) newWidth = 100;
+        // Append to existing text or replace if empty
+        if (currentText.trim() === '') {
+          $('#toc_area').val(ocrText);
+        } else {
+          $('#toc_area').val(currentText + '\n\n' + ocrText);
+        }
 
-          $thumb.css('width', newWidth + 'px');
-          $img.css('width', newWidth + 'px');
-        });
-      });
-
-      $('#zoomDefaultBtn').click(function() {
-        $('.toc-scan-thumb').each(function() {
-          var $thumb = $(this);
-          var $img = $thumb.find('.toc-scan-image');
-          var defaultWidth = $thumb.data('default-width');
-
-          $thumb.css('width', defaultWidth + 'px');
-          $img.css('width', defaultWidth + 'px');
-        });
+        // Switch to TOC Body tab after pasting
+        $('a[href="#toc-body"]').tab('show');
       });
 
   - elsif @is_gutenberg && @fulltext_url

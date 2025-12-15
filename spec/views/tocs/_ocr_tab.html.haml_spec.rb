@@ -27,63 +27,40 @@ RSpec.describe "tocs/_ocr_tab.html.haml", type: :view do
       expect(rendered).to have_selector('.ocr-section')
     end
 
-    it 'displays the OCR form' do
-      expect(rendered).to have_selector('#ocr_form')
+    it 'displays toc_id hidden field' do
+      expect(rendered).to have_selector('input[type="hidden"]#toc_id', visible: :all)
     end
 
-    it 'displays OCR images textarea with pre-filled URLs' do
-      expect(rendered).to have_selector('textarea#ocr_images')
-      expect(rendered).to have_field('ocr_images', with: toc.toc_page_urls)
+    it 'displays scan items container' do
+      expect(rendered).to have_selector('.toc-scans')
     end
 
-    it 'displays attempt OCR button' do
-      expect(rendered).to have_button('Attempt OCR')
+    it 'displays Extract Text button for each scan' do
+      expect(rendered).to have_button('Extract Text', count: 2)
     end
 
-    it 'displays scan thumbnails section' do
-      expect(rendered).to have_selector('.scan-thumbnails-section')
+    it 'displays scan items for each page' do
+      expect(rendered).to have_selector('.scan-item', count: 2)
     end
 
-    it 'displays collapsible TOC scans area' do
-      expect(rendered).to have_selector('#tocScansCollapse.collapse')
+    it 'displays scan images for each page' do
+      expect(rendered).to have_selector('img.scan-image', count: 2)
     end
 
-    it 'displays zoom controls' do
-      expect(rendered).to have_selector('button#zoomInBtn')
-      expect(rendered).to have_selector('button#zoomOutBtn')
-      expect(rendered).to have_selector('button#zoomDefaultBtn')
+    it 'includes scan URLs with scale parameter' do
+      expect(rendered).to have_selector('img[src*="scale=8"]', count: 2)
     end
 
-    it 'renders scan thumbnails' do
-      expect(rendered).to have_selector('.toc-scan-thumb', count: 2)
+    it 'displays paste button for each scan (initially hidden in result container)' do
+      expect(rendered).to have_button('Paste to ToC textarea', count: 2, visible: :all)
     end
 
-    context 'image loading placeholders' do
-      it 'renders image loading containers for each scan' do
-        expect(rendered).to have_selector('.image-loading-container', count: 2)
-      end
+    it 'hides OCR result containers by default' do
+      expect(rendered).to have_selector('.ocr-result-container[style*="display: none"]', count: 2, visible: :all)
+    end
 
-      it 'sets correct dimensions for image containers (450px width, 500px height)' do
-        expect(rendered).to have_selector('.image-loading-container[style*="width: 450px"]', count: 2)
-        expect(rendered).to have_selector('.image-loading-container[style*="height: 500px"]', count: 2)
-      end
-
-      it 'renders images with image-loader class' do
-        expect(rendered).to have_selector('img.image-loader', count: 2)
-      end
-
-      it 'renders images with toc-scan-image class' do
-        expect(rendered).to have_selector('img.toc-scan-image', count: 2)
-      end
-
-      it 'assigns unique image IDs to each image' do
-        expect(rendered).to have_selector('[data-image-id="ocr-0"]', count: 1) # just the img tag
-        expect(rendered).to have_selector('[data-image-id="ocr-1"]', count: 1)
-      end
-
-      it 'includes thumbnail URLs with scale parameter' do
-        expect(rendered).to have_selector('img[src*="scale=8"]', count: 2)
-      end
+    it 'hides loading spinners by default' do
+      expect(rendered).to have_selector('.loading-spinner[style*="display:none"]', count: 2, visible: :all)
     end
 
     it 'displays page numbers below thumbnails' do

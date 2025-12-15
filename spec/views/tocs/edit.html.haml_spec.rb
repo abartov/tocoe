@@ -148,7 +148,7 @@ RSpec.describe "tocs/edit.html.haml", type: :view do
     end
   end
 
-  context 'Collapsible TOC scans area' do
+  context 'Simplified OCR section with scan items' do
     context 'when TOC has marked pages (OpenLibrary)' do
       let(:toc) do
         Toc.create!(
@@ -166,39 +166,30 @@ RSpec.describe "tocs/edit.html.haml", type: :view do
         render
       end
 
-      it 'displays the collapsible scans toggle button' do
-        expect(rendered).to have_selector('button.btn[data-toggle="collapse"][data-target="#tocScansCollapse"]')
-        expect(rendered).to have_content(I18n.t('tocs.form.ocr_section.toggle_scans'))
+      it 'displays the toc-scans container' do
+        expect(rendered).to have_selector('.toc-scans')
       end
 
-      it 'displays the collapsible scans area' do
-        expect(rendered).to have_selector('#tocScansCollapse.collapse')
-        expect(rendered).to have_selector('.toc-scans-thumbnails')
+      it 'displays the correct number of scan items' do
+        expect(rendered).to have_selector('.scan-item', count: 3)
       end
 
-      it 'displays the correct number of scan thumbnails' do
-        expect(rendered).to have_selector('.toc-scan-thumb', count: 3)
+      it 'displays scan images with correct URLs and scale' do
+        expect(rendered).to have_selector('img.scan-image[src="https://archive.org/download/book1/page1.jpg?scale=8"]')
+        expect(rendered).to have_selector('img.scan-image[src="https://archive.org/download/book1/page2.jpg?scale=8"]')
+        expect(rendered).to have_selector('img.scan-image[src="https://archive.org/download/book1/page3.jpg?scale=8"]')
       end
 
-      it 'includes correct data attributes on thumbnails' do
-        expect(rendered).to have_selector('.toc-scan-thumb[data-image-url="https://archive.org/download/book1/page1.jpg"][data-page-number="1"]')
-        expect(rendered).to have_selector('.toc-scan-thumb[data-image-url="https://archive.org/download/book1/page2.jpg"][data-page-number="2"]')
-        expect(rendered).to have_selector('.toc-scan-thumb[data-image-url="https://archive.org/download/book1/page3.jpg"][data-page-number="3"]')
+      it 'displays Extract Text button for each scan' do
+        expect(rendered).to have_button(I18n.t('tocs.form.ocr_section.extract_text_button'), count: 3)
       end
 
-      it 'displays thumbnail images with correct URLs and scale' do
-        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page1.jpg?scale=8"]')
-        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page2.jpg?scale=8"]')
-        expect(rendered).to have_selector('img[src="https://archive.org/download/book1/page3.jpg?scale=8"]')
+      it 'displays paste button for each scan (initially hidden in result container)' do
+        expect(rendered).to have_button(I18n.t('tocs.form.ocr_section.paste_button'), count: 3, visible: :all)
       end
 
-      it 'displays thumbnails with fixed width for compact layout' do
-        expect(rendered).to have_selector('.toc-scan-thumb[style*="width: 450px"]')
-        expect(rendered).to have_selector('img[style*="width: 450px"]')
-      end
-
-      it 'displays thumbnails inline for side-by-side layout' do
-        expect(rendered).to have_selector('.toc-scan-thumb[style*="display: inline-block"]')
+      it 'hides OCR result containers by default' do
+        expect(rendered).to have_selector('.ocr-result-container[style*="display: none"]', count: 3, visible: :all)
       end
 
       it 'displays the zoom modal' do
@@ -207,51 +198,24 @@ RSpec.describe "tocs/edit.html.haml", type: :view do
         expect(rendered).to have_selector('#scanZoomImage')
       end
 
-      it 'includes JavaScript click handler for scan thumbnails' do
-        expect(rendered).to include("$('.toc-scan-thumb').click(function()")
-        expect(rendered).to include("var imageUrl = $(this).data('image-url')")
-        expect(rendered).to include("var pageNumber = $(this).data('page-number')")
+      it 'includes JavaScript click handler for scan images' do
+        expect(rendered).to include("$('.scan-image').click(function()")
+        expect(rendered).to include("var imageUrl = $(this).data('url')")
         expect(rendered).to include("$('#scanZoomModal').modal('show')")
       end
 
-      it 'displays page numbers for each thumbnail' do
+      it 'includes JavaScript handler for Extract Text buttons' do
+        expect(rendered).to include("$('.extract-text-btn').click(function()")
+      end
+
+      it 'includes JavaScript handler for paste buttons' do
+        expect(rendered).to include("$('.paste-result-btn').click(function()")
+      end
+
+      it 'displays page numbers for each scan' do
         expect(rendered).to have_content(I18n.t('tocs.show.page_number', number: 1))
         expect(rendered).to have_content(I18n.t('tocs.show.page_number', number: 2))
         expect(rendered).to have_content(I18n.t('tocs.show.page_number', number: 3))
-      end
-
-      it 'displays zoom controls' do
-        expect(rendered).to have_selector('.toc-scans-controls')
-        expect(rendered).to have_content(I18n.t('tocs.form.ocr_section.zoom_label'))
-      end
-
-      it 'displays zoom in button' do
-        expect(rendered).to have_selector('button#zoomInBtn')
-        expect(rendered).to have_selector('button#zoomInBtn[title*="larger"]')
-      end
-
-      it 'displays zoom out button' do
-        expect(rendered).to have_selector('button#zoomOutBtn')
-        expect(rendered).to have_selector('button#zoomOutBtn[title*="smaller"]')
-      end
-
-      it 'displays zoom default button' do
-        expect(rendered).to have_selector('button#zoomDefaultBtn')
-        expect(rendered).to have_selector('button#zoomDefaultBtn[title*="default"]')
-      end
-
-      it 'includes JavaScript handlers for zoom controls' do
-        expect(rendered).to include("$('#zoomInBtn').click(function()")
-        expect(rendered).to include("$('#zoomOutBtn').click(function()")
-        expect(rendered).to include("$('#zoomDefaultBtn').click(function()")
-      end
-
-      it 'thumbnails have default-width data attribute for zoom reset' do
-        expect(rendered).to have_selector('.toc-scan-thumb[data-default-width="450"]')
-      end
-
-      it 'thumbnail images have toc-scan-image class for zoom targeting' do
-        expect(rendered).to have_selector('img.toc-scan-image')
       end
     end
 
@@ -271,9 +235,8 @@ RSpec.describe "tocs/edit.html.haml", type: :view do
         render
       end
 
-      it 'does not display the collapsible scans area' do
-        expect(rendered).not_to have_selector('.toc-scans-section')
-        expect(rendered).not_to have_content(I18n.t('tocs.form.ocr_section.view_scans_button'))
+      it 'does not display the toc-scans container' do
+        expect(rendered).not_to have_selector('.toc-scans')
       end
 
       it 'does not display the zoom modal' do

@@ -257,6 +257,9 @@ RSpec.describe "tocs/_toc_body_tab.html.haml", type: :view do
   end
 
   context 'markdown help section' do
+    let(:user_with_help) { User.create!(email: 'help@example.com', password: 'password123', password_confirmation: 'password123', help_enabled: true) }
+    let(:user_without_help) { User.create!(email: 'nohelp@example.com', password: 'password123', password_confirmation: 'password123', help_enabled: false) }
+
     let(:toc) do
       Toc.create!(
         book_uri: 'http://openlibrary.org/books/OL123M',
@@ -266,18 +269,21 @@ RSpec.describe "tocs/_toc_body_tab.html.haml", type: :view do
       )
     end
 
-    before do
+    it 'displays enhanced markdown help section when help is enabled' do
+      allow(view).to receive(:current_user).and_return(user_with_help)
       assign(:toc, toc)
       assign(:is_gutenberg, false)
       render partial: 'tocs/toc_body_tab', locals: { f: double('form', label: '', text_area: '') }
+      expect(rendered).to have_selector('.markdown-help-section-enhanced')
+      expect(rendered).to have_selector('#markdownHelpEnhanced.collapse')
     end
 
-    it 'displays markdown help section' do
-      expect(rendered).to have_selector('.markdown-help-section')
-    end
-
-    it 'displays collapsible markdown help' do
-      expect(rendered).to have_selector('#markdownHelp.collapse')
+    it 'does not display markdown help when help is disabled' do
+      allow(view).to receive(:current_user).and_return(user_without_help)
+      assign(:toc, toc)
+      assign(:is_gutenberg, false)
+      render partial: 'tocs/toc_body_tab', locals: { f: double('form', label: '', text_area: '') }
+      expect(rendered).not_to have_selector('.markdown-help-section-enhanced')
     end
   end
 end

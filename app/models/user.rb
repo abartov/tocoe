@@ -8,6 +8,7 @@ class User < ApplicationRecord
   has_many :reviewed_tocs, class_name: 'Toc', foreign_key: :reviewer_id, dependent: :nullify
 
   validates :email, presence: true, uniqueness: { case_sensitive: false }
+  validates :help_enabled, inclusion: { in: [true, false] }
 
   def self.from_omniauth(auth)
     return unless auth&.provider && auth&.uid

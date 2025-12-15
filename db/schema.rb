@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_13_112457) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_15_053747) do
   create_table "aboutnesses", force: :cascade do |t|
     t.bigint "embodiment_id"
     t.string "subject_heading_uri"
@@ -176,7 +176,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_13_112457) do
     t.datetime "updated_at", null: false
     t.boolean "admin", default: false
     t.boolean "editor", default: false
+    t.boolean "help_enabled", default: true, null: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["help_enabled"], name: "index_users_on_help_enabled"
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

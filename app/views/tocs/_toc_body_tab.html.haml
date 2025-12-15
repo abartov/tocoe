@@ -57,40 +57,56 @@
         = f.label t('tocs.form.toc_body_label'), class: 'control-label'
         = f.text_area :toc_body, rows: 20, id: 'toc_area', class: 'form-control toc-textarea', placeholder: t('tocs.form.toc_body_placeholder')
 
-  .markdown-help-section
-    .help-header
-      %h4 📖 #{t('tocs.form.markdown_help_title')}
-      %button.btn.btn-sm.btn-default{type: 'button', 'data-toggle' => 'collapse', 'data-target' => '#markdownHelp'}
-        = t('tocs.form.show_hide_help')
+  - if help_enabled?
+    .markdown-help-section-enhanced
+      .help-header
+        %h4
+          %span.glyphicon.glyphicon-book.help-icon
+          = t('help.contextual.markdown.title')
+        %button.btn.btn-sm.btn-default{type: 'button', 'data-toggle' => 'collapse', 'data-target' => '#markdownHelpEnhanced'}
+          = t('help.contextual.common.show_hide')
 
-    .collapse#markdownHelp
-      .markdown-help{style: 'background: #f7fafc; padding: 1rem; border-radius: 6px; border: 2px solid #e2e8f0; font-size: 0.85rem;'}
-        %div{style: 'line-height: 1.6;'}
-          %p{style: 'margin-bottom: 0.5rem;'}
-            %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-              = "# Title"
-            %span{style: 'color: #4a5568;'}= " - #{t('tocs.form.markdown_help.top_level')}"
-          %p{style: 'margin-bottom: 0.5rem;'}
-            %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-              = "## Title"
-            %span{style: 'color: #4a5568;'}= " - #{t('tocs.form.markdown_help.nested')}"
-          %p{style: 'margin-bottom: 0.5rem;'}
-            %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-              = "# Title || Author"
-            %span{style: 'color: #4a5568;'}= " - #{t('tocs.form.markdown_help.with_author')}"
-          %p{style: 'margin-bottom: 0.5rem;'}
-            %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-              = "# Title || Author1; Author2"
-            %span{style: 'color: #4a5568;'}= " - #{t('tocs.form.markdown_help.multiple_authors')}"
-          %p{style: 'margin-bottom: 0;'}
-            %code{style: 'background: #edf2f7; padding: 0.2rem 0.4rem; border-radius: 3px;'}
-              = "# Section /"
-            %span{style: 'color: #4a5568;'}= " - #{t('tocs.form.markdown_help.section_heading')}"
-          %hr{style: 'margin: 0.75rem 0; border: 0; border-top: 1px solid #e2e8f0;'}
-          %p{style: 'margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;'}
-            = "#{t('tocs.form.markdown_help.example')}:"
-          %pre{style: 'background: #edf2f7; padding: 0.5rem; border-radius: 3px; font-size: 0.75rem; margin: 0;'}
-            = "# Book Title || Author Name\n## Chapter One\n## Chapter Two\n# Part Two /\n## Chapter Three"
+      .collapse.in#markdownHelpEnhanced
+        .help-content-enhanced
+          .row
+            .col-md-6
+              .markdown-syntax-guide
+                %h5= t('help.contextual.markdown.quick_reference_title')
+
+                .syntax-item
+                  %code # Title
+                  %span.syntax-desc= t('help.contextual.markdown.syntax_top_level')
+
+                .syntax-item
+                  %code ## Chapter
+                  %span.syntax-desc= t('help.contextual.markdown.syntax_nested')
+
+                .syntax-item
+                  %code # Title || Author
+                  %span.syntax-desc= t('help.contextual.markdown.syntax_author')
+
+                .syntax-item
+                  %code # Part One /
+                  %span.syntax-desc= t('help.contextual.markdown.syntax_section')
+
+                .help-callout.help-callout-info
+                  %h5= t('help.contextual.markdown.common_mistakes_title')
+                  %ul.small
+                    %li= t('help.contextual.markdown.mistake_no_space')
+                    %li= t('help.contextual.markdown.mistake_single_pipe')
+                    %li= t('help.contextual.markdown.mistake_no_trailing_slash')
+
+            .col-md-6
+              .markdown-live-preview
+                %h5= t('help.contextual.markdown.live_preview_title')
+                %p.small.text-muted= t('help.contextual.markdown.live_preview_desc')
+
+                .preview-input-group
+                  %textarea#markdownPreviewInput.form-control{rows: 8, placeholder: t('help.contextual.markdown.preview_placeholder')}= t('help.contextual.markdown.preview_sample')
+
+                .preview-output-group{style: 'margin-top: 1rem;'}
+                  %label.small= t('help.contextual.markdown.preview_output_label')
+                  #markdownPreviewOutput.preview-output
 
 -# Modal for zoomed scan view (only for Open Library with scans)
 - if @toc.source == 'openlibrary' && @toc.toc_page_urls.present?

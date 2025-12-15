@@ -47,6 +47,7 @@ en:
       subjects: "Subject Headings"
       my_tocs: "My TOCs"
       sign_out: "Sign Out"
+      settings: "Settings"
       help: "Help"
       help_tooltip: "Get help using ToCoE"
       quick_search: "Quick search..."
@@ -767,3 +768,117 @@ en:
       search_failed: "Search failed. Please try again."
       match_failed: "Failed to create association. Please try again."
       details_failed: "Failed to load details."
+
+  # User Settings
+  user_settings:
+    title: "Account Settings"
+    subtitle: "Manage your account preferences and settings"
+    flash:
+      updated_successfully: "Your settings have been updated successfully."
+      update_failed: "Failed to update settings. Please try again."
+    sections:
+      preferences: "Preferences"
+    help_enabled_label: "Show contextual help"
+    help_enabled_description: "Display helpful tips and guides throughout the application. You can toggle this on or off at any time."
+    name_label: "Display Name"
+    email_label: "Email Address"
+
+  # Contextual Help (screen-specific)
+  help:
+    contextual:
+      common:
+        show: "Show"
+        hide: "Hide"
+        show_hide: "Show/Hide Help"
+        learn_more: "Learn more"
+        show_more_tips: "Show more tips"
+
+      browse_scans:
+        title: "How to Select TOC Pages"
+        workflow_title: "Selection Workflow"
+        step1_title: "Click on page thumbnails"
+        step1_desc: "Click anywhere on a page card to select it. You don't need to click the checkbox directly."
+        step2_title: "Review your selection"
+        step2_desc: "Selected pages appear in the sticky header at the top with thumbnails."
+        step3_title: "Save your selection"
+        step3_desc: "Click 'Save Selection' to mark these pages as TOC pages."
+        selection_features_title: "Selection Features"
+        selection_header_desc: "Selected pages show in a sticky header with thumbnails for quick review"
+        click_anywhere_desc: "Click anywhere on a page card to toggle selection"
+        preview_desc: "Click the eye icon for a quick preview, or the thumbnail to zoom"
+        no_toc_title: "No Explicit Table of Contents?"
+        no_toc_desc: "If the book doesn't have a dedicated TOC, check 'No explicit table of contents' and proceed to manual transcription."
+
+      ocr:
+        title: "OCR Help & Tips"
+        when_to_use_title: "When to Use OCR"
+        when_to_use_desc: "OCR works best with clear, high-contrast scans of printed text. Use it to save time on transcription, but always review the results."
+        quality_expectations_title: "Quality Expectations"
+        quality_good: "Good (90%+ accuracy):"
+        quality_good_desc: "Modern printed books with clean scans"
+        quality_fair: "Fair (70-90% accuracy):"
+        quality_fair_desc: "Older books or slightly degraded scans"
+        quality_poor: "Poor (<70% accuracy):"
+        quality_poor_desc: "Handwritten text, very old books, or poor-quality scans"
+        example_title: "Example: Magic Trim Transformation"
+        example_raw_ocr: "Raw OCR Output:"
+        example_raw_text: |
+          Chapter One . . . . . . 15
+          The Adventure Begins       17
+          Chapter Two................23
+        example_after_magic_trim: "After Magic Trim:"
+        example_trimmed_text: |
+          Chapter One || 15
+          The Adventure Begins
+          Chapter Two || 23
+        tip_title: "Pro Tip"
+        tip_manual_better: "If OCR gives messy results, manual transcription is often faster than cleanup!"
+        click_to_highlight: "Click to see transformation animation"
+
+      subjects:
+        intro: "Subject headings help categorize and discover works. Add Library of Congress Subject Headings (LCSH) or accept auto-matched suggestions."
+        match_types_title: "Match Types Explained"
+        exact_match_label: "Exact Match"
+        exact_match_desc: "The imported subject exactly matches an official LCSH term. Highly recommended to accept."
+        suggested_match_label: "Suggested Match"
+        suggested_match_desc: "A related LCSH term that may fit. Review carefully before accepting."
+        what_is_lcsh_title: "What is LCSH?"
+        what_is_lcsh_desc: "Library of Congress Subject Headings are standardized terms used by libraries worldwide to categorize books by topic, genre, and form."
+        learn_more_lcsh: "Learn more about LCSH"
+        auto_match_tooltip_enhanced: "Search Library of Congress for official subject headings matching your imported subjects. Review suggestions carefully before accepting."
+
+      markdown:
+        title: "Markdown Format Reference"
+        quick_reference_title: "Quick Reference"
+        syntax_top_level: "Top-level work in a collection"
+        syntax_nested: "Chapter or section under preceding work"
+        syntax_author: "Work with author name"
+        syntax_section: "Section heading (no entity created)"
+        common_mistakes_title: "Common Mistakes"
+        mistake_no_space: "Forgetting the space after # or ##"
+        mistake_single_pipe: "Using single pipe (|) instead of double (||)"
+        mistake_no_trailing_slash: "Forgetting the trailing slash for section headings"
+        live_preview_title: "Live Preview"
+        live_preview_desc: "Type markdown below to see how it will be structured:"
+        preview_placeholder: "Type your TOC markdown here..."
+        preview_sample: |
+          # The Complete Works || William Shakespeare
+          # Comedies /
+          ## A Midsummer Night's Dream
+          ## Much Ado About Nothing
+        preview_output_label: "How it will appear:"
+
+      search:
+        quick_tip: "Quick Tip:"
+        quick_tip_desc: "Use the advanced search filters to find books with full text available for TOC creation."
+        openlibrary_title: "Open Library"
+        openlibrary_desc: "Comprehensive catalog with scanned books. Best for older public domain works."
+        gutendex_title: "Project Gutenberg"
+        gutendex_desc: "Curated collection of high-quality public domain ebooks with clean text."
+        fulltext_title: "Full Text Filter"
+        fulltext_desc: "Only shows books with complete text available. Required for creating TOCs."
+        fulltext_tooltip_enhanced: "Only show books with publicly available full text. You can only create TOCs for books with full text access."
+
+      subject_headings_index:
+        total_aboutnesses_tooltip: "Total number of subject heading links across all works"
+        unique_headings_tooltip: "Number of distinct subject headings used in the system"

@@ -1,4 +1,6 @@
 module ApplicationHelper
+  include ContextualHelpHelper
+
   def breadcrumbs
     crumbs = []
 

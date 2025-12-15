@@ -1,0 +1,28 @@
+.user-settings-page
+  .page-header
+    %h1= t('user_settings.title')
+    %p.lead= t('user_settings.subtitle')
+
+  = form_for current_user, url: user_settings_path, method: :patch do |f|
+    .panel.panel-default
+      .panel-heading
+        %h3= t('user_settings.sections.preferences')
+      .panel-body
+        .form-group
+          .checkbox
+            = f.label :help_enabled do
+              = f.check_box :help_enabled
+              = t('user_settings.help_enabled_label')
+          %p.help-block= t('user_settings.help_enabled_description')
+
+        .form-group
+          = f.label :name, t('user_settings.name_label')
+          = f.text_field :name, class: 'form-control'
+
+        .form-group
+          = f.label :email, t('user_settings.email_label')
+          = f.email_field :email, class: 'form-control'
+
+    .form-actions{style: 'margin-top: 1rem;'}
+      = f.submit t('common.actions.save'), class: 'btn btn-primary btn-lg'
+      = link_to t('common.actions.cancel'), :back, class: 'btn btn-default'

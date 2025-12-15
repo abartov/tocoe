@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   get "dashboard/index"
   get "dashboard/aboutness", to: "dashboard#aboutness"
   devise_for :users, controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }
+  resource :user_settings, only: [:edit, :update], path: 'settings'
 
   get 'manifestations/show'
 

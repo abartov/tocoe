@@ -5,6 +5,12 @@
     = stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true
     = javascript_include_tag 'application', 'data-turbolinks-track' => true
     = csrf_meta_tags
+    :javascript
+      window.I18nTranslations = {
+        'help.contextual.common.show': "#{I18n.t('help.contextual.common.show')}",
+        'help.contextual.common.hide': "#{I18n.t('help.contextual.common.hide')}",
+        'help.contextual.ocr.click_to_highlight': "#{I18n.t('help.contextual.ocr.click_to_highlight')}"
+      };
   %body{class: "#{controller_name} #{action_name}"}
     #main-container.container-fluid
       %nav.tocoe-navbar
@@ -49,6 +55,7 @@
                   %span.dropdown-arrow ▾
                 .user-dropdown#userDropdown
                   = link_to t('common.nav.my_tocs', default: 'My TOCs'), tocs_path, class: 'dropdown-item'
+                  = link_to raw('<i class="glyphicon glyphicon-cog"></i> ' + t('common.nav.settings')), edit_user_settings_path, class: 'dropdown-item'
                   = link_to t('common.nav.sign_out', default: 'Sign Out'), destroy_user_session_path, method: :delete, class: 'dropdown-item'
             - elsif Devise.omniauth_configs[:google_oauth2]
               = link_to t('home.index.sign_in_button', default: 'Sign in with Google'), user_google_oauth2_omniauth_authorize_path, method: :post, class: 'btn btn-primary'

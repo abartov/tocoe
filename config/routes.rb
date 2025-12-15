@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  # Subject Headings browser - for exploring aboutnesses
+  resources :subject_headings, only: [:index, :show] do
+    collection do
+      get :autocomplete
+    end
+  end
+
   get "dashboard/index"
   get "dashboard/aboutness", to: "dashboard#aboutness"
   devise_for :users, controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }

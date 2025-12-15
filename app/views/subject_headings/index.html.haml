@@ -1,0 +1,140 @@
+.container.my-4
+  .row
+    .col
+      %h1= t('subject_headings.index.title')
+      %p.lead= t('subject_headings.index.subtitle')
+
+  - if @stats[:total_aboutnesses] > 0
+    / Statistics section
+    .row.mb-4
+      .col-12
+        %h2= t('subject_headings.index.statistics_title')
+    .row.mb-4
+      .col-md-4.mb-3
+        .card.h-100
+          .card-body.text-center
+            %h3.display-4= number_with_delimiter(@stats[:total_aboutnesses])
+            %p.text-muted= t('subject_headings.index.stats.total_aboutnesses')
+      .col-md-4.mb-3
+        .card.h-100
+          .card-body.text-center
+            %h3.display-4.text-success= number_with_delimiter(@stats[:verified_aboutnesses])
+            %p.text-muted= t('subject_headings.index.stats.verified_aboutnesses')
+      .col-md-4.mb-3
+        .card.h-100
+          .card-body.text-center
+            %h3.display-4.text-warning= number_with_delimiter(@stats[:proposed_aboutnesses])
+            %p.text-muted= t('subject_headings.index.stats.proposed_aboutnesses')
+
+    .row.mb-4
+      .col-md-4.mb-3
+        .card.h-100
+          .card-body.text-center
+            %h3.display-4= number_with_delimiter(@stats[:unique_headings])
+            %p.text-muted= t('subject_headings.index.stats.unique_headings')
+      .col-md-4.mb-3
+        .card.h-100
+          .card-body.text-center
+            %h3.display-4= number_with_delimiter(@stats[:lcsh_headings])
+            %p.text-muted= t('subject_headings.index.stats.lcsh_headings')
+      .col-md-4.mb-3
+        .card.h-100
+          .card-body.text-center
+            %h3.display-4= number_with_delimiter(@stats[:wikidata_headings])
+            %p.text-muted= t('subject_headings.index.stats.wikidata_headings')
+
+    / Search section
+    .row.mb-4
+      .col-12
+        %h2= t('subject_headings.index.search_title')
+        = form_with url: subject_headings_path, method: :get, local: true, class: 'mb-4' do |f|
+          .input-group
+            = f.text_field :q, value: params[:q], class: 'form-control', placeholder: t('subject_headings.index.search_placeholder')
+            .input-group-append
+              = f.submit t('subject_headings.index.search_button'), class: 'btn btn-primary'
+
+    / Search results or popular headings
+    - if params[:q].present?
+      .row.mb-4
+        .col-12
+          %h2= t('subject_headings.index.search_results_title', query: params[:q])
+          - if @search_results.any?
+            .table-responsive
+              %table.table.table-striped.table-hover
+                %thead
+                  %tr
+                    %th= t('subject_headings.index.table.heading')
+                    %th= t('subject_headings.index.table.source')
+                    %th.text-right= t('subject_headings.index.table.count')
+                    %th
+                %tbody
+                  - @search_results.each do |heading|
+                    %tr
+                      %td
+                        = link_to subject_heading_path(Base64.urlsafe_encode64(heading.subject_heading_uri)) do
+                          = heading.subject_heading_label
+                      %td
+                        %span.badge{class: heading.source_name == 'LCSH' ? 'badge-primary' : 'badge-info'}
+                          = heading.source_name
+                      %td.text-right= number_with_delimiter(heading.aboutness_count)
+                      %td
+                        = link_to t('subject_headings.index.view_details'), subject_heading_path(Base64.urlsafe_encode64(heading.subject_heading_uri)), class: 'btn btn-sm btn-outline-primary'
+          - else
+            .alert.alert-info
+              = t('subject_headings.index.no_results', query: params[:q])
+    - else
+      / Most frequently linked subject headings
+      .row.mb-4
+        .col-12
+          %h2= t('subject_headings.index.popular_title')
+          - if @popular_headings.any?
+            .table-responsive
+              %table.table.table-striped.table-hover
+                %thead
+                  %tr
+                    %th= t('subject_headings.index.table.heading')
+                    %th= t('subject_headings.index.table.source')
+                    %th.text-right= t('subject_headings.index.table.count')
+                    %th
+                %tbody
+                  - @popular_headings.each do |heading|
+                    %tr
+                      %td
+                        = link_to subject_heading_path(Base64.urlsafe_encode64(heading.subject_heading_uri)) do
+                          = heading.subject_heading_label
+                      %td
+                        %span.badge{class: heading.source_name == 'LCSH' ? 'badge-primary' : 'badge-info'}
+                          = heading.source_name
+                      %td.text-right= number_with_delimiter(heading.aboutness_count)
+                      %td
+                        = link_to t('subject_headings.index.view_details'), subject_heading_path(Base64.urlsafe_encode64(heading.subject_heading_uri)), class: 'btn btn-sm btn-outline-primary'
+
+    / Latest aboutnesses
+    .row.mb-4
+      .col-12
+        %h2= t('subject_headings.index.latest_title')
+        - if @latest_aboutnesses.any?
+          .table-responsive
+            %table.table.table-striped.table-hover
+              %thead
+                %tr
+                  %th= t('subject_headings.index.table.heading')
+                  %th= t('subject_headings.index.table.source')
+                  %th= t('subject_headings.index.table.added')
+                  %th
+              %tbody
+                - @latest_aboutnesses.each do |aboutness|
+                  %tr
+                    %td
+                      = link_to subject_heading_path(Base64.urlsafe_encode64(aboutness.subject_heading_uri)) do
+                        = aboutness.subject_heading_label
+                    %td
+                      %span.badge{class: aboutness.source_name == 'LCSH' ? 'badge-primary' : 'badge-info'}
+                        = aboutness.source_name
+                    %td= time_ago_in_words(aboutness.created_at) + ' ago'
+                    %td
+                      = link_to t('subject_headings.index.view_details'), subject_heading_path(Base64.urlsafe_encode64(aboutness.subject_heading_uri)), class: 'btn btn-sm btn-outline-primary'
+
+  - else
+    .alert.alert-info
+      = t('subject_headings.index.no_aboutnesses')

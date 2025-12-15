@@ -1,0 +1,83 @@
+.container.my-4
+  .row
+    .col
+      = link_to subject_headings_path, class: 'btn btn-outline-secondary mb-3' do
+        %i.fas.fa-arrow-left
+        = t('subject_headings.show.back_to_browse')
+
+      %h1= t('subject_headings.show.title', label: @subject_heading_label)
+
+  / Statistics section
+  .row.mb-4
+    .col-12
+      %h2= t('subject_headings.show.statistics_title')
+  .row.mb-4
+    .col-md-4.mb-3
+      .card.h-100
+        .card-body.text-center
+          %h3.display-4= number_with_delimiter(@total_links)
+          %p.text-muted= t('subject_headings.show.stats.total_links')
+    .col-md-4.mb-3
+      .card.h-100
+        .card-body.text-center
+          %h3.display-4.text-success= number_with_delimiter(@verified_links)
+          %p.text-muted= t('subject_headings.show.stats.verified_links')
+    .col-md-4.mb-3
+      .card.h-100
+        .card-body.text-center
+          %h3.display-4.text-warning= number_with_delimiter(@proposed_links)
+          %p.text-muted= t('subject_headings.show.stats.proposed_links')
+
+  / Subject heading details
+  .row.mb-4
+    .col-12
+      .card
+        .card-body
+          %p
+            %strong= t('subject_headings.show.source_label')
+            %span.badge.ml-2{class: @source_name == 'LCSH' ? 'badge-primary' : 'badge-info'}
+              = @source_name
+          %p
+            %strong= t('subject_headings.show.uri_label')
+            %code.ml-2= @subject_heading_uri
+
+          - if @source_name == 'LCSH' || @source_name == 'Wikidata'
+            %p
+              %strong= t('subject_headings.show.external_links_title')
+              - if @source_name == 'LCSH'
+                = link_to @subject_heading_uri, class: 'btn btn-sm btn-outline-primary ml-2', target: '_blank', rel: 'noopener' do
+                  %i.fas.fa-external-link-alt
+                  = t('subject_headings.show.view_on_lcsh')
+              - elsif @source_name == 'Wikidata'
+                = link_to @subject_heading_uri, class: 'btn btn-sm btn-outline-primary ml-2', target: '_blank', rel: 'noopener' do
+                  %i.fas.fa-external-link-alt
+                  = t('subject_headings.show.view_on_wikidata')
+
+  / Linked works
+  .row.mb-4
+    .col-12
+      %h2= t('subject_headings.show.linked_works_title')
+      - if @linked_works.any?
+        .table-responsive
+          %table.table.table-striped.table-hover
+            %thead
+              %tr
+                %th= t('subject_headings.show.work_title')
+                %th= t('subject_headings.show.work_authors')
+                %th
+            %tbody
+              - @linked_works.each do |work|
+                %tr
+                  %td= work.title
+                  %td
+                    - if work.creators.any?
+                      = work.creators.map(&:name).join('; ')
+                    - else
+                      %em.text-muted No authors listed
+                  %td
+                    - if work.expressions.any? && work.expressions.first.embodiments.any?
+                      - embodiment = work.expressions.first.embodiments.first
+                      = link_to t('subject_headings.show.view_work'), embodiment_aboutnesses_path(embodiment), class: 'btn btn-sm btn-outline-primary'
+      - else
+        .alert.alert-info
+          = t('subject_headings.show.no_works')

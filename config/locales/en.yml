@@ -480,6 +480,52 @@ en:
       publication_label: "From publication:"
       existing_subjects: "Existing subjects:"
 
+  # Subject Headings browser
+  subject_headings:
+    index:
+      title: "Browse Subject Headings"
+      subtitle: "Explore subject headings and their connections to works"
+      statistics_title: "Statistics"
+      latest_title: "Latest Subject Headings Added"
+      popular_title: "Most Frequently Linked Subject Headings"
+      search_title: "Search Subject Headings"
+      search_placeholder: "Search for a subject heading..."
+      search_button: "Search"
+      search_results_title: "Search Results for \"%{query}\""
+      no_results: "No subject headings found matching \"%{query}\""
+      stats:
+        total_aboutnesses: "Total Aboutness Links"
+        verified_aboutnesses: "Verified"
+        proposed_aboutnesses: "Proposed"
+        unique_headings: "Unique Subject Headings"
+        lcsh_headings: "LCSH Headings"
+        wikidata_headings: "Wikidata Headings"
+      table:
+        heading: "Subject Heading"
+        source: "Source"
+        count: "Links"
+        added: "Added"
+      view_details: "View Details"
+      no_aboutnesses: "No subject headings have been added yet. Start by adding subject headings to works!"
+    show:
+      title: "Subject Heading: %{label}"
+      back_to_browse: "Back to Browse"
+      statistics_title: "Statistics"
+      linked_works_title: "Works Linked to this Subject"
+      stats:
+        total_links: "Total Links"
+        verified_links: "Verified"
+        proposed_links: "Proposed"
+      source_label: "Source:"
+      uri_label: "URI:"
+      work_title: "Title"
+      work_authors: "Authors"
+      view_work: "View"
+      no_works: "No works are linked to this subject heading yet."
+      external_links_title: "External Links"
+      view_on_lcsh: "View on Library of Congress"
+      view_on_wikidata: "View on Wikidata"
+
   # Help page
   help:
     index:

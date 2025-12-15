@@ -18,7 +18,7 @@
               %li= link_to '🏠 ' + t('common.nav.dashboard', default: 'Dashboard'), root_path, class: nav_link_class(root_path)
               %li= link_to '🔍 ' + t('common.nav.search', default: 'Search'), publications_search_path, class: nav_link_class(publications_search_path)
               %li= link_to '📚 ' + t('common.nav.tocs', default: 'TOCs'), tocs_path, class: nav_link_class(tocs_path)
-              %li= link_to '🏷️ ' + t('common.nav.subjects', default: 'Subject Headings'), dashboard_aboutness_path, class: nav_link_class(dashboard_aboutness_path)
+              %li= link_to '🏷️ ' + t('common.nav.subjects', default: 'Subject Headings'), subject_headings_path, class: nav_link_class(subject_headings_path)
               %li= link_to raw('<i class="glyphicon glyphicon-question-sign"></i> ' + t('common.nav.help', default: 'Help')), help_path, class: nav_link_class(help_path), title: t('common.nav.help_tooltip', default: 'Get help using ToCoE')
 
           - if user_signed_in?
